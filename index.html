@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Prompter CFO by N3: arma el prompt del Agente Orquestador y de los 16 agentes verticales del CFO, sin consumir tokens.">
+<title>Prompter CFO by N3</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800;900&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: N3 Prompter look — dark grid ground, red glow, two columns: build (left) / live prompt (right, sticky) */
+:root{
+  --bg:#06060c; --panel:rgba(255,255,255,.03); --panel-2:rgba(255,255,255,.055);
+  --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.14);
+  --fg:#f1f5f9; --muted:#a1a1aa; --dim:#71717a;
+  --accent:#e7000b; --accent-soft:rgba(231,0,11,.13); --accent-line:rgba(231,0,11,.45);
+  --ok:#22c55e;
+  --font:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.5;
+  background-image:
+    radial-gradient(ellipse 60% 40% at 50% -5%, rgba(231,0,11,.20), transparent 70%),
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size:auto, 56px 56px, 56px 56px;
+  background-attachment:fixed;
+}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:24px;padding-block:36px 56px}
+@media (max-width:520px){.wrap{padding-inline:16px;padding-block:24px 40px}}
+
+/* header */
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:40px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.02em}
+.brand .mark{width:30px;height:30px;background:var(--accent);display:grid;place-items:center;font-weight:900;color:#fff;font-size:15px}
+.brand small{display:block;font-weight:500;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.free{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:6px 10px;border-radius:999px;background:var(--panel)}
+.free b{color:var(--ok);font-weight:600}
+
+.hero{max-width:760px;margin-bottom:28px}
+.badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#fca5a5;background:var(--accent-soft);border:1px solid var(--accent-line);padding:5px 12px;border-radius:999px;margin-bottom:16px}
+.badge i{width:6px;height:6px;border-radius:50%;background:var(--accent);display:block}
+h1{margin:0;font-size:clamp(40px,7vw,68px);line-height:1;font-weight:900;letter-spacing:-.03em;text-wrap:balance}
+h1 span{font-size:.32em;font-weight:500;letter-spacing:0;color:var(--muted);vertical-align:middle;margin-left:10px;font-family:var(--mono)}
+.hero p{color:var(--muted);font-size:17px;margin:16px 0 0;max-width:62ch}
+
+/* shared strip + tabs */
+.shared{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:28px 0 18px}
+@media (max-width:760px){.shared{grid-template-columns:1fr}}
+
+.picker{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.1fr);gap:12px;align-items:end;border:1px solid var(--accent-line);background:linear-gradient(var(--accent-soft),var(--accent-soft)),var(--bg);border-radius:12px;padding:18px 20px;margin-bottom:28px}
+@media (max-width:860px){.picker{grid-template-columns:1fr}}
+.step{position:relative}
+.stepn{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;font-weight:700;position:absolute;left:0;top:0}
+.step b{padding-left:28px;line-height:20px}
+.pickinfo{font-size:13px;color:var(--muted);align-self:center}
+.pickinfo strong{color:var(--fg);font-weight:600;display:block;font-size:14px}
+.grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:28px;align-items:start}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+
+.coltitle{font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:0 0 14px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.coltitle button{letter-spacing:.04em;text-transform:none}
+
+/* sections */
+.sec{border:1px solid var(--line);background:var(--panel);padding:20px;margin-bottom:12px;border-radius:12px}
+.sec.sph{border-color:var(--accent-line);background:linear-gradient(var(--accent-soft),var(--accent-soft)),var(--bg)}
+.sechead{display:flex;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.sechead h3{margin:0;font-size:16px;font-weight:600}
+.tag{font-family:var(--mono);font-size:12px;color:#fca5a5}
+.sph-chip{margin-left:auto;font-size:10px;font-weight:700;letter-spacing:.12em;background:var(--accent);color:#fff;padding:3px 8px;border-radius:999px}
+.hint{color:var(--dim);font-size:13px;margin:-6px 0 14px}
+
+.fields{display:grid;gap:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.two{grid-template-columns:1fr}}
+label.f{display:grid;gap:6px;font-size:13px;color:var(--muted);font-weight:500}
+label.f b{color:var(--fg);font-weight:600}
+input[type=text],input[type=number],select,textarea{
+  width:100%;background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--fg);
+  font:400 14px/1.45 var(--font);padding:10px 12px;border-radius:10px;
+}
+textarea{resize:vertical;min-height:62px}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:34px}
+select option{background:#111118;color:var(--fg)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent-line);box-shadow:0 0 0 3px var(--accent-soft)}
+::placeholder{color:#52525b}
+
+.checks{display:grid;gap:8px}
+.checks.cols{grid-template-columns:1fr 1fr}
+@media (max-width:560px){.checks.cols{grid-template-columns:1fr}}
+.ck{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--fg);cursor:pointer}
+.ck input{margin:3px 0 0;accent-color:var(--accent);width:16px;height:16px;flex:none}
+.ck small{display:block;color:var(--dim);font-size:12px}
+.blk{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:10px 0 2px;grid-column:1/-1}
+.blk:first-child{margin-top:0}
+
+/* output */
+.out{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:14px}
+.card{border:1px solid var(--line);background:rgba(10,10,18,.85);border-radius:12px;overflow:hidden}
+.cardbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.dots{display:flex;gap:6px}.dots i{width:9px;height:9px;border-radius:50%;background:var(--accent);display:block;opacity:.9}
+.meta{font-family:var(--mono);font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+pre#prompt{margin:0;padding:18px;font:400 12.5px/1.65 var(--mono);color:#d4d4d8;white-space:pre-wrap;word-break:break-word;max-height:58vh;overflow:auto}
+@media (max-width:980px){pre#prompt{max-height:none}}
+pre#prompt .t{color:#f87171}
+pre#prompt .h{color:var(--fg);font-weight:500}
+pre#prompt .e{color:#fbbf24}
+.actions{display:flex;gap:10px;padding:14px 16px;border-top:1px solid var(--line);flex-wrap:wrap}
+.btn{appearance:none;border:1px solid var(--line-2);background:var(--panel-2);color:var(--fg);font:600 14px/1 var(--font);padding:12px 16px;border-radius:12px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn:hover{border-color:rgba(255,255,255,.28)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;flex:1;justify-content:center}
+.btn.primary:hover{background:#c70009}
+.btn.ghost{background:none;font-size:12px;padding:6px 10px;border-radius:8px;color:var(--muted)}
+.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.launch{padding:16px}
+.launch h4{margin:0 0 4px;font-size:14px;font-weight:600}
+.launch p{margin:0 0 12px;color:var(--dim);font-size:12.5px}
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.tools a{font-size:13px;padding:10px 12px;justify-content:center;border-radius:10px}
+.note{font-size:12.5px;color:var(--dim);display:flex;gap:8px;align-items:flex-start}
+.note b{color:var(--ok);font-weight:600}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateX(-50%);background:var(--fg);color:var(--bg);font-weight:600;font-size:14px;padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+.casos{margin-top:48px}
+.casos h2{margin:0 0 18px;font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.02em}
+.casegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.case{display:grid;gap:6px;padding:18px;border:1px solid var(--line);background:var(--panel);border-radius:12px;color:var(--fg);text-decoration:none}
+.case:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+.case .cn{font-family:var(--mono);font-size:12px;color:#fca5a5}
+.case b{font-weight:600}
+.case small{color:var(--muted);font-size:12.5px}
+footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);color:var(--dim);font-size:12.5px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><div class="mark">N3</div><div>Thinktech IA Laboratory<small>Agentes para el CFO</small></div></div>
+    <div class="free"><b>●</b> Funciona en tu navegador · 0 tokens</div>
+  </div>
+
+  <header class="hero">
+    <div class="badge"><i></i>Herramienta gratuita</div>
+    <h1>Prompter CFO<span>by N3 · v1.0</span></h1>
+    <p>Llena los campos y se arma el prompt de tu Agente Orquestador o de cualquiera de los 16 agentes verticales. Cópialo y pégalo en tu IA favorita.</p>
+  </header>
+
+  <div class="shared">
+    <label class="f"><b>Empresa</b><input type="text" id="empresa" value="Grupo Industrial del Norte"></label>
+    <label class="f"><b>Industria</b><input type="text" id="industria" value="manufactura de autopartes"></label>
+    <label class="f"><b>Nombre del CFO</b><input type="text" id="cfo" value="" placeholder="Opcional"></label>
+  </div>
+
+  <section class="picker" aria-label="Qué quieres crear">
+    <label class="f step"><span class="stepn">1</span><b>¿Qué agente quieres crear?</b>
+      <select id="tipo">
+        <option value="ago">Agente Orquestador (AGO)</option>
+        <optgroup label="Agentes verticales (AVS) por bloque">
+          <option value="op">Bloque 1 · Operación contable</option>
+          <option value="fpa">Bloque 2 · Planeación y análisis (FP&amp;A)</option>
+          <option value="rc">Bloque 3 · Riesgo y cumplimiento</option>
+          <option value="tes">Bloque 4 · Tesorería y capital</option>
+          <option value="est">Bloque 5 · Estrategia y comunicación</option>
+        </optgroup>
+      </select></label>
+    <label class="f step" id="step2" hidden><span class="stepn">2</span><b>Agente del bloque</b><select id="agente"></select></label>
+    <div class="pickinfo" id="pickinfo"></div>
+  </section>
+
+  <div class="grid">
+    <div>
+      <p class="coltitle">Construye tu prompt <button class="btn ghost" id="clear">Vaciar campos</button></p>
+
+      <!-- ============ AGO ============ -->
+      <div id="form-ago">
+        <section class="sec">
+          <div class="sechead"><span class="num">01</span><h3>Rol y mandato</h3><span class="tag">&lt;rol&gt;</span></div>
+          <div class="fields">
+            <label class="f"><b>¿Qué puede hacer el AGO?</b>
+              <select id="mandato">
+                <option>Recomienda y explica; no ejecuta ninguna acción</option>
+                <option>Ejecuta solo con aprobación explícita del CFO</option>
+                <option>Ejecuta dentro de los umbrales aprobados y reporta</option>
+              </select></label>
+          </div>
+        </section>
+
+        <section class="sec sph">
+          <div class="sechead"><span class="num">02</span><h3>algoritYO del CFO</h3><span class="tag">&lt;sph_cfo&gt;</span><span class="sph-chip">SPH</span></div>
+          <p class="hint">Los 5 elementos del modelo Thinktech. Escríbelos como los diría el CFO.</p>
+          <div class="fields">
+            <label class="f"><b>Pensamientos</b><textarea id="sph_pen">Prioriza liquidez sobre crecimiento. Toda inversión debe recuperarse en menos de 24 meses.</textarea></label>
+            <label class="f"><b>Sentimientos</b><textarea id="sph_sen">Cuida el impacto en las personas: ningún recorte se comunica sin plan para el equipo afectado.</textarea></label>
+            <label class="f"><b>Paradigmas</b><textarea id="sph_par">El margen se gana en la operación, no en el precio. La deuda es una herramienta, no un recurso de emergencia.</textarea></label>
+            <label class="f"><b>Miedos</b><textarea id="sph_mie">Romper un covenant bancario, quedarse sin caja en temporada baja, una multa del SAT.</textarea></label>
+            <label class="f"><b>Valores</b><textarea id="sph_val">Transparencia con el consejo, cero tolerancia a operaciones de procedencia dudosa, cumplimiento antes que ahorro.</textarea></label>
+          </div>
+        </section>
+
+        <section class="sec">
+          <div class="sechead"><span class="num">03</span><h3>Contexto de negocio</h3><span class="tag">&lt;contexto&gt;</span></div>
+          <div class="fields">
+            <label class="f"><b>Estrategia y metas del año</b><textarea id="estrategia">EBITDA de 18% al cierre del año, reducir días de cartera de 62 a 45 y refinanciar la deuda de corto plazo.</textarea></label>
+            <div class="two">
+              <label class="f"><b>Apetito de riesgo</b><select id="riesgo"><option>Conservador</option><option selected>Moderado</option><option>Agresivo</option></select></label>
+              <label class="f"><b>El consejo sesiona</b><select id="consejo"><option>cada mes</option><option selected>cada trimestre</option><option>cada semestre</option></select></label>
+            </div>
+          </div>
+        </section>
+
+        <section class="sec">
+          <div class="sechead"><span class="num">04</span><h3>Directorio de agentes</h3><span class="tag">&lt;directorio_avs&gt;</span></div>
+          <p class="hint">Marca los agentes verticales que el AGO puede llamar.</p>
+          <div class="checks cols" id="dir"></div>
+        </section>
+
+        <section class="sec">
+          <div class="sechead"><span class="num">05</span><h3>Reglas de orquestación</h3><span class="tag">&lt;orquestacion&gt;</span></div>
+          <div class="checks" id="orq"></div>
+        </section>
+
+        <section class="sec sph">
+          <div class="sechead"><span class="num">06</span><h3>Umbrales al humano</h3><span class="tag">&lt;escalamiento&gt;</span><span class="sph-chip">MIEDOS</span></div>
+          <div class="fields">
+            <div class="two">
+              <label class="f"><b>Monto que siempre sube al CFO</b><input type="number" id="monto" value="500000" min="0" step="10000"></label>
+              <label class="f"><b>Moneda</b><select id="moneda"><option>MXN</option><option>USD</option></select></label>
+            </div>
+            <div class="checks" id="esc"></div>
+            <label class="f"><b>Otro caso que deba escalar</b><input type="text" id="esc_extra" value="" placeholder="Ej. cualquier cambio de proveedor crítico"></label>
+          </div>
+        </section>
+
+        <section class="sec">
+          <div class="sechead"><span class="num">07</span><h3>Formato de respuesta</h3><span class="tag">&lt;formato&gt;</span></div>
+          <div class="fields">
+            <div class="two">
+              <label class="f"><b>Estructura</b><select id="estructura"><option>Resumen ejecutivo de 3 líneas + tabla de soporte</option><option>Solo resumen ejecutivo</option><option>Reporte detallado por sección</option></select></label>
+              <label class="f"><b>Idioma</b><select id="idioma"><option>Español</option><option>Inglés</option></select></label>
+            </div>
+            <div class="checks" id="fmt"></div>
+          </div>
+        </section>
+
+        <section class="sec sph">
+          <div class="sechead"><span class="num">08</span><h3>Memoria de decisiones</h3><span class="tag">&lt;memoria&gt;</span><span class="sph-chip">SPH</span></div>
+          <div class="checks" id="mem"></div>
+        </section>
+      </div>
+
+      <!-- ============ AVS ============ -->
+      <div id="form-avs" hidden>
+        <section class="sec">
+          <div class="sechead"><span class="num">01</span><h3>Rol acotado</h3><span class="tag">&lt;rol&gt;</span></div>
+          <label class="f"><b>Su única función</b><textarea id="v_rol"></textarea></label>
+        </section>
+        <section class="sec">
+          <div class="sechead"><span class="num">02</span><h3>Fuentes y herramientas</h3><span class="tag">&lt;fuentes&gt;</span></div>
+          <label class="f"><b>Una fuente por línea</b><textarea id="v_fuentes" rows="4"></textarea></label>
+        </section>
+        <section class="sec">
+          <div class="sechead"><span class="num">03</span><h3>Lógica disciplinar</h3><span class="tag">&lt;reglas_dominio&gt;</span></div>
+          <label class="f"><b>Normas y políticas que definen qué es correcto</b><textarea id="v_reglas"></textarea></label>
+        </section>
+        <section class="sec sph">
+          <div class="sechead"><span class="num">04</span><h3>Herencia del SPH</h3><span class="tag">&lt;guardarrailes&gt;</span><span class="sph-chip">SPH</span></div>
+          <p class="hint">Se toma el texto que capturaste en la pestaña AGO. Su bloque sugiere 2 elementos.</p>
+          <div class="checks cols" id="v_sph"></div>
+        </section>
+        <section class="sec">
+          <div class="sechead"><span class="num">05</span><h3>Procedimiento</h3><span class="tag">&lt;procedimiento&gt;</span></div>
+          <label class="f"><b>Un paso por línea, en orden</b><textarea id="v_pasos" rows="4"></textarea></label>
+        </section>
+        <section class="sec">
+          <div class="sechead"><span class="num">06</span><h3>Límites y escalamiento</h3><span class="tag">&lt;limites&gt;</span></div>
+          <label class="f"><b>Qué no hace nunca y cuándo devuelve al AGO</b><textarea id="v_limites"></textarea></label>
+        </section>
+        <section class="sec">
+          <div class="sechead"><span class="num">07</span><h3>Contrato de salida</h3><span class="tag">&lt;salida&gt;</span></div>
+          <label class="f"><b>Formato que consume el AGO</b><select id="v_salida"><option value="json">JSON estructurado</option><option value="tabla">Tabla de una fila por hallazgo</option></select></label>
+        </section>
+        <section class="sec">
+          <div class="sechead"><span class="num">08</span><h3>Métricas de calidad</h3><span class="tag">&lt;metricas&gt;</span></div>
+          <label class="f"><b>Cómo se mide si funciona</b><input type="text" id="v_metricas"></label>
+        </section>
+      </div>
+    </div>
+
+    <aside class="out">
+      <p class="coltitle" style="margin:0">Se arma tu prompt</p>
+      <div class="card">
+        <div class="cardbar"><div class="dots"><i></i><i></i><i></i></div><span class="meta" id="meta">0 palabras</span></div>
+        <pre id="prompt" tabindex="0" aria-live="polite"></pre>
+        <div class="actions"><button class="btn primary" id="copy">Copiar prompt</button></div>
+      </div>
+      <div class="card launch">
+        <h4>Lánzalo en tu herramienta</h4>
+        <p>Copiamos el prompt y abrimos la herramienta. Solo pégalo (Ctrl+V o Cmd+V).</p>
+        <div class="tools">
+          <a class="btn" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a>
+          <a class="btn" href="https://claude.ai/new" target="_blank" rel="noopener">Claude</a>
+          <a class="btn" href="https://gemini.google.com/app" target="_blank" rel="noopener">Gemini</a>
+          <a class="btn" href="https://copilot.microsoft.com/" target="_blank" rel="noopener">Copilot</a>
+          <a class="btn" href="https://www.meta.ai/" target="_blank" rel="noopener">Meta AI</a>
+        </div>
+      </div>
+      <div class="note"><span>●</span><span>El prompt se arma en tu navegador. <b>No se envía nada</b> ni se consumen tokens hasta que tú lo pegues en una IA.</span></div>
+    </aside>
+  </div>
+
+
+  <section class="casos" id="casos">
+    <p class="coltitle">Casos para practicar</p>
+    <h2>Descarga un caso, arma tu prompt y adjúntalo a tu IA</h2>
+    <div class="casegrid">
+      <a class="case" href="caso1-cuentas-por-pagar.xlsx" download><span class="cn">01</span><b>Facturas duplicadas en cuentas por pagar</b><small>Bloque 1 · Cuentas por pagar</small></a>
+      <a class="case" href="caso2-cobranza.xlsx" download><span class="cn">02</span><b>Cartera vencida: a quién cobrar primero</b><small>Bloque 1 · Cobranza</small></a>
+      <a class="case" href="caso3-presupuesto-vs-real.xlsx" download><span class="cn">03</span><b>El EBITDA del trimestre quedó abajo del presupuesto</b><small>Bloque 2 · Presupuesto vs. real</small></a>
+      <a class="case" href="caso4-pld-proveedores.xlsx" download><span class="cn">04</span><b>Proveedores con señales de riesgo PLD</b><small>Bloque 3 · PLD</small></a>
+      <a class="case" href="caso5-covenants.xlsx" download><span class="cn">05</span><b>¿Rompemos un covenant en el cuarto trimestre?</b><small>Bloque 4 · Deuda y covenants</small></a>
+      <a class="case" href="caso6-orquestador-inversion.xlsx" download><span class="cn">06</span><b>¿Compramos la línea de estampado de $45 millones?</b><small>Agente Orquestador</small></a>
+    </div>
+    <p class="hint" style="margin-top:12px">Datos hipotéticos de una empresa ficticia, creados para práctica. Archivos de Excel (.xlsx).</p>
+  </section>
+
+  <footer><span>© 2026 N3 Thinktech IA Laboratory · Potenttial Group</span><span>Basado en el modelo de metacognición Thinktech (SPH + SPA)</span></footer>
+</div>
+<div class="toast" id="toast" role="status">¡Copiado!</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const SPH = [["pen","Pensamientos"],["sen","Sentimientos"],["par","Paradigmas"],["mie","Miedos"],["val","Valores"]];
+const BLOCKS = {
+  op:{n:"Operación contable", src:["ERP y libro mayor","Estados bancarios","CFDI y portal del SAT","Catálogo y políticas contables"], reglas:"NIF mexicanas y políticas contables de la empresa.", sph:["pen","val"]},
+  fpa:{n:"Planeación y análisis (FP&A)", src:["ERP","Presupuesto aprobado","CRM y ventas","Histórico de resultados","Indicadores macroeconómicos"], reglas:"Metodología de presupuesto de la empresa y umbral de materialidad para explicar variaciones.", sph:["pen","par"]},
+  rc:{n:"Riesgo y cumplimiento", src:["Regulación del SAT","Bitácoras del ERP","Repositorio de contratos","Políticas internas"], reglas:"Código Fiscal de la Federación y políticas de control interno.", sph:["mie","val"]},
+  tes:{n:"Tesorería y capital", src:["Banca multibanco","Contratos de deuda","Mercado: tipo de cambio y tasas","Forecast de flujo"], reglas:"Política de tesorería e inversiones y covenants vigentes.", sph:["mie","pen"]},
+  est:{n:"Estrategia y comunicación", src:["Salidas de los demás agentes","Reportes públicos de competidores","Noticias del sector","Plantillas del consejo"], reglas:"Lineamientos de comunicación al consejo; solo información pública verificable.", sph:["sen","par"]},
+};
+const AGENTS = [
+  ["op","Cierre contable","Concilias cuentas, detectas partidas abiertas y preparas el checklist de cierre mensual",["Revisar la balanza de comprobación","Conciliar cuentas puente y partidas abiertas","Marcar pendientes con responsable y fecha"],"Días de cierre; partidas abiertas al cierre"],
+  ["op","Cuentas por pagar","Validas facturas (CFDI) contra órdenes de compra y propones el calendario de pagos",["Validar el CFDI ante el SAT","Cruzar factura, orden de compra y recepción","Proponer fecha de pago según la política"],"% de facturas sin intervención; pagos duplicados evitados"],
+  ["op","Cobranza","Priorizas clientes por riesgo, redactas recordatorios y predices morosidad",["Calcular antigüedad de saldos","Calificar el riesgo de cada cliente","Redactar el recordatorio según prioridad"],"Días de cartera (DSO); cartera vencida a más de 90 días"],
+  ["op","Conciliación bancaria","Empatas movimientos bancarios contra el ERP y señalas diferencias",["Importar estados de cuenta","Emparejar por monto, fecha y referencia","Listar diferencias con su causa probable"],"% de conciliación automática; diferencias sin explicar"],
+  ["fpa","Presupuesto vs. real","Explicas las variaciones entre presupuesto y real en lenguaje de negocio",["Comparar real contra presupuesto por rubro","Aislar variaciones mayores al umbral","Explicar la causa probable de cada una"],"Variaciones explicadas; tiempo de entrega del reporte"],
+  ["fpa","Forecast de flujo","Proyectas la liquidez a 13 semanas con escenarios",["Tomar saldo inicial y cobranza esperada","Restar pagos comprometidos","Generar escenarios base, optimista y pesimista"],"Error del pronóstico semana contra semana"],
+  ["fpa","Escenarios","Simulas el impacto de tipo de cambio, tasas y ventas",["Definir variables y rangos","Recalcular estado de resultados y flujo","Resumir la sensibilidad por variable"],"Escenarios usados en decisiones del CFO"],
+  ["fpa","Rentabilidad","Calculas el margen por producto, cliente, canal y unidad de negocio",["Asignar costos directos e indirectos","Calcular margen por dimensión","Señalar los 10 márgenes más bajos"],"% de costos asignados; márgenes revisados"],
+  ["rc","Fiscal","Monitoreas obligaciones ante el SAT, fechas límite y cambios regulatorios",["Listar obligaciones del mes","Verificar el avance de cada una","Alertar cambios regulatorios relevantes"],"Obligaciones cumplidas a tiempo; multas evitadas"],
+  ["rc","Auditoría continua","Detectas anomalías, duplicados y posible fraude en transacciones",["Aplicar reglas de duplicados y montos atípicos","Calificar cada hallazgo","Documentar la evidencia"],"Falsos positivos; hallazgos confirmados"],
+  ["rc","Contratos","Extraes cláusulas financieras, vencimientos, penalizaciones y covenants",["Identificar el tipo de contrato","Extraer montos, fechas y penalizaciones","Registrar vencimientos próximos"],"Vencimientos detectados a tiempo"],
+  ["rc","PLD","Evalúas el riesgo de proveedores, clientes y operaciones para prevenir lavado de dinero",["Identificar a la contraparte","Cruzar contra listas restrictivas","Calificar el riesgo y documentar la evidencia"],"Falsos positivos; alertas atendidas a tiempo", {src:["ERP","Expedientes KYC de clientes y proveedores","Listas UIF y OFAC"], reglas:"LFPIORPI y política interna de prevención de lavado de dinero.", lim:"Nunca bloqueas un pago ni contactas a la contraparte: generas la alerta y la envías al AGO."}],
+  ["tes","Tesorería","Monitoreas la posición de caja diaria, inversiones de excedentes y coberturas",["Consolidar saldos de todos los bancos","Comparar contra necesidades de la semana","Proponer inversión o cobertura"],"Saldo ocioso; costo de coberturas"],
+  ["tes","Deuda y covenants","Vigilas los indicadores pactados con bancos y alertas antes de un incumplimiento",["Calcular cada covenant con cifras actuales","Proyectarlo a 90 días","Alertar si la holgura es menor a 10%"],"Alertas anticipadas; incumplimientos evitados"],
+  ["est","Reporte ejecutivo","Generas el board pack y la narrativa de resultados para el consejo",["Reunir las salidas de los agentes","Seleccionar los 5 mensajes clave","Redactar la narrativa con cifras y fuente"],"Tiempo de preparación; cambios pedidos por el CFO"],
+  ["est","Inteligencia competitiva","Comparas benchmarks y estados financieros públicos de competidores",["Recopilar reportes públicos recientes","Calcular indicadores comparables","Resumir brechas y oportunidades"],"Fuentes verificadas por reporte"],
+];
+const ORQ = [
+  ["Descompón cada pregunta del CFO en tareas y asígnalas a los agentes que correspondan",1],
+  ["Llama en paralelo a los agentes que no dependen entre sí",1],
+  ["Consolida sus respuestas en una sola recomendación",1],
+  ["Si dos agentes se contradicen, muestra ambas posturas y explica por qué difieren",1],
+  ["Nunca inventes cifras: si un dato no viene de un agente o de una fuente, dilo",1],
+];
+const ESC = [["Toda alerta del agente PLD",1],["Cualquier acción irreversible: pagos, asientos, firmas o comunicaciones externas",1],["Cambios fiscales o regulatorios con impacto material",1],["Contradicciones entre agentes que no puedas resolver",0]];
+const FMT = [["Cita la fuente de cada cifra",1],["Indica tu nivel de confianza: alta, media o baja",1],["Termina con la decisión que sugieres al CFO",1]];
+const MEM = [["Registra cada decisión singular del CFO con su razón",1],["Si el CFO rechaza una recomendación, pregunta por qué y guárdalo para calibrar",1],["Al inicio de cada conversación, revisa las decisiones previas relacionadas",0]];
+
+function checks(container, list, prefix){
+  $(container).innerHTML = list.map((c,i)=>`<label class="ck"><input type="checkbox" id="${prefix}${i}" ${c[1]?"checked":""}><span>${c[0]}</span></label>`).join("");
+}
+checks("orq",ORQ,"o"); checks("esc",ESC,"e"); checks("fmt",FMT,"t"); checks("mem",MEM,"m");
+// directory grouped by block
+let dirHtml=""; let last="";
+AGENTS.forEach((a,i)=>{ if(a[0]!==last){ dirHtml+=`<div class="blk">${BLOCKS[a[0]].n}</div>`; last=a[0]; }
+  dirHtml+=`<label class="ck"><input type="checkbox" id="d${i}" checked><span>${a[1]}</span></label>`; });
+$("dir").innerHTML=dirHtml;
+// cascade
+function fillAgents(block){
+  $("agente").innerHTML = AGENTS.map((a,i)=>a[0]===block?`<option value="${i}">${a[1]}</option>`:"").join("");
+}
+$("v_sph").innerHTML = SPH.map(s=>`<label class="ck"><input type="checkbox" id="vs_${s[0]}"><span>${s[1]}</span></label>`).join("");
+
+function loadAgent(i){
+  const a=AGENTS[i], b=BLOCKS[a[0]], o=a[5]||{};
+  $("v_rol").value=a[2]+".";
+  $("v_fuentes").value=(o.src||b.src).join("\n");
+  $("v_reglas").value=o.reglas||b.reglas;
+  SPH.forEach(s=>$("vs_"+s[0]).checked=b.sph.includes(s[0]));
+  $("v_pasos").value=a[3].join("\n");
+  $("v_limites").value=o.lim||"No ejecutas pagos, asientos ni comunicaciones externas. Si falta información o detectas un riesgo alto, devuelves el caso al AGO con lo que encontraste.";
+  $("v_metricas").value=a[4];
+}
+
+
+let mode="ago";
+const v = id => ($(id).value||"").trim();
+const on = id => $(id).checked;
+const lines = t => t.split("\n").map(s=>s.trim()).filter(Boolean);
+const fill = (t, ph) => t || `[${ph}]`;
+
+function buildAGO(){
+  const emp=fill(v("empresa"),"empresa"), ind=fill(v("industria"),"industria"), cfo=v("cfo");
+  const P=[];
+  P.push("<rol>");
+  P.push(`Eres el Agente Orquestador (AGO) del CFO${cfo?` (${cfo})`:""} de ${emp}, una empresa de ${ind}.`);
+  P.push(`Tu mandato: ${v("mandato")}.`);
+  P.push("</rol>","");
+  P.push("<sph_cfo>");
+  P.push("Piensas y decides con el Sistema de Pensamiento Humano (SPH) del CFO. Úsalo como criterio en cada respuesta:");
+  SPH.forEach(s=>P.push(`- ${s[1]}: ${fill(v("sph_"+s[0]),"describe "+s[1].toLowerCase())}`));
+  P.push("</sph_cfo>","");
+  P.push("<contexto>");
+  P.push(`Estrategia y metas: ${fill(v("estrategia"),"metas del año")}`);
+  P.push(`Apetito de riesgo: ${v("riesgo")}.`);
+  P.push(`El consejo de administración sesiona ${v("consejo")}.`);
+  P.push("</contexto>","");
+  P.push("<directorio_avs>");
+  P.push("Coordinas a estos agentes verticales. Llama solo a los que la pregunta necesite:");
+  let lb="";
+  AGENTS.forEach((a,i)=>{ if(!on("d"+i)) return; if(a[0]!==lb){ P.push(`[${BLOCKS[a[0]].n}]`); lb=a[0]; } P.push(`- ${a[1]}: ${a[2]}.`); });
+  P.push("</directorio_avs>","");
+  P.push("<orquestacion>");
+  let n=0; ORQ.forEach((c,i)=>{ if(on("o"+i)) P.push(`${++n}. ${c[0]}.`); });
+  P.push("</orquestacion>","");
+  P.push("<escalamiento>");
+  P.push("Detente y escala al CFO antes de recomendar una acción cuando:");
+  const m=Number($("monto").value);
+  if(m>0) P.push(`- La operación supere ${m.toLocaleString("es-MX")} ${v("moneda")}.`);
+  ESC.forEach((c,i)=>{ if(on("e"+i)) P.push(`- ${c[0]}.`); });
+  if(v("esc_extra")) P.push(`- ${v("esc_extra")}.`);
+  P.push("</escalamiento>","");
+  P.push("<formato>");
+  P.push(`Estructura: ${v("estructura")}. Responde en ${v("idioma").toLowerCase()}.`);
+  FMT.forEach((c,i)=>{ if(on("t"+i)) P.push(`- ${c[0]}.`); });
+  P.push("</formato>","");
+  const mm=MEM.filter((c,i)=>on("m"+i));
+  if(mm.length){ P.push("<memoria>"); mm.forEach(c=>P.push(`- ${c[0]}.`)); P.push("</memoria>",""); }
+  P.push("Antes de responder, si falta información clave para hacer un excelente trabajo, hazme primero las preguntas necesarias.");
+  return P.join("\n");
+}
+function buildAVS(){
+  const a=AGENTS[Number($("agente").value)], b=BLOCKS[a[0]];
+  const emp=fill(v("empresa"),"empresa");
+  const P=[];
+  P.push("<rol>");
+  P.push(`Eres el agente vertical de ${a[1]}, del bloque ${b.n}, al servicio del Agente Orquestador (AGO) del CFO de ${emp}.`);
+  P.push(`Tu única función: ${fill(v("v_rol"),"función del agente")}`);
+  P.push("No respondes preguntas fuera de esa función.");
+  P.push("</rol>","");
+  P.push("<fuentes>");
+  P.push("Trabajas solo con estas fuentes. Si un dato no está en ellas, dilo:");
+  lines(v("v_fuentes")).forEach(s=>P.push(`- ${s}`));
+  P.push("</fuentes>","");
+  P.push("<reglas_dominio>"); P.push(fill(v("v_reglas"),"normas y políticas")); P.push("</reglas_dominio>","");
+  const sel=SPH.filter(s=>on("vs_"+s[0]));
+  P.push("<guardarrailes>");
+  P.push("Heredas del SPH del CFO estos elementos como límite:");
+  sel.forEach(s=>P.push(`- ${s[1]}: ${fill(v("sph_"+s[0]),"captúralo en la pestaña AGO")}`));
+  if(!sel.length) P.push("- [elige al menos un elemento del SPH]");
+  P.push("</guardarrailes>","");
+  P.push("<procedimiento>");
+  lines(v("v_pasos")).forEach((s,i)=>P.push(`${i+1}. ${s}.`.replace(/\.\.$/,".")));
+  P.push("</procedimiento>","");
+  P.push("<limites>"); P.push(fill(v("v_limites"),"qué no hace nunca")); P.push("</limites>","");
+  P.push("<salida>");
+  if($("v_salida").value==="json"){
+    P.push("Responde siempre con este JSON para que el AGO lo consolide:");
+    P.push(`{\n  "agente": "${a[1]}",\n  "resultado": "",\n  "evidencia": [],\n  "confianza": "alta | media | baja",\n  "alertas": [],\n  "accion_sugerida": ""\n}`);
+  } else {
+    P.push("Responde siempre con una tabla de una fila por hallazgo, con estas columnas:");
+    P.push("Hallazgo | Evidencia | Confianza (alta, media o baja) | Alerta | Acción sugerida");
+  }
+  P.push("</salida>","");
+  P.push("<metricas>"); P.push(`Tu desempeño se mide por: ${fill(v("v_metricas"),"métricas")}.`); P.push("</metricas>","");
+  P.push("Si falta información para cumplir tu función, pídesela al AGO antes de responder.");
+  return P.join("\n");
+}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function paint(txt){
+  return esc(txt)
+    .replace(/^(&lt;\/?[a-z_]+&gt;)$/gm,'<span class="t">$1</span>')
+    .replace(/(\[[^\]\n]*\])/g,'<span class="e">$1</span>')
+    .replace(/^(- [A-ZÁÉÍÓÚ][^:\n]{2,24}:)/gm,'<span class="h">$1</span>');
+}
+let current="";
+function render(){
+  current = mode==="ago"?buildAGO():buildAVS();
+  $("prompt").innerHTML=paint(current);
+  const words=current.split(/\s+/).filter(Boolean).length;
+  $("meta").textContent=`${words.toLocaleString("es-MX")} palabras · ${current.length.toLocaleString("es-MX")} caracteres`;
+}
+document.addEventListener("input",render);
+function setTipo(t, agentIdx){
+  mode = t==="ago" ? "ago" : "avs";
+  $("form-ago").hidden = mode!=="ago"; $("form-avs").hidden = mode!=="avs";
+  $("step2").hidden = mode!=="avs";
+  if(mode==="avs"){
+    fillAgents(t);
+    const idx = agentIdx!=null ? agentIdx : Number($("agente").options[0].value);
+    $("agente").value=String(idx); loadAgent(idx);
+    const b=BLOCKS[t]; const names=SPH.filter(s=>b.sph.includes(s[0])).map(s=>s[1]).join(" + ");
+    $("pickinfo").innerHTML=`<strong>Agente vertical · ${b.n}</strong>Hereda del SPH: ${names}`;
+  } else {
+    $("pickinfo").innerHTML=`<strong>Agente Orquestador</strong>Carga el SPH completo del CFO y coordina a los agentes verticales`;
+  }
+  render();
+}
+document.addEventListener("change",e=>{
+  if(e.target.id==="tipo"){ setTipo(e.target.value); return; }
+  if(e.target.id==="agente") loadAgent(Number(e.target.value));
+  render();
+});
+$("clear").addEventListener("click",()=>{
+  const root = mode==="ago"? $("form-ago") : $("form-avs");
+  root.querySelectorAll("textarea,input[type=text]").forEach(el=>el.value="");
+  render();
+});
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),1600); }
+function copyPrompt(){
+  const done=()=>{ toast("¡Copiado!"); $("copy").textContent="¡Copiado!"; setTimeout(()=>$("copy").textContent="Copiar prompt",1500); };
+  const fallback=()=>{ const r=document.createRange(); r.selectNodeContents($("prompt")); const s=getSelection(); s.removeAllRanges(); s.addRange(r); toast("Texto seleccionado: cópialo con Ctrl+C"); };
+  try{ navigator.clipboard.writeText(current).then(done,fallback); }catch(e){ fallback(); }
+}
+$("copy").addEventListener("click",copyPrompt);
+document.querySelectorAll(".tools a").forEach(a=>a.addEventListener("click",copyPrompt));
+setTipo("ago");
+</script>
+
+</body>
+</html>
