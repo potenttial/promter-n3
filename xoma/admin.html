@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Autorizar desafíos</title>
+<style>
+:root{--bg:#F5F8FA;--paper:#FFFFFF;--ink:#1B1C31;--muted:#5A6075;--plum:#56356A;--red:#E5332A;--line:#D9E2E8;--ok:#1F8F57}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13142A;--paper:#1B1C36;--ink:#EEF1F6;--muted:#A5ABC0;--plum:#B795CF;--line:#2E3150}}
+:root[data-theme="dark"]{--bg:#13142A;--paper:#1B1C36;--ink:#EEF1F6;--muted:#A5ABC0;--plum:#B795CF;--line:#2E3150}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:300 1rem/1.5 "Helvetica Neue",Helvetica,Arial,system-ui,sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:2rem 16px 4rem}
+h1{font-weight:300;font-size:1.9rem;margin:0 0 .3rem;color:var(--plum)}
+.sub{color:var(--muted);margin:0 0 1.5rem}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem}
+input{font:inherit;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:.6rem .8rem;flex:1;min-width:0}
+button{font:inherit;border:0;border-radius:999px;padding:.6rem 1.1rem;cursor:pointer;background:var(--plum);color:#fff}
+button.ghost{background:transparent;color:var(--plum);box-shadow:inset 0 0 0 2px var(--plum)}
+button.ok{background:var(--ok)}button.no{background:transparent;color:var(--red);box-shadow:inset 0 0 0 2px var(--red)}
+button:disabled{opacity:.5}
+.msg{min-height:1.4em;color:var(--muted);font-size:.9rem}.msg.err{color:var(--red)}
+.list{display:grid;gap:.7rem}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:.9rem 1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:space-between}
+.card.pending{border-left:3px solid var(--red)}
+.nm{font-size:1.1rem}.meta{font-size:.82rem;color:var(--muted)}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.15em;color:var(--plum)}
+.st{font-size:.78rem;padding:.15rem .55rem;border-radius:999px;border:1px solid var(--line)}
+.acts{display:flex;gap:.4rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Autorizar desafíos ¿Xoma!</h1>
+  <p class="sub">VS SPA de Engel Fonseca M. · Compara el nombre y el código con el WhatsApp que recibiste antes de autorizar. Cada desafío autorizado consume tokens.</p>
+  <div class="row"><input id="key" type="password" placeholder="Clave de administrador" aria-label="Clave de administrador"><button id="load" type="button">Ver solicitudes</button></div>
+  <p class="msg" id="msg"></p>
+  <div class="list" id="list"></div>
+</div>
+<script>
+const WORKER_URL='';   // ← la misma URL del Worker que pusiste en index.html
+const $=s=>document.querySelector(s);
+const keyIn=$('#key');
+try{ keyIn.value=localStorage.getItem('xoma.admin')||''; }catch(e){}
+function say(t,err){ const m=$('#msg'); m.textContent=t; m.classList.toggle('err',!!err); }
+async function api(path,body){
+  const r=await fetch(WORKER_URL+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({key:keyIn.value},body||{}))});
+  const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('Error '+r.status)); return j;
+}
+const LBL={pending:'pendiente',approved:'autorizado',playing:'jugando',done:'terminado',rejected:'rechazado'};
+async function load(){
+  if(!WORKER_URL){ say('Falta configurar la URL del Worker en este archivo.',true); return; }
+  try{ localStorage.setItem('xoma.admin',keyIn.value); }catch(e){}
+  say('Cargando…');
+  try{
+    const {items}=await api('/admin/list'); const list=$('#list'); list.innerHTML='';
+    if(!items.length){ say('No hay solicitudes en las últimas 48 horas.'); return; }
+    say(items.filter(i=>i.status==='pending').length+' pendientes');
+    items.forEach(it=>{
+      const c=document.createElement('div'); c.className='card '+it.status;
+      const info=document.createElement('div');
+      info.innerHTML='<div class="nm"></div><div class="meta"><span class="code"></span> · <span class="when"></span> · <span class="st"></span></div>';
+      info.querySelector('.nm').textContent=it.name;
+      info.querySelector('.code').textContent=it.code;
+      info.querySelector('.when').textContent=new Date(it.created).toLocaleString('es-MX',{dateStyle:'short',timeStyle:'short'});
+      info.querySelector('.st').textContent=(LBL[it.status]||it.status)+(it.status==='done'&&it.score!=null?' · '+Math.round(it.score*10)+'%':'');
+      c.append(info);
+      if(it.status==='pending'){
+        const a=document.createElement('div'); a.className='acts';
+        const ok=document.createElement('button'); ok.className='ok'; ok.textContent='Autorizar';
+        const no=document.createElement('button'); no.className='no'; no.textContent='Rechazar';
+        ok.onclick=async()=>{ ok.disabled=no.disabled=true; try{ await api('/admin/approve',{code:it.code}); load(); }catch(e){ say(e.message,true); ok.disabled=no.disabled=false; } };
+        no.onclick=async()=>{ ok.disabled=no.disabled=true; try{ await api('/admin/reject',{code:it.code}); load(); }catch(e){ say(e.message,true); ok.disabled=no.disabled=false; } };
+        a.append(ok,no); c.append(a);
+      }
+      list.append(c);
+    });
+  }catch(e){ say(e.message,true); }
+}
+$('#load').onclick=load;
+keyIn.addEventListener('keydown',e=>{ if(e.key==='Enter') load(); });
+if(keyIn.value) load();
+</script>
+</body>
+</html>
