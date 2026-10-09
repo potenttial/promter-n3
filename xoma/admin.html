@@ -39,7 +39,7 @@ button:disabled{opacity:.5}
   <div class="list" id="list"></div>
 </div>
 <script>
-const WORKER_URL='';   // ← la misma URL del Worker que pusiste en index.html
+const WORKER_URL='https://xoma.e-fonseca.workers.dev';   // ← la misma URL del Worker que pusiste en index.html
 const $=s=>document.querySelector(s);
 const keyIn=$('#key');
 try{ keyIn.value=localStorage.getItem('xoma.admin')||''; }catch(e){}
