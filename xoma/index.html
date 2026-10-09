@@ -1892,7 +1892,6 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
     t.append(el('h3','sph-h','Tu SPH VS el SPA de Engel Fonseca M.'));
     t.append(el('p',null,'Aquí no juegas contra Engel en persona: juegas contra un SPA (Sistema de Pensamiento Artificial) que codifica su SPH (Sistema de Pensamiento Humano), su algoritYO. Tu SPH frente a su SPA. Cada punto rojo es un pensamiento.'));
     t.append(el('p',null,'Son 10 preguntas. Responde cada una escribiendo tu propio ¿Xoma!: una pregunta que ya contiene tu respuesta. El SPA evalúa qué tanto se parece tu razonamiento al de Engel.'));
-    t.append(el('p','sph-warn','Solo gana quien tiene un SPH muy parecido al suyo: alrededor de 1 de cada 10 jugadores.'));
     t.append(el('p','sph-note','Para jugar necesitas la contraseña de Engel: pídela por WhatsApp con tu nombre.'));
     const row=el('div','sph-row'); const inp=el('input'); inp.placeholder='Tu nombre completo'; inp.setAttribute('aria-label','Tu nombre completo'); inp.value=store.get('xoma.sph.name','');
     const b=el('button','cta','Pedir el desafío por WhatsApp'); b.type='button';
@@ -2027,7 +2026,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
     const again=el('button','cta small','Pedir otro desafío'); again.type='button'; again.addEventListener('click',intro);
     const pvp=el('button','cta ghost small','Jugar Persona (SPH) vs Persona (SPH)'); pvp.type='button'; pvp.addEventListener('click',()=>{ const c=document.querySelector('.modes .chip[data-mode="group"]'); c&&c.click(); });
     const url=location.href.split('#')[0];
-    const txt='Mi afinidad con el SPA de Engel Fonseca M. en ¿Xoma! fue de '+pct+'%'+(win?' y gané.':'.')+' Solo gana 1 de cada 10. ¿Te atreves? '+url;
+    const txt='Mi afinidad con el SPA de Engel Fonseca M. en ¿Xoma! fue de '+pct+'%'+(win?' y gané.':'.')+' ¿Te atreves? '+url;
     const wa=el('a','cta small btn-wa','Retar por WhatsApp'); wa.href='https://wa.me/?text='+encodeURIComponent(txt); wa.target='_blank'; wa.rel='noopener';
     row.append(again,pvp,wa); box.append(row);
     box.scrollIntoView({behavior:'smooth',block:'start'});
