@@ -210,6 +210,26 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
 .linkbtn:disabled{opacity:.4;cursor:default}
 .profile{font-size:.85rem;color:var(--plum);margin:.6rem 0 0}
 @media (max-width:560px){.chat-prog{margin-left:0;width:100%}.cp-bar{flex:1}}
+
+.ctarow{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.ctarow .cta{margin-top:1.2rem}
+.kick{font-size:.8rem;letter-spacing:.3em;color:var(--red);margin:0 0 .5rem}
+.sphe-band{background:var(--night);color:#fff;border-top:0}
+.sphe{display:grid;grid-template-columns:1.5fr 1fr;gap:2rem;align-items:center}
+.sphe h2{color:#fff;max-width:20ch}
+.sphe p{color:#C9C9D2;max-width:60ch;margin-top:1rem}
+.sphe-act{display:flex;flex-direction:column;gap:.6rem;align-items:flex-start}
+.sphe-act .cta{margin:0}
+.sphe-act span{font-size:.85rem;color:#A9A9B3}
+@media (max-width:760px){.sphe{grid-template-columns:1fr}}
+.sphe-dlg{width:min(520px,94vw);border:1px solid var(--line);border-radius:22px;padding:1.4rem 1.5rem;background:var(--paper);color:var(--ink)}
+.sphe-dlg::backdrop{background:rgba(8,8,14,.6)}
+.sphe-dlg h3{font-size:1.5rem;margin-bottom:.5rem}
+.sphe-dlg label{display:flex;flex-direction:column;gap:.3rem;font-size:.85rem;color:var(--muted);margin-top:.8rem}
+.sphe-dlg input{font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:.65rem .8rem}
+.sphe-dlg input:focus{border-color:var(--red);outline:none}
+.msgprev{font-size:.85rem;color:var(--plum);margin:1rem 0 0;line-height:1.45}
+.dlg-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.4rem}
 </style>
 </head>
 <body>
@@ -230,7 +250,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
       <h1 id="t">Observa tu mente.<br>Descubre tu <span>SPH</span>.</h1>
       <p class="lede">Un test de 10 preguntas para directivos que convierte tu forma de pensar en un mapa visible.</p>
       <p class="sub">Identifica tu tipo de pensamiento según la neurociencia cognitiva, tus paradigmas, tus sesgos cognitivos y los miedos naturales de tu Sistema de Pensamiento Humano. Con el método Thinktech de metacognición tecnológica.</p>
-      <a class="cta" href="#test">Empezar el test · 5 minutos</a>
+      <div class="ctarow"><a class="cta" href="#test">Empezar el test · 5 minutos</a><button class="cta ghost" type="button" data-sphe>SPH Empresarial para mi empresa</button></div>
       <p class="author">ThinkIA creada por <strong>Engel Fonseca</strong>, experto en neurociencia cognitiva y transformación digital, creador de Thinktech y socio del <a href="https://www.centroneurociencias.org/" target="_blank" rel="noopener">Centro de Neurociencias Avanzadas</a> del Hospital Ángeles del Pedregal.</p>
     </div>
     <div class="cubebox">
@@ -276,6 +296,32 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
     <div id="results" style="margin-top:1.5rem"></div>
   </div>
 </section>
+
+<section class="band sphe-band" id="sph-empresarial">
+  <div class="wrap">
+    <div class="sphe">
+      <div>
+        <p class="kick">SPH EMPRESARIAL</p>
+        <h2>Lleva el Mapa SPH a toda tu organización</h2>
+        <p>Engel Fonseca y Potenttial Group mapean el Sistema de Pensamiento Humano de tus líderes para fomentar el Change Management con fundamento neurocientífico: cómo vivirán el cambio, qué los frena y cómo acompañarlos. Con Change Practitioners certificados por Prosci.</p>
+      </div>
+      <div class="sphe-act"><button class="cta wa" type="button" data-sphe>Solicitar cotización por WhatsApp</button><span>Te pediremos nombre, cargo y empresa.</span></div>
+    </div>
+  </div>
+</section>
+
+<dialog class="sphe-dlg" id="spheDlg" aria-labelledby="spheT">
+  <form id="spheForm" method="dialog">
+    <p class="kick">SPH EMPRESARIAL</p>
+    <h3 id="spheT">Cotiza la consultoría para tu empresa</h3>
+    <p class="note">Abriremos WhatsApp con tu solicitud para Engel Fonseca. Estos datos no se guardan en el sitio.</p>
+    <label>Nombre<input name="nombre" required minlength="2" maxlength="80" autocomplete="name"></label>
+    <label>Cargo<input name="cargo" required minlength="2" maxlength="80" autocomplete="organization-title"></label>
+    <label>Empresa<input name="empresa" required minlength="2" maxlength="80" autocomplete="organization"></label>
+    <p class="msgprev" id="sphePrev"></p>
+    <div class="dlg-row"><button class="cta wa" type="submit" value="send">Enviar por WhatsApp</button><button class="cta ghost" type="button" id="spheCancel">Cancelar</button></div>
+  </form>
+</dialog>
 
 <footer>
   <div class="wrap foot">
@@ -606,9 +652,9 @@ function results(){
   const cg=el('div','change');
   const cl=el('div'); const h3=el('h3'); h3.append(document.createTextNode('Tu SPH y el ')); h3.append(el('span',null,'Change Management')); cl.append(h3);
   cl.append(el('p',null,(st.who.puesto?'Como '+st.who.puesto.split(' / ')[0]+(st.who.sector?' en el sector '+st.who.sector.toLowerCase():'')+': ':'')+T.change));
-  cl.append(el('p',null,'Cuando conoces el SPH de tus líderes, sabes cómo vivirán el cambio, qué los frenará y cómo acompañarlos. Engel Fonseca y Potenttial Group realizan evaluaciones de SPH para organizaciones, con Change Practitioners certificados por Prosci.'));
+  cl.append(el('p',null,'Cuando conoces el SPH de tus líderes, sabes cómo vivirán el cambio, qué los frenará y cómo acompañarlos. Con el SPH Empresarial, Engel Fonseca y Potenttial Group fomentan el Change Management con fundamento neurocientífico: evaluaciones de SPH para organizaciones, con Change Practitioners certificados por Prosci.'));
   const ca=el('div','acts');
-  const wa=el('a','cta wa','Solicitar evaluación SPH para mi organización'); wa.target='_blank'; wa.rel='noopener'; wa.href=waLink();
+  const wa=el('button','cta wa','Cotizar el SPH Empresarial para mi empresa'); wa.type='button'; wa.addEventListener('click',openSPHE);
   const pdf=el('button','cta ghost','Descargar mi resultado en PDF'); pdf.type='button'; pdf.style.color='#fff'; pdf.style.boxShadow='inset 0 0 0 2px #fff'; pdf.addEventListener('click',()=>makePDF(pdf));
   ca.append(wa,pdf); cg.append(cl,ca); app.append(cg);
 
@@ -616,13 +662,22 @@ function results(){
   app.append(el('p','disc','Mapa SPH es una herramienta de reflexión basada en el método Thinktech de metacognición tecnológica. No es un diagnóstico psicológico ni clínico: muestra tendencias según tus respuestas para que puedas observarlas y configurarlas.'));
   app.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function waLink(){
-  const w=st.who, T=R?TYPES[R.dom]:null;
-  let t='Hola Engel. '+(w.puesto?'Ocupo el puesto de '+w.puesto+(w.sector?' en el sector '+w.sector.toLowerCase():'')+'. ':'');
-  t+='Me interesa una evaluación de SPH para mi organización para fomentar Change Management.';
-  if(T) t+=' Mi resultado en Mapa SPH: pensamiento '+T.n.toLowerCase()+' con apoyo '+TYPES[R.sec].n.toLowerCase()+'.';
-  return 'https://wa.me/'+WA+'?text='+encodeURIComponent(t);
-}
+const SPHE_MSG='Me interesa cotizar consultoría para fomentar el Change Management con fundamento neurocientífico para mi empresa.';
+function spheText(f){ return 'Hola Engel, soy '+f.nombre+', '+f.cargo+' en '+f.empresa+'. '+SPHE_MSG; }
+const dlg=$('#spheDlg'), form=$('#spheForm');
+function vals(){ const d=new FormData(form); return {nombre:String(d.get('nombre')||'').trim(),cargo:String(d.get('cargo')||'').trim(),empresa:String(d.get('empresa')||'').trim()}; }
+function prev(){ const v=vals(); $('#sphePrev').textContent='Mensaje: “'+spheText({nombre:v.nombre||'[nombre]',cargo:v.cargo||'[cargo]',empresa:v.empresa||'[empresa]'})+'”'; }
+function openSPHE(){ prev(); if(dlg.showModal) dlg.showModal(); else dlg.setAttribute('open',''); const i=form.querySelector('input'); i&&i.focus(); }
+function closeSPHE(){ if(dlg.close) dlg.close(); else dlg.removeAttribute('open'); }
+document.querySelectorAll('[data-sphe]').forEach(b=>b.addEventListener('click',openSPHE));
+form.addEventListener('input',prev);
+$('#spheCancel').addEventListener('click',closeSPHE);
+form.addEventListener('submit',e=>{
+  e.preventDefault();
+  const v=vals(); if(!form.reportValidity()) return;
+  window.open('https://wa.me/'+WA+'?text='+encodeURIComponent(spheText(v)),'_blank','noopener');
+  closeSPHE();
+});
 
 /* ================= mapa animado de nodos ================= */
 function drawMap(cv){
@@ -715,7 +770,7 @@ async function makePDF(btn){
     P('Amenazas en la toma de decisiones',{size:13,bold:true,color:'#E5332A',after:4}); T.ko.concat([BIAS[R.bias[0]][2],FEAR[R.fear[0]][2]]).forEach(t=>P('•  '+t,{size:10.5,after:1})); y+=6;
     P('Personas célebres que piensan parecido',{size:13,bold:true,color:'#56356A',after:4}); T.people.concat([T2.people[0]]).forEach(([n,d])=>P(n+': '+d,{size:10.5,after:1})); y+=6;
     P('Tu SPH y el Change Management',{size:13,bold:true,color:'#56356A',after:4}); P(T.change,{size:10.5,after:4});
-    P('¿Quieres una evaluación de SPH para tu organización? Escribe a Engel Fonseca por WhatsApp: +52 55 2905 0452',{size:10.5,bold:true,after:10});
+    P('SPH Empresarial: cotiza consultoría para fomentar el Change Management con fundamento neurocientífico en tu empresa. WhatsApp de Engel Fonseca: +52 55 2905 0452',{size:10.5,bold:true,after:10});
     P('Herramienta de reflexión basada en el método Thinktech. No es un diagnóstico psicológico ni clínico.',{size:8.5,color:'#5A6075'});
     const n=doc.getNumberOfPages(); for(let i=1;i<=n;i++){ doc.setPage(i); doc.setFontSize(8); doc.setTextColor(90,96,117); doc.text('Mapa SPH · ThinkIA de Engel Fonseca · Desarrollo N3 Labs · '+i+'/'+n,M,PH-22); }
     doc.save('Mapa-SPH.pdf');
