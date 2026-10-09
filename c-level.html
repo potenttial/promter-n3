@@ -467,6 +467,7 @@ No menciones agentes, SPH, AMO, AGO, AGV ni custodia en tu respuesta.
     <p>Para seguir usando el C-level Prompter, déjanos tus datos y pide la palabra clave por WhatsApp.</p>
     <label class="f"><b>Nombre</b><input type="text" id="gate_n" autocomplete="name" placeholder="Tu nombre completo"></label>
     <label class="f"><b>Empresa</b><input type="text" id="gate_e" autocomplete="organization" placeholder="Tu empresa"></label>
+    <label class="ck" style="font-size:12.5px;color:var(--muted)"><input type="checkbox" id="gate_priv"><span>Acepto que Potenttial Group guarde mi nombre y empresa para darme acceso y contactarme sobre esta herramienta. Puedo pedir que se borren escribiendo a e.fonseca@potenttial.com.</span></label>
     <a class="btn wa" id="gate_wa" href="https://wa.me/525529050452" target="_blank" rel="noopener">Pedir la clave por WhatsApp</a>
     <p>O escribe al <span class="phone">+52 55 2905 0452</span></p>
     <label class="f"><b>Palabra clave</b>
@@ -807,9 +808,16 @@ function waLink(){
   return n && e;
 }
 ["gate_n","gate_e"].forEach(id=>$(id).addEventListener("input",waLink));
+const SHEET_URL=""; /* URL de la Aplicación web de Apps Script */
+function registra(){
+  if(!SHEET_URL) return;
+  const r=ROLES[role], d={nombre:$("gate_n").value.trim(),empresa:$("gate_e").value.trim(),industria:v("industria"),directivo:`${r.n} · ${r.area}`,nivel:mode.toUpperCase(),acepto:true};
+  try{ fetch(SHEET_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(d),keepalive:true}).catch(()=>{}); }catch(e){}
+}
 $("gate_wa").addEventListener("click",ev=>{
-  if(!waLink()){ ev.preventDefault(); $("gate_err").textContent="Escribe tu nombre y tu empresa para pedir la clave."; ($("gate_n").value.trim()?$("gate_e"):$("gate_n")).focus(); }
-  else $("gate_err").textContent="";
+  if(!waLink()){ ev.preventDefault(); $("gate_err").textContent="Escribe tu nombre y tu empresa para pedir la clave."; ($("gate_n").value.trim()?$("gate_e"):$("gate_n")).focus(); return; }
+  if(!on("gate_priv")){ ev.preventDefault(); $("gate_err").textContent="Acepta el aviso de privacidad para continuar."; $("gate_priv").focus(); return; }
+  $("gate_err").textContent=""; registra();
 });
 $("gate_ok").addEventListener("click",desbloquear);
 $("gate_k").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); desbloquear(); } });
