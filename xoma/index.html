@@ -39,7 +39,8 @@ p{margin:0 0 1em}
 /* header */
 header.top{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem 0}
 .logo-plate{background:var(--plate);border-radius:10px;padding:.55rem .8rem;display:inline-flex}
-.logo-curio{height:28px;width:auto}
+.logo-curio{height:28px;width:auto;max-width:none;flex-shrink:0;object-fit:contain}
+.logo-plate{flex-shrink:0}
 .top nav{display:flex;gap:1.25rem;font-family:var(--display);font-weight:500;font-size:.95rem}
 .top nav a{color:var(--ink);text-decoration:none}
 .top nav a:hover{color:var(--teal)}
@@ -274,7 +275,7 @@ section.band{padding:clamp(3rem,7vw,5.5rem) 0;border-top:1px solid var(--line)}
 @media (max-width:860px){.waves,.brainnotes{grid-template-columns:1fr}}
 .pchip em.lost{background:var(--muted)}
 .hero-logo{line-height:0}
-.hero-logo img{height:clamp(72px,11vw,128px);width:auto;max-width:100%;margin-left:-.6rem}
+.hero-logo img{height:clamp(72px,11vw,128px);width:auto;max-width:100%;margin-left:-.6rem;object-fit:contain;object-position:left center}
 .hero-logo .lg-w{display:none}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .hero-logo .lg-c{display:none}:root:not([data-theme="light"]) .hero-logo .lg-w{display:block}}
 :root[data-theme="dark"] .hero-logo .lg-c{display:none}:root[data-theme="dark"] .hero-logo .lg-w{display:block}
