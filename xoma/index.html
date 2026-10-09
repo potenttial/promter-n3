@@ -1893,7 +1893,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
     t.append(el('p',null,'Aquí no juegas contra Engel en persona: juegas contra un SPA (Sistema de Pensamiento Artificial) que codifica su SPH (Sistema de Pensamiento Humano), su algoritYO. Tu SPH frente a su SPA. Cada punto rojo es un pensamiento.'));
     t.append(el('p',null,'Son 10 preguntas. Responde cada una escribiendo tu propio ¿Xoma!: una pregunta que ya contiene tu respuesta. El SPA evalúa qué tanto se parece tu razonamiento al de Engel.'));
     t.append(el('p','sph-warn','Solo gana quien tiene un SPH muy parecido al suyo: alrededor de 1 de cada 10 jugadores.'));
-    t.append(el('p','sph-note','Para jugar necesitas la autorización de Engel: envíale tu solicitud por WhatsApp con tu nombre.'));
+    t.append(el('p','sph-note','Para jugar necesitas la contraseña de Engel: pídela por WhatsApp con tu nombre.'));
     const row=el('div','sph-row'); const inp=el('input'); inp.placeholder='Tu nombre completo'; inp.setAttribute('aria-label','Tu nombre completo'); inp.value=store.get('xoma.sph.name','');
     const b=el('button','cta','Pedir el desafío por WhatsApp'); b.type='button';
     const msg=el('p','hint');
@@ -1920,29 +1920,28 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
     box.innerHTML='';
     const g=el('div','sph-intro'); g.append(cube('big',null));
     const t=el('div','sph-txt');
-    t.append(el('h3','sph-h','Esperando la autorización de Engel'));
+    t.append(el('h3','sph-h','Escribe la contraseña de Engel'));
     t.append(el('p',null,req.name+', tu solicitud se envió por WhatsApp con el código:'));
     t.append(el('p','sph-code',req.code));
-    t.append(el('p','muted','Cuando Engel la autorice, toca el botón para empezar.'));
+    t.append(el('p','muted','Engel te responderá por WhatsApp con la contraseña para desbloquear tu desafío.'));
     const msg=el('p','hint');
+    const prow=el('div','sph-row'); const pw=el('input'); pw.type='password'; pw.placeholder='Contraseña'; pw.setAttribute('aria-label','Contraseña'); pw.autocomplete='off';
+    const go=el('button','cta','Desbloquear desafío'); go.type='button'; prow.append(pw,go);
     const row=el('div','toolrow');
-    const go=el('button','cta small','Ya me autorizó · empezar'); go.type='button';
     const wa=el('a','cta ghost small btn-wa-ghost','Reenviar WhatsApp'); wa.href=waLink(req.name,req.code); wa.target='_blank'; wa.rel='noopener';
     const cancel=el('button','cta ghost small','Cancelar solicitud'); cancel.type='button';
-    go.addEventListener('click',async()=>{
-      go.disabled=true; msg.classList.remove('warn'); msg.textContent='Revisando…';
-      try{
-        const s=await api('/status',{code:req.code});
-        if(s.status==='approved'||s.status==='playing'){ start(req); return; }
-        if(s.status==='rejected'){ msg.textContent='Engel no autorizó esta solicitud.'; msg.classList.add('warn'); }
-        else if(s.status==='done'){ msg.textContent='Este desafío ya se jugó. Pide uno nuevo.'; msg.classList.add('warn'); }
-        else if(s.status==='none'){ msg.textContent='La solicitud expiró. Pide una nueva.'; msg.classList.add('warn'); }
-        else msg.textContent='Aún no está autorizada. Intenta en unos minutos.';
-      }catch(e){ msg.textContent=e.message; msg.classList.add('warn'); }
+    async function unlock(){
+      if(!pw.value.trim()){ msg.textContent='Escribe la contraseña que te dio Engel.'; msg.classList.add('warn'); pw.focus(); return; }
+      go.disabled=true; msg.classList.remove('warn'); msg.textContent='Verificando…';
+      try{ await api('/unlock',{code:req.code,password:pw.value}); start(req); return; }
+      catch(e){ msg.textContent=e.message; msg.classList.add('warn'); if(/Pide/.test(e.message)) store.del('xoma.spa.req'); }
       go.disabled=false;
-    });
+    }
+    go.addEventListener('click',unlock);
+    pw.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); unlock(); } });
     cancel.addEventListener('click',()=>{ store.del('xoma.spa.req'); intro(); });
-    row.append(go,wa,cancel); t.append(row,msg); g.append(t); box.append(g);
+    t.append(prow); row.append(wa,cancel); t.append(row,msg); g.append(t); box.append(g);
+    pw.focus({preventScroll:true});
   }
 
   /* ---------- 3. jugar ---------- */
