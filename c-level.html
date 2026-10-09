@@ -456,8 +456,10 @@ No menciones agentes, SPH, AMO, AGO, AGV ni custodia en tu respuesta.
 <div class="gate" id="gate" hidden role="dialog" aria-modal="true" aria-labelledby="gate_t">
   <div class="gatebox">
     <h3 id="gate_t">Usaste tus 2 intentos gratuitos</h3>
-    <p>Para seguir usando el C-level Prompter, escríbenos por WhatsApp y te enviamos la palabra clave.</p>
-    <a class="btn wa" href="https://wa.me/525529050452?text=Hola%20Engel%2C%20quiero%20la%20palabra%20clave%20del%20C-level%20Prompter" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+    <p>Para seguir usando el C-level Prompter, déjanos tus datos y pide la palabra clave por WhatsApp.</p>
+    <label class="f"><b>Nombre</b><input type="text" id="gate_n" autocomplete="name" placeholder="Tu nombre completo"></label>
+    <label class="f"><b>Empresa</b><input type="text" id="gate_e" autocomplete="organization" placeholder="Tu empresa"></label>
+    <a class="btn wa" id="gate_wa" href="https://wa.me/525529050452" target="_blank" rel="noopener">Pedir la clave por WhatsApp</a>
     <p>O escribe al <span class="phone">+52 55 2905 0452</span></p>
     <label class="f"><b>Palabra clave</b>
       <span class="row"><input type="text" id="gate_k" autocomplete="off" placeholder="Escríbela aquí"><button class="btn primary" id="gate_ok" style="flex:none">Desbloquear</button></span></label>
@@ -782,7 +784,7 @@ function pintaUsos(){ $("usos").textContent = libre ? "acceso desbloqueado" : `$
 let pendiente=null;
 function gated(accion){
   if(libre || usos<FREE){ if(!libre){ usos++; st.set("n3cl_usos",String(usos)); pintaUsos(); } accion(); return true; }
-  pendiente=accion; $("gate").hidden=false; $("gate_err").textContent=""; $("gate_k").focus(); return false;
+  pendiente=accion; $("gate").hidden=false; $("gate_err").textContent=""; if(!$("gate_e").value) $("gate_e").value=v("empresa"); waLink(); $("gate_n").focus(); return false;
 }
 function desbloquear(){
   if(h($("gate_k").value.trim().toLowerCase())===KEY_H){
@@ -790,6 +792,17 @@ function desbloquear(){
     if(pendiente){ const a=pendiente; pendiente=null; a(); }
   } else { $("gate_err").textContent="Esa no es la palabra clave. Pídela por WhatsApp."; }
 }
+function waLink(){
+  const n=$("gate_n").value.trim(), e=$("gate_e").value.trim();
+  const msg=`Hola Engel, quiero la palabra clave del C-level Prompter.\nNombre: ${n}\nEmpresa: ${e}`;
+  $("gate_wa").href="https://wa.me/525529050452?text="+encodeURIComponent(msg);
+  return n && e;
+}
+["gate_n","gate_e"].forEach(id=>$(id).addEventListener("input",waLink));
+$("gate_wa").addEventListener("click",ev=>{
+  if(!waLink()){ ev.preventDefault(); $("gate_err").textContent="Escribe tu nombre y tu empresa para pedir la clave."; ($("gate_n").value.trim()?$("gate_e"):$("gate_n")).focus(); }
+  else $("gate_err").textContent="";
+});
 $("gate_ok").addEventListener("click",desbloquear);
 $("gate_k").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); desbloquear(); } });
 $("gate_x").addEventListener("click",()=>{ $("gate").hidden=true; pendiente=null; });
