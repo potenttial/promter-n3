@@ -173,6 +173,42 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
 .logo-n3{height:56px;width:auto;max-width:none;flex-shrink:0;object-fit:contain}
 .foot p{margin:0;color:var(--muted);font-size:.92rem;max-width:56ch}
 .foot-credit{width:100%;font-size:.8rem;color:var(--muted)}
+
+/* chat */
+.chat{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.chat-head{display:flex;align-items:center;gap:.8rem;padding:1rem 1.2rem;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.bot-av,.m-av{flex:0 0 auto;width:40px;height:40px;border-radius:50%;background:var(--night);color:var(--red);display:grid;place-items:center;font-size:.7rem;letter-spacing:.08em;font-weight:500;box-shadow:0 0 0 2px color-mix(in srgb,var(--red) 35%,transparent)}
+.chat-head b{display:block;font-weight:400}.chat-head span{font-size:.82rem;color:var(--muted)}
+.chat-prog{margin-left:auto;display:flex;align-items:center;gap:.6rem;font-size:.8rem;color:var(--muted)}
+.cp-bar{width:120px;height:6px;border-radius:6px;background:var(--line);overflow:hidden}.cp-bar i{display:block;height:100%;background:var(--red);transition:width .5s}
+.chat-log{padding:1.2rem;display:flex;flex-direction:column;gap:.7rem;min-height:260px;max-height:min(62vh,600px);overflow-y:auto;overscroll-behavior:contain;background:color-mix(in srgb,var(--bg) 60%,var(--paper))}
+.msg{display:flex;gap:.6rem;align-items:flex-end;max-width:min(680px,92%);animation:msgin .3s ease}
+@keyframes msgin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg .m-av{width:30px;height:30px;font-size:.55rem}
+.msg .bub{background:var(--paper);border:1px solid var(--line);border-radius:18px 18px 18px 4px;padding:.65rem .95rem;line-height:1.45}
+.msg.me{align-self:flex-end}
+.msg.me .bub{background:var(--plum);color:#fff;border-color:var(--plum);border-radius:18px 18px 4px 18px}
+.m-meta{display:block;font-size:.72rem;color:var(--red);letter-spacing:.04em;margin-bottom:.2rem}
+.msg.bot .bub:has(.m-meta){font-size:1.12rem}
+.typing .bub{display:flex;gap:4px;padding:.8rem .9rem}
+.typing .bub i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:dot 1s infinite}
+.typing .bub i:nth-child(2){animation-delay:.15s}.typing .bub i:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+.replies{display:flex;flex-wrap:wrap;gap:.5rem;padding:1rem 1.2rem;border-top:1px solid var(--line);min-height:4rem;align-items:center}
+.replies.long{flex-direction:column;align-items:stretch}
+.chip-r{font:inherit;font-size:.95rem;text-align:left;display:inline-flex;gap:.6rem;align-items:center;background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:.5rem .95rem;cursor:pointer;color:var(--ink);line-height:1.35}
+.replies.long .chip-r{border-radius:14px;padding:.7rem .95rem}
+.chip-r:hover{border-color:var(--red)}
+.chip-r .l{flex:0 0 1.6rem;height:1.6rem;border-radius:50%;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);font-size:.8rem}
+.chip-r.ghost{border-style:dashed;color:var(--muted)}
+.other{display:flex;gap:.5rem;width:100%;max-width:520px}
+.other input{flex:1;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:.55rem .95rem}
+.other input:focus{border-color:var(--red);outline:none}
+.chat-foot{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;padding:.6rem 1.2rem .9rem;font-size:.82rem}
+.linkbtn{font:inherit;font-size:.82rem;background:none;border:0;color:var(--plum);cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
+.linkbtn:disabled{opacity:.4;cursor:default}
+.profile{font-size:.85rem;color:var(--plum);margin:.6rem 0 0}
+@media (max-width:560px){.chat-prog{margin-left:0;width:100%}.cp-bar{flex:1}}
 </style>
 </head>
 <body>
@@ -234,8 +270,9 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
 <section class="band" id="test">
   <div class="wrap">
     <h2>Observa tu mente</h2>
-    <p class="intro">Responde con lo que <b>sueles hacer</b>, no con lo que crees que deberías hacer. No hay respuestas correctas.</p>
-    <div class="panel" id="app"></div>
+    <p class="intro">Una conversación de 15 preguntas breves. Al final verás el mapa de tu Sistema de Pensamiento Humano.</p>
+    <div class="panel chat" id="app"></div>
+    <div id="results" style="margin-top:1.5rem"></div>
   </div>
 </section>
 
@@ -414,47 +451,93 @@ function wrapText(ns,g,text,x,y,anchor,maxW){
 }
 renderCube($('#heroCube'),[{k:'tam',key:'Tamaño'},{k:'olor',key:'Olor'},{k:'forma',key:'Forma geométrica'},{k:'color',key:'Color'},{k:'sabor',key:'Sabor'}],true);
 
-/* ================= flujo del test ================= */
+/* ================= flujo conversacional ================= */
 const app=$('#app');
-let st=store.get('sph.dir.state',null)||{i:-1,ans:[],who:{},order:null};
-function save(){ store.set('sph.dir.state',st); }
+const INTAKE=[
+ {k:'edad',q:'Para empezar, ¿en qué rango de edad estás?',o:['Menos de 30','30 a 39','40 a 49','50 a 59','60 o más']},
+ {k:'genero',q:'¿Con qué género te identificas?',o:['Mujer','Hombre','Prefiero no decirlo'],other:'Escribe cómo te identificas'},
+ {k:'sector',q:'¿En qué sector industrial trabajas?',o:['Tecnología','Alimentos y bebidas','Financiero','Salud','Manufactura','Retail y consumo','Educación','Energía','Gobierno','Servicios profesionales'],other:'Escribe tu sector'},
+ {k:'puesto',q:'¿Qué puesto ocupas?',o:['CEO / Dirección General','CFO / Finanzas','COO / Operaciones','CMO / Comercial','CHRO / Recursos Humanos','CTO / CIO / Tecnología','Director(a) de área','Gerente'],other:'Escribe tu puesto'},
+ {k:'estudios',q:'¿Qué estudiaste?',o:['Ingeniería','Administración / Negocios','Economía / Finanzas','Derecho','Ciencias de la salud','Ciencias sociales / Humanidades','Ciencias exactas','Diseño / Comunicación'],other:'Escribe lo que estudiaste'}
+];
+const ACKS=['Anotado.','Entendido.','Interesante.','Muy bien.','Gracias.','Lo registro.','Claro.','Sigamos.'];
+const NI=INTAKE.length, TOTAL=NI+QS.length;
 function shuffle(a){a=a.slice(); for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]];} return a;}
-if(!st.order) st.order=QS.map(q=>shuffle([0,1,2,3]));
+let st=store.get('sph.dir.v2',null)||{step:0,who:{},ans:[],order:QS.map(()=>shuffle([0,1,2,3])),started:false};
+function save(){ store.set('sph.dir.v2',st); }
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function start(){
+let log, replies, busy=false;
+function shell(){
   app.innerHTML='';
-  app.append(el('h3','h3','Antes de empezar'));
-  app.lastChild.style.marginTop='0';
-  app.append(el('p','note','Opcional: aparecerán en tu resultado en PDF y en el mensaje si solicitas una evaluación para tu organización.'));
-  const f=el('div','fields');
-  const mk=(k,lab,ph)=>{ const l=el('label'); l.append(document.createTextNode(lab)); const i=el('input'); i.placeholder=ph; i.value=st.who[k]||''; i.addEventListener('input',()=>{st.who[k]=i.value.trim(); save();}); l.append(i); f.append(l); return i; };
-  const n=mk('nombre','Nombre','Tu nombre'); mk('cargo','Cargo','Ej. Director General'); mk('empresa','Empresa','Tu organización');
-  app.append(f);
-  const b=el('button','cta',st.ans.length?'Continuar el test':'Empezar las 10 preguntas'); b.type='button';
-  b.addEventListener('click',()=>{ if(st.i<0) st.i=0; save(); ask(); app.scrollIntoView({behavior:'smooth',block:'start'}); });
-  app.append(b);
-  app.append(el('p','note','Herramienta de reflexión, no un diagnóstico psicológico ni clínico. Tus respuestas se quedan en tu navegador.'));
-  app.lastChild.style.marginTop='1rem';
+  const head=el('div','chat-head');
+  const av=el('div','bot-av','SPH'); const tt=el('div'); tt.append(el('b',null,'Mapa SPH'), el('span',null,'Método Thinktech · conversación guiada'));
+  const prog=el('div','chat-prog'); prog.id='chatProg';
+  head.append(av,tt,prog); app.append(head);
+  log=el('div','chat-log'); log.setAttribute('aria-live','polite'); app.append(log);
+  replies=el('div','replies'); app.append(replies);
+  const foot=el('div','chat-foot');
+  const undo=el('button','linkbtn','← Corregir mi respuesta anterior'); undo.type='button'; undo.id='undo';
+  undo.addEventListener('click',()=>{ if(busy||st.step===0) return; st.step--; if(st.step<NI) delete st.who[INTAKE[st.step].k]; else st.ans.length=st.step-NI; save(); rebuild(); });
+  const restart=el('button','linkbtn','Reiniciar'); restart.type='button';
+  restart.addEventListener('click',()=>{ if(busy) return; st={step:0,who:{},ans:[],order:QS.map(()=>shuffle([0,1,2,3])),started:true}; save(); $('#results').innerHTML=''; if(mapStop) mapStop(); rebuild(); });
+  foot.append(undo,restart,el('span','note','Tus respuestas se quedan en tu navegador.'));
+  app.append(foot);
 }
-function ask(){
-  const q=QS[st.i]; app.innerHTML='';
-  const head=el('div','qhead'); const prog=el('div','prog'); for(let k=0;k<QS.length;k++) prog.append(el('i',k<st.i?'on':(k===st.i?'now':'')));
-  head.append(el('span','qn','Pregunta '+(st.i+1)+' de '+QS.length),prog); app.append(head);
-  app.append(el('span','qlay',LAYER[q.l]));
-  app.append(el('h3','qt',q.q));
-  const opts=el('div','opts'); opts.setAttribute('role','radiogroup'); opts.setAttribute('aria-label',q.q);
-  st.order[st.i].forEach((oi,n)=>{
-    const o=q.o[oi]; const b=el('button','opt'+(st.ans[st.i]===oi?' sel':'')); b.type='button'; b.setAttribute('role','radio'); b.setAttribute('aria-checked',String(st.ans[st.i]===oi));
-    b.append(el('span','l',String.fromCharCode(65+n)), el('span',null,o[0]));
-    b.addEventListener('click',()=>{ st.ans[st.i]=oi; save(); setTimeout(()=>{ if(st.i<QS.length-1){ st.i++; save(); ask(); } else { st.i=QS.length; save(); results(); } },220); opts.querySelectorAll('.opt').forEach(x=>{x.classList.toggle('sel',x===b); x.setAttribute('aria-checked',String(x===b));}); });
-    opts.append(b);
-  });
-  app.append(opts);
-  const nav=el('div','qnav');
-  if(st.i>0){ const bk=el('button','cta ghost small','← Anterior'); bk.type='button'; bk.addEventListener('click',()=>{st.i--; save(); ask();}); nav.append(bk); }
-  app.append(nav);
-  const first=opts.querySelector('.opt'); if(first) first.focus({preventScroll:true});
+function progress(){ const p=$('#chatProg'); if(!p) return; p.innerHTML=''; const done=Math.min(st.step,TOTAL); const bar=el('span','cp-bar'); const f=el('i'); f.style.width=(done/TOTAL*100)+'%'; bar.append(f); p.append(bar, el('span','cp-n',st.step<NI?'Perfil '+Math.min(st.step+1,NI)+'/'+NI:(st.step<TOTAL?'Pregunta '+(st.step-NI+1)+'/'+QS.length:'Listo'))); $('#undo').disabled=st.step===0||st.step>TOTAL; }
+function bubble(who,content,meta){
+  const m=el('div','msg '+who); if(who==='bot') m.append(el('span','m-av','SPH'));
+  const b=el('div','bub'); if(meta) b.append(el('span','m-meta',meta));
+  if(typeof content==='string') b.append(document.createTextNode(content)); else b.append(content);
+  m.append(b); log.append(m); scrollEnd(); return m;
 }
+function scrollEnd(){ if(log) log.scrollTo({top:log.scrollHeight,behavior:reduceMotion?'auto':'smooth'}); }
+function typing(ms){ return new Promise(res=>{ if(reduceMotion||ms===0){ res(); return; } const t=el('div','msg bot typing'); t.append(el('span','m-av','SPH')); const b=el('div','bub'); b.append(el('i'),el('i'),el('i')); t.append(b); log.append(t); scrollEnd(); setTimeout(()=>{ t.remove(); res(); },ms); }); }
+function questionAt(step){
+  if(step<NI){ const it=INTAKE[step]; return {text:it.q,meta:'Tu contexto · '+(step+1)+' de '+NI,opts:it.o.map(o=>({label:o,val:o})),other:it.other}; }
+  const qi=step-NI, q=QS[qi]; return {text:q.q,meta:'Pregunta '+(qi+1)+' de '+QS.length+' · '+LAYER[q.l],opts:st.order[qi].map(oi=>({label:q.o[oi][0],val:oi})),long:true};
+}
+function answerLabel(step){ if(step<NI) return st.who[INTAKE[step].k]; const qi=step-NI; return QS[qi].o[st.ans[qi]][0]; }
+function intro(instant){
+  bubble('bot','Hola. Te acompaño a observar tu mente con el método Thinktech de Engel Fonseca.');
+  bubble('bot','Primero 5 preguntas rápidas sobre tu contexto y después 10 situaciones de liderazgo. Responde con lo que sueles hacer, no con lo que crees que deberías hacer. No hay respuestas correctas.');
+}
+function rebuild(){
+  shell(); log.innerHTML=''; replies.innerHTML='';
+  if(!st.started){ intro(); const b=el('button','cta','Empezar la conversación'); b.type='button'; b.style.margin='0'; b.addEventListener('click',()=>{ st.started=true; save(); replies.innerHTML=''; next(); }); replies.append(b); progress(); return; }
+  intro();
+  for(let s=0;s<Math.min(st.step,TOTAL);s++){ const q=questionAt(s); if(s===NI) bubble('bot','Gracias. Ahora observemos cómo piensas.'); bubble('bot',q.text,q.meta); bubble('me',answerLabel(s)); }
+  progress();
+  if(st.step>=TOTAL){ bubble('bot','Listo. Tu mapa está abajo.'); if(!$('#results').childElementCount) results(); return; }
+  ask(true);
+}
+async function next(){
+  busy=true; progress();
+  if(st.step>=TOTAL){ await typing(900); bubble('bot','Estoy conectando tus respuestas: tipo de pensamiento, paradigmas, sesgos y miedos…'); await typing(1400); bubble('bot','Listo. Este es el mapa de tu Sistema de Pensamiento Humano.'); busy=false; results(); return; }
+  if(st.step===NI){ await typing(700); bubble('bot','Gracias. Ahora observemos cómo piensas.'); }
+  else if(st.step>NI){ await typing(450); bubble('bot',ACKS[(st.step*7)%ACKS.length]); }
+  await typing(st.step===0?600:850);
+  busy=false; ask(false);
+}
+function ask(instant){
+  const q=questionAt(st.step); bubble('bot',q.text,q.meta);
+  replies.innerHTML=''; replies.classList.toggle('long',!!q.long);
+  q.opts.forEach((o,n)=>{ const b=el('button','chip-r'); b.type='button'; if(q.long) b.append(el('span','l',String.fromCharCode(65+n))); b.append(el('span',null,o.label)); b.addEventListener('click',()=>choose(o.val,o.label)); replies.append(b); });
+  if(q.other){
+    const b=el('button','chip-r ghost','Otro'); b.type='button';
+    b.addEventListener('click',()=>{ replies.innerHTML=''; const f=el('form','other'); const i=el('input'); i.placeholder=q.other; i.setAttribute('aria-label',q.other); i.maxLength=60; const s=el('button','cta small','Enviar'); s.type='submit'; s.style.margin='0'; f.append(i,s); f.addEventListener('submit',e=>{ e.preventDefault(); const v=i.value.trim(); if(v.length<2){ i.focus(); return; } choose(v,v); }); replies.append(f); i.focus(); });
+    replies.append(b);
+  }
+  progress();
+  const first=replies.querySelector('button'); if(first&&st.started&&!instant) first.focus({preventScroll:true});
+}
+function choose(val,label){
+  if(busy) return;
+  replies.innerHTML='';
+  if(st.step<NI) st.who[INTAKE[st.step].k]=label; else st.ans[st.step-NI]=val;
+  bubble('me',label); st.step++; save(); next();
+}
+function profileLine(){ const w=st.who; return [w.puesto,w.sector&&('sector '+w.sector.toLowerCase()),w.edad&&(w.edad.toLowerCase()+' años'),w.estudios&&('estudios en '+w.estudios.toLowerCase())].filter(Boolean).join(' · '); }
 
 /* ================= cálculo ================= */
 function compute(){
@@ -473,12 +556,13 @@ function compute(){
 /* ================= resultados ================= */
 let R=null, mapStop=null;
 function results(){
-  R=compute(); const T=TYPES[R.dom], T2=TYPES[R.sec], name=st.who.nombre||'';
-  app.innerHTML='';
+  R=compute(); const T=TYPES[R.dom], T2=TYPES[R.sec];
+  const app=$('#results'); app.innerHTML=''; app.classList.add('panel');
   const top=el('div','res-top');
   const L=el('div');
   L.append(el('div','kicker','TU SISTEMA DE PENSAMIENTO HUMANO'));
-  const h=el('h3','rtitle'); h.append(document.createTextNode((name?name+', tu':'Tu')+' pensamiento dominante es ')); const sp=el('span',null,T.n.toLowerCase()); h.append(sp, document.createTextNode('.')); L.append(h);
+  const h=el('h3','rtitle'); h.append(document.createTextNode('Tu pensamiento dominante es ')); const sp=el('span',null,T.n.toLowerCase()); h.append(sp, document.createTextNode('.')); L.append(h);
+  if(profileLine()) L.append(el('p','profile',profileLine()));
   L.append(el('p','rsub','Con apoyo '+T2.n.toLowerCase()+'. Así se distribuyen tus 10 respuestas:'));
   const bars=el('div','typebars');
   ORDER.slice().sort((a,b)=>R.tc[b]-R.tc[a]).forEach(k=>{ const r=el('div','tb'); const bar=el('span','bar'); const f=el('i'); f.style.background=TYPES[k].c; bar.append(f); r.append(el('span',null,TYPES[k].n),bar,el('b',null,(R.tc[k]*10)+'%')); bars.append(r); requestAnimationFrame(()=>requestAnimationFrame(()=>f.style.width=(R.tc[k]*10)+'%')); });
@@ -520,20 +604,20 @@ function results(){
 
   const cg=el('div','change');
   const cl=el('div'); const h3=el('h3'); h3.append(document.createTextNode('Tu SPH y el ')); h3.append(el('span',null,'Change Management')); cl.append(h3);
-  cl.append(el('p',null,T.change));
+  cl.append(el('p',null,(st.who.puesto?'Como '+st.who.puesto.split(' / ')[0]+(st.who.sector?' en el sector '+st.who.sector.toLowerCase():'')+': ':'')+T.change));
   cl.append(el('p',null,'Cuando conoces el SPH de tus líderes, sabes cómo vivirán el cambio, qué los frenará y cómo acompañarlos. Engel Fonseca y Potenttial Group realizan evaluaciones de SPH para organizaciones, con Change Practitioners certificados por Prosci.'));
   const ca=el('div','acts');
   const wa=el('a','cta wa','Solicitar evaluación SPH para mi organización'); wa.target='_blank'; wa.rel='noopener'; wa.href=waLink();
   const pdf=el('button','cta ghost','Descargar mi resultado en PDF'); pdf.type='button'; pdf.style.color='#fff'; pdf.style.boxShadow='inset 0 0 0 2px #fff'; pdf.addEventListener('click',()=>makePDF(pdf));
   ca.append(wa,pdf); cg.append(cl,ca); app.append(cg);
 
-  const tr=el('div','toolrow'); const again=el('button','cta ghost small','Repetir el test'); again.type='button'; again.addEventListener('click',()=>{ st={i:-1,ans:[],who:st.who,order:QS.map(()=>shuffle([0,1,2,3]))}; save(); if(mapStop) mapStop(); start(); }); tr.append(again); app.append(tr);
+  const tr=el('div','toolrow'); const again=el('button','cta ghost small','Repetir el test'); again.type='button'; again.addEventListener('click',()=>{ st={step:NI,who:st.who,ans:[],order:QS.map(()=>shuffle([0,1,2,3])),started:true}; save(); if(mapStop) mapStop(); $('#results').innerHTML=''; $('#results').classList.remove('panel'); rebuild(); $('#app').scrollIntoView({behavior:'smooth',block:'start'}); }); tr.append(again); app.append(tr);
   app.append(el('p','disc','Mapa SPH es una herramienta de reflexión basada en el método Thinktech de metacognición tecnológica. No es un diagnóstico psicológico ni clínico: muestra tendencias según tus respuestas para que puedas observarlas y configurarlas.'));
   app.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function waLink(){
   const w=st.who, T=R?TYPES[R.dom]:null;
-  let t='Hola Engel, '+(w.nombre?'soy '+w.nombre:'')+(w.cargo?', '+w.cargo:'')+(w.empresa?' en '+w.empresa:'')+'. ';
+  let t='Hola Engel. '+(w.puesto?'Ocupo el puesto de '+w.puesto+(w.sector?' en el sector '+w.sector.toLowerCase():'')+'. ':'');
   t+='Me interesa una evaluación de SPH para mi organización para fomentar Change Management.';
   if(T) t+=' Mi resultado en Mapa SPH: pensamiento '+T.n.toLowerCase()+' con apoyo '+TYPES[R.sec].n.toLowerCase()+'.';
   return 'https://wa.me/'+WA+'?text='+encodeURIComponent(t);
@@ -548,7 +632,7 @@ function drawMap(cv){
   let nodes=[], edges=[];
   function layout(){
     nodes=[]; edges=[]; const cx=W/2, cy=H/2, R1=Math.min(W,H)*0.24, R2=Math.min(W,H)*0.42;
-    const center={x:cx,y:cy,r:Math.max(26,Math.min(W,H)*0.07),c:'#E5332A',t:'SPH',sub:(st.who.nombre||'Tu mente'),main:true}; nodes.push(center);
+    const center={x:cx,y:cy,r:Math.max(26,Math.min(W,H)*0.07),c:'#E5332A',t:'SPH',sub:'Tu mente',main:true}; nodes.push(center);
     ORDER.forEach((k,i)=>{ const a=-Math.PI/2+i*Math.PI/2+Math.PI/4; const v=R.tc[k]; const n={x:cx+Math.cos(a)*R1,y:cy+Math.sin(a)*R1,r:10+v*2.6,c:TYPES[k].hex,t:TYPES[k].n,sub:(v*10)+'%',a,ph:i}; nodes.push(n); edges.push([center,n,0.25+v/10]); });
     const outer=[...R.para.map(k=>['#7FD1E8',PARA[k][0]]),...R.bias.map(k=>['#F2B33D',BIAS[k][0]]),...R.fear.map(k=>['#FF8A7A',FEAR[k][0].replace('Miedo ','miedo ')])];
     outer.forEach((o,i)=>{ const a=-Math.PI/2+(i+0.5)*(2*Math.PI/outer.length); const n={x:cx+Math.cos(a)*R2,y:cy+Math.sin(a)*R2,r:7,c:o[0],t:o[1],a,ph:i+4,outer:true}; nodes.push(n);
@@ -614,7 +698,7 @@ async function makePDF(btn){
     doc.setFillColor(11,11,14); doc.rect(0,0,PW,118,'F');
     doc.setTextColor(229,51,42); doc.setFontSize(9); doc.text('T H I N K T E C H   ·   T H I N K I A',M,40);
     doc.setTextColor(255,255,255); doc.setFontSize(24); doc.text('Mapa SPH',M,72);
-    doc.setFontSize(10.5); doc.setTextColor(201,201,210); doc.text([w.nombre,w.cargo,w.empresa].filter(Boolean).join(' · ')||'Sistema de Pensamiento Humano',M,96);
+    doc.setFontSize(10.5); doc.setTextColor(201,201,210); doc.text(doc.splitTextToSize(profileLine()||'Sistema de Pensamiento Humano',PW-2*M-160)[0],M,96);
     doc.text(new Date().toLocaleDateString('es-MX',{dateStyle:'long'}),PW-M,96,{align:'right'});
     y=148;
     P('Pensamiento dominante: '+T.n+' · con apoyo '+T2.n.toLowerCase(),{size:15,bold:true,color:'#56356A',after:6});
@@ -633,14 +717,14 @@ async function makePDF(btn){
     P('¿Quieres una evaluación de SPH para tu organización? Escribe a Engel Fonseca por WhatsApp: +52 55 2905 0452',{size:10.5,bold:true,after:10});
     P('Herramienta de reflexión basada en el método Thinktech. No es un diagnóstico psicológico ni clínico.',{size:8.5,color:'#5A6075'});
     const n=doc.getNumberOfPages(); for(let i=1;i<=n;i++){ doc.setPage(i); doc.setFontSize(8); doc.setTextColor(90,96,117); doc.text('Mapa SPH · ThinkIA de Engel Fonseca · Desarrollo N3 Labs · '+i+'/'+n,M,PH-22); }
-    doc.save('Mapa-SPH'+(w.nombre?'-'+w.nombre.replace(/\s+/g,'-'):'')+'.pdf');
+    doc.save('Mapa-SPH.pdf');
     btn.textContent='PDF listo';
   }catch(e){ btn.textContent='No se pudo generar el PDF'; }
   finally{ setTimeout(()=>{ btn.textContent=old; btn.disabled=false; },2500); }
 }
 
 /* inicio */
-if(st.i>=QS.length && st.ans.length===QS.length) results(); else if(st.i>=0) ask(); else start();
+rebuild();
 })();
 </script>
 </body>
