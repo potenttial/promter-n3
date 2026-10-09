@@ -587,7 +587,7 @@ function drawMap(cv){
 
 /* ================= PDF ================= */
 async function cubePNG(items){
-  const img=new Image(); img.src=CUBE; await img.decode().catch(()=>{});
+  const img=document.getElementById('cubeSrc'); if(!img.complete||!img.naturalWidth) await new Promise(r=>{img.onload=r; img.onerror=r; setTimeout(r,2000);});
   const W=1000,H=640,S=600,X0=200,Y0=20; const c=document.createElement('canvas'); c.width=W; c.height=H; const x=c.getContext('2d');
   x.fillStyle='#0B0B0E'; x.fillRect(0,0,W,H); x.drawImage(img,X0,Y0,S,S);
   const pt=k=>[X0+V[k][0]/100*S, Y0+V[k][1]/100*S];
