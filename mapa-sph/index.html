@@ -64,6 +64,7 @@ header.top{display:flex;align-items:center;justify-content:space-between;gap:1re
 .cubesvg text{font-family:var(--font);fill:#fff}
 .cubesvg .k{font-size:22px;fill:#9A9AA5;letter-spacing:.04em}
 .cubesvg .v{font-size:27px;font-weight:300}
+.cubesvg .h{font-size:23px;font-weight:300}
 .cubesvg .lead{stroke:#6B6B75;stroke-width:1}
 .cubesvg .edge{stroke:var(--red);stroke-width:3.2;fill:none;stroke-linecap:round}
 .cubesvg .edge.dash{stroke-width:1.6;stroke-dasharray:7 7}
@@ -436,7 +437,7 @@ function renderCube(host,items,anim){
     const ld=document.createElementNS(ns,'line'); ld.setAttribute('x1',x); ld.setAttribute('y1',y); ld.setAttribute('x2',lx); ld.setAttribute('y2',y); ld.setAttribute('class','lead'); svg.append(ld);
     const g=document.createElementNS(ns,'g');
     const tx=left?lx-8:lx+8, anchor=left?'end':'start';
-    const t1=document.createElementNS(ns,'text'); t1.setAttribute('x',tx); t1.setAttribute('y',it.val?y-10:y+8); t1.setAttribute('text-anchor',anchor); t1.setAttribute('class',it.val?'k':'v'); t1.textContent=it.key; g.append(t1);
+    const t1=document.createElementNS(ns,'text'); t1.setAttribute('x',tx); t1.setAttribute('y',it.val?y-10:y+8); t1.setAttribute('text-anchor',anchor); t1.setAttribute('class',it.val?'k':'h'); t1.textContent=it.key; g.append(t1);
     if(it.val){ wrapText(ns,g,it.val,tx,y+22,anchor,left?(X0-24):(W-X0-S-24)); }
     svg.append(g);
     const h=document.createElementNS(ns,'circle'); h.setAttribute('cx',x); h.setAttribute('cy',y); h.setAttribute('r',13); h.setAttribute('class','halo'); h.style.animationDelay=(i*0.4)+'s'; svg.append(h);
