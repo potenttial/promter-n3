@@ -165,6 +165,7 @@ section.band{padding:clamp(2.8rem,7vw,5rem) 0;border-top:1px solid var(--line)}
 .change .cta{justify-content:center;margin:0}
 @media (max-width:760px){.change{grid-template-columns:1fr}}
 .disc{font-size:.82rem;color:var(--muted);margin-top:1.4rem;max-width:80ch}
+.dare{margin-top:1.6rem;padding:clamp(1rem,3vw,1.5rem);border-radius:18px;border:1px solid color-mix(in srgb,#1F8F57 35%,transparent);background:color-mix(in srgb,#1F8F57 7%,transparent)}.dare h3{margin:0 0 .3rem}.dare p{margin:0 0 .9rem;color:var(--muted)}
 .toolrow{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
 
 /* footer */
@@ -306,7 +307,7 @@ a.tk:hover{color:var(--red)}
 <section class="band" id="test">
   <div class="wrap">
     <h2>Observa tu mente</h2>
-    <p class="intro">Una conversación de 15 preguntas breves. Al final verás el mapa de tu Sistema de Pensamiento Humano.</p>
+    <p class="intro">Una conversación de 16 preguntas breves. Al final verás el mapa de tu Sistema de Pensamiento Humano.</p>
     <div class="panel chat" id="app"></div>
     <div id="results" style="margin-top:1.5rem"></div>
   </div>
@@ -516,17 +517,18 @@ renderCube($('#heroCube'),[{k:'tam',key:'Tamaño'},{k:'olor',key:'Olor'},{k:'for
 /* ================= flujo conversacional ================= */
 const app=$('#app');
 const INTAKE=[
- {k:'edad',q:'Para empezar, ¿en qué rango de edad estás?',o:['Menos de 30','30 a 39','40 a 49','50 a 59','60 o más']},
+ {k:'edad',q:'Para empezar, ¿en qué rango de edad estás?',o:['10 a 20','21 a 29','30 a 39','40 a 49','50 a 59','60 o más']},
  {k:'genero',q:'¿Con qué género te identificas?',o:['Mujer','Hombre','Prefiero no decirlo'],other:'Escribe cómo te identificas'},
- {k:'sector',q:'¿En qué sector industrial trabajas?',o:['Tecnología','Alimentos y bebidas','Financiero','Salud','Manufactura','Retail y consumo','Educación','Energía','Gobierno','Servicios profesionales'],other:'Escribe tu sector'},
- {k:'puesto',q:'¿Qué puesto ocupas?',o:['CEO / Dirección General','CFO / Finanzas','COO / Operaciones','CMO / Comercial','CHRO / Recursos Humanos','CTO / CIO / Tecnología','Director(a) de área','Gerente'],other:'Escribe tu puesto'},
- {k:'estudios',q:'¿Qué estudiaste?',o:['Ingeniería','Administración / Negocios','Economía / Finanzas','Derecho','Ciencias de la salud','Ciencias sociales / Humanidades','Ciencias exactas','Diseño / Comunicación'],other:'Escribe lo que estudiaste'}
+ {k:'sector',q:'¿En qué sector industrial trabajas o quieres trabajar?',o:['Tecnología','Alimentos y bebidas','Financiero','Salud','Manufactura','Retail y consumo','Educación','Energía','Gobierno','Servicios profesionales'],other:'Escribe tu sector'},
+ {k:'puesto',q:'¿Qué puesto ocupas o cuál es tu actividad?',o:['CEO / Dirección General','CFO / Finanzas','COO / Operaciones','CMO / Comercial','CHRO / Recursos Humanos','CTO / CIO / Tecnología','Director(a) de área','Gerente','Emprendedor(a)','Estudiante'],other:'Escribe tu puesto'},
+ {k:'estudios',q:'¿Qué estudiaste o estudias?',o:['Ingeniería','Administración / Negocios','Economía / Finanzas','Derecho','Ciencias de la salud','Ciencias sociales / Humanidades','Ciencias exactas','Diseño / Comunicación'],other:'Escribe lo que estudiaste o estudias'},
+ {k:'voz',q:'Dentro de tu discurso interno (piensas entre 300 y 500 palabras por minuto), ¿desde qué ángulo te hablas?',o:['Primera persona (“yo siento que…”)','Tercera persona','No soy consciente de ello']}
 ];
 const ACKS=['Anotado.','Entendido.','Interesante.','Muy bien.','Gracias.','Lo registro.','Claro.','Sigamos.'];
 const NI=INTAKE.length, TOTAL=NI+QS.length;
 function shuffle(a){a=a.slice(); for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]];} return a;}
-let st=store.get('sph.dir.v2',null)||{step:0,who:{},ans:[],order:QS.map(()=>shuffle([0,1,2,3])),started:false};
-function save(){ store.set('sph.dir.v2',st); }
+let st=store.get('sph.dir.v3',null)||{step:0,who:{},ans:[],order:QS.map(()=>shuffle([0,1,2,3])),started:false};
+function save(){ store.set('sph.dir.v3',st); }
 const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 let log, replies, busy=false;
@@ -562,7 +564,7 @@ function questionAt(step){
 function answerLabel(step){ if(step<NI) return st.who[INTAKE[step].k]; const qi=step-NI; return QS[qi].o[st.ans[qi]][0]; }
 function intro(instant){
   bubble('bot','Hola. Te acompaño a observar tu mente con el método Thinktech de Engel Fonseca.');
-  bubble('bot','Primero 5 preguntas rápidas sobre tu contexto y después 10 situaciones de liderazgo. Responde con lo que sueles hacer, no con lo que crees que deberías hacer. No hay respuestas correctas.');
+  bubble('bot','Primero 6 preguntas rápidas sobre tu contexto y después 10 situaciones de liderazgo. Responde con lo que sueles hacer, no con lo que crees que deberías hacer. No hay respuestas correctas.');
 }
 function rebuild(){
   shell(); log.innerHTML=''; replies.innerHTML='';
@@ -599,7 +601,7 @@ function choose(val,label){
   if(st.step<NI) st.who[INTAKE[st.step].k]=label; else st.ans[st.step-NI]=val;
   bubble('me',label); st.step++; save(); next();
 }
-function profileLine(){ const w=st.who; return [w.puesto,w.sector&&('sector '+w.sector.toLowerCase()),w.edad&&(w.edad.toLowerCase()+' años'),w.estudios&&('estudios en '+w.estudios.toLowerCase())].filter(Boolean).join(' · '); }
+function profileLine(){ const w=st.who; return [w.puesto,w.sector&&('sector '+w.sector.toLowerCase()),w.edad&&(w.edad.toLowerCase()+' años'),w.estudios&&('estudios en '+w.estudios.toLowerCase()),w.voz&&('voz interna: '+w.voz.split(' (')[0].toLowerCase())].filter(Boolean).join(' · '); }
 
 /* ================= cálculo ================= */
 function compute(){
@@ -673,10 +675,14 @@ function results(){
   const pdf=el('button','cta ghost','Descargar mi resultado en PDF'); pdf.type='button'; pdf.style.color='#fff'; pdf.style.boxShadow='inset 0 0 0 2px #fff'; pdf.addEventListener('click',()=>makePDF(pdf));
   ca.append(wa,pdf); cg.append(cl,ca); app.append(cg);
 
+  const dz=el('div','dare'); dz.append(el('h3',null,'¿A quién retarías a descubrir su SPH?'), el('p',null,'Desafía a alguien a identificar su Sistema de Pensamiento Humano y comparen sus mapas.'));
+  const dzb=el('button','cta wa','Desafiar a alguien por WhatsApp'); dzb.type='button'; dzb.addEventListener('click',()=>{ window.open('https://wa.me/?text='+encodeURIComponent(dareText(T)),'_blank','noopener'); }); dz.append(dzb); app.append(dz);
   const tr=el('div','toolrow'); const again=el('button','cta ghost small','Repetir el test'); again.type='button'; again.addEventListener('click',()=>{ st={step:NI,who:st.who,ans:[],order:QS.map(()=>shuffle([0,1,2,3])),started:true}; save(); if(mapStop) mapStop(); $('#results').innerHTML=''; $('#results').classList.remove('panel'); rebuild(); $('#app').scrollIntoView({behavior:'smooth',block:'start'}); }); tr.append(again); app.append(tr);
   app.append(el('p','disc','Mapa SPH es una herramienta de reflexión basada en el método Thinktech de metacognición tecnológica. No es un diagnóstico psicológico ni clínico: muestra tendencias según tus respuestas para que puedas observarlas y configurarlas.'));
   app.scrollIntoView({behavior:'smooth',block:'start'});
 }
+function dareText(T){ return 'Hice el Mapa SPH, una ThinkIA de Engel Fonseca: mi pensamiento dominante es '+T.n.toLowerCase()+'. Te desafío a identificar tu Sistema de Pensamiento Humano. ¿Cuál será el tuyo? Hazlo aquí: '+SELF_URL; }
+const SELF_URL='https://potenttial.github.io/promter-n3/mapa-sph/';
 const SPHE_MSG='Me interesa cotizar consultoría para fomentar el Change Management con fundamento neurocientífico para mi empresa.';
 function spheText(f){ return 'Hola Engel, soy '+f.nombre+', '+f.cargo+' en '+f.empresa+'. '+SPHE_MSG; }
 const dlg=$('#spheDlg'), form=$('#spheForm');
