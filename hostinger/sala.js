@@ -260,7 +260,8 @@ export async function handleSala(req, res, urlPath, search, root) {
       u.total++; u.ip[ip] = (u.ip[ip] || 0) + 1; saveUsage(u);
       room.ai = (room.ai || 0) + 1; save(room);
       try {
-        const text = await callClaude({ system: SYSTEM[room.lang] || SYSTEM.es, messages, max: kind === 'json' ? 1800 : 450 });
+        let text = await callClaude({ system: SYSTEM[room.lang] || SYSTEM.es, messages, max: kind === 'json' ? 1800 : 450 });
+        if (kind === 'text') text = text.replace(/^```[a-z]*\s*/i, '').replace(/```\s*$/, '').trim();
         if (kind === 'json') { cache.set(key, text); if (cache.size > 500) cache.delete(cache.keys().next().value); }
         return send(res, 200, { text });
       } catch (e) {

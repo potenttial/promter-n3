@@ -1900,6 +1900,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
       seedsBox.hidden = !mine || links.length>0 || closed;
       $('#force').hidden = $('#force').hidden || !mine;
       if(mine && !wasMine && document.hidden){ document.title=T.titleTurn; try{ navigator.vibrate&&navigator.vibrate(120); }catch(e){} }
+      if(!mine && document.title!==title0) document.title=title0;
       wasMine=mine;
       /* aviso de WhatsApp */
       nudge.hidden=true; nudge.innerHTML='';
