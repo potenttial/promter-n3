@@ -1659,7 +1659,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
       msgFirst:(q,l)=>'I challenge you to a ¿Xoma!:\n\n'+q+'\n\nAnswer only with another question that contains your answer. Play your turn here: '+l,
       msgTurn:(q,l)=>'Your turn in our ¿Xoma!:\n\n'+q+'\n\nAnswer with a question that contains your answer 👉 '+l,
       msgEnd:(r,l)=>'We closed our ¿Xoma!. '+r+' See the result and let’s play a rematch: '+l,
-      gone:'This room does not exist or has expired.', netErr:'Connection lost. Retrying…', notTurn:'It is not your turn yet.',
+      gone:'This room does not exist or has expired.', goneNew:'Create a new room to keep playing remotely.', netErr:'Connection lost. Retrying…', notTurn:'It is not your turn yet.',
       needJoin:'Wait for your opponent to join before starting.', titleTurn:'● Your turn · ¿Xoma!',
       aiOff:'N3 is resting: the game continues without judging until tomorrow.'
     }:{
@@ -1688,7 +1688,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
       msgFirst:(q,l)=>'Te reto a un ¿Xoma!:\n\n'+q+'\n\nContéstame solo con otra pregunta que incluya tu respuesta. Juega tu turno aquí: '+l,
       msgTurn:(q,l)=>'Tu turno en nuestro ¿Xoma!:\n\n'+q+'\n\nContéstame con una pregunta que incluya tu respuesta 👉 '+l,
       msgEnd:(r,l)=>'Cerramos nuestro ¿Xoma!. '+r+' Mira el resultado y juguemos la revancha: '+l,
-      gone:'La sala no existe o ya caducó.', netErr:'Se perdió la conexión. Reintentando…', notTurn:'Todavía no es tu turno.',
+      gone:'La sala no existe o ya caducó.', goneNew:'Crea una sala nueva para seguir jugando a distancia.', netErr:'Se perdió la conexión. Reintentando…', notTurn:'Todavía no es tu turno.',
       needJoin:'Espera a que tu rival entre antes de empezar.', titleTurn:'● Tu turno · ¿Xoma!',
       aiOff:'N3 está descansando: el juego sigue sin juez hasta mañana.'
     };
@@ -1789,6 +1789,9 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
       playersEl.querySelectorAll('input').forEach(i=>{ i.readOnly=true; i.hidden=false; });
       sig=''; sync(s,true); poll();
     }
+    function gone(){ /* la sala ya no existe: volver al juego local sin IA y avisar */
+      if(!R.on) return; leave(); showSetup(); const m=setup.querySelector('.hint'); if(m){ m.textContent=T.gone+' '+T.goneNew; m.classList.add('warn'); }
+    }
     function leave(){
       if(!R.on && !R.setup) return;
       clearTimeout(timer); timer=null; R.on=false; R.setup=false; st=null; code=null; tk=null; seat=-1; applied=0; sig='';
@@ -1848,7 +1851,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
         if(!R.on) return;
         try{
           const r=await fetch(API+'/state?c='+code+'&v='+(st?st.v:-1)+(tk?'&t='+encodeURIComponent(tk):''),{cache:'no-store'});
-          if(r.status===404){ setHint(T.gone,true); R.on=false; return; }
+          if(r.status===404){ gone(); return; }
           const j=await r.json(); fails=0;
           if(j.state) sync(j.state); else if(j.players && st){ st.players=j.players; decorate(); }
         }catch(e){ if(++fails>2) setHint(T.netErr,true); }
@@ -1874,7 +1877,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
       const a=t.indexOf('{'), b=t.lastIndexOf('}'); if(a>=0&&b>a){ try{ return JSON.parse(t.slice(a,b+1)); }catch(e){} }
       throw {code:'bad_json'};
     }
-    function call(b){ return api('/ai',Object.assign({code,tok:tk},b)).catch(e=>{ if(e.code==='sampling_disabled') setTimeout(()=>setHint(T.aiOff),50); throw {code:e.code||'ai_error',message:e.message}; }); }
+    function call(b){ return api('/ai',Object.assign({code,tok:tk},b)).catch(e=>{ if(e.status===404||e.status===403){ setTimeout(gone,0); throw {code:'sampling_disabled'}; } if(e.code==='sampling_disabled') setTimeout(()=>setHint(T.aiOff),50); throw {code:e.code||'ai_error',message:e.message}; }); }
     function shim(){
       const f=async(input)=>{ const messages=typeof input==='string'?[{role:'user',content:input}]:input; const r=await call({kind:'text',messages}); return {text:r.text,truncated:false}; };
       f.json=async(prompt)=>{ ping('judge'); try{ const r=await call({kind:'json',prompt}); return parse(r.text); } finally{ } };
