@@ -971,7 +971,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
   $('#aiseed').addEventListener('click',async()=>{
     if(!sample) return; const b=$('#aiseed'); b.disabled=true; b.textContent='Generando…';
     try{
-      const r=await sample.json('Propón 3 preguntas abiertas para iniciar un ¿Xoma! (dinámica de curiosidad del método Curioxoma), cada una de un tema distinto y vigente en la conversación pública actual: tecnología, sociedad, ciencia, trabajo, salud, cultura. No menciones noticias, cifras ni hechos específicos que puedan ser falsos; formula preguntas provocadoras y verificables. En español, máximo 16 palabras cada una, con signos ¿?. Responde SOLO JSON: {"semillas":[{"tema":"(2-3 palabras)","pregunta":"¿...?"}]}',{modelTier:'quick',cache:false});
+      const r=await sj('Propón 3 preguntas abiertas para iniciar un ¿Xoma! (dinámica de curiosidad del método Curioxoma), cada una de un tema distinto y vigente en la conversación pública actual: tecnología, sociedad, ciencia, trabajo, salud, cultura. No menciones noticias, cifras ni hechos específicos que puedan ser falsos; formula preguntas provocadoras y verificables. En español, máximo 16 palabras cada una, con signos ¿?. Responde SOLO JSON: {"semillas":[{"tema":"(2-3 palabras)","pregunta":"¿...?"}]}',{modelTier:'quick',cache:false});
       const list=(r&&r.semillas||[]).filter(s=>s&&s.pregunta).slice(0,3).map(s=>({t:clean(s.tema,30),q:clean(s.pregunta,160)}));
       if(list.length===3) showSeeds(list); else randomSeeds();
     }catch(e){ if(e&&e.code==='not_granted') disableAI(); }
@@ -1019,11 +1019,11 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
     const prev=links.length?links[links.length-1].text:null;
     busy='judge'; render(); lock(true);
     try{
-      const j=await sample.json(RULES+'\n\nCadena hasta ahora:\n'+(history()||'(vacía)')+'\n\n'+judgeSpec(prev,text)+'\nResponde SOLO JSON: {'+JUDGE_FIELDS+'}',{modelTier:'default',cache:false});
+      const j=await sj(RULES+'\n\nCadena hasta ahora:\n'+(history()||'(vacía)')+'\n\n'+judgeSpec(prev,text)+'\nResponde SOLO JSON: {'+JUDGE_FIELDS+'}',{modelTier:'default',cache:false});
       busy=false;
       if(j&&j.valida===false){ pending={text,meta:j}; render(); reject(j); return false; }
       accept(text,j); return true;
-    }catch(e){ busy=false; aiError(e); if(PERM.includes(e&&e.code)){ accept(text,null); return true; } render(); return false; }
+    }catch(e){ busy=false; aiError(e); if(PERM.includes(e&&e.code)){ accept(text,null); return true; } if(!['rate_limited','session_expired'].includes(e&&e.code)){ accept(text,null); setHint('N3 could not judge this question after several tries; it went through unjudged and the chain continues.',true); return true; } render(); return false; }
     finally{ lock(false); }
   }
   async function aiRound(text){
@@ -1035,7 +1035,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
       'PASO 2 (campo "n3", solo si el humano es válido; si no, null): eres N3 y juegas tu turno. Formula una pregunta en inglés (English) (máx 28 palabras, con ¿?) que contenga una respuesta verdadera a la pregunta del humano y profundice o abra un ángulo nuevo, sin repetir ideas de la cadena. Si no puedes hacerlo sin especular o inventar, o la cadena ya se agotó, CONCEDE: escribe una afirmación honesta (sin signo de interrogación) que cierre el ¿Xoma! y reconozca que el humano sostuvo mejor la curiosidad. Conceder es correcto y preferible a inventar.\n'+
       'Responde SOLO JSON: {"humano":{'+JUDGE_FIELDS+'},"n3":{"tipo":"pregunta"|"afirmacion","texto":"","respuesta_implicita":"(OBLIGATORIO si tipo es pregunta: la respuesta que tu pregunta contiene, máx 15 palabras)","aprendizaje":"(solo si concedes: qué aprendiste de esta cadena para jugar mejor, máx 18 palabras)",'+META+'}}';
     try{
-      const r=await sample.json(prompt,{modelTier:'default',cache:false});
+      const r=await sj(prompt,{modelTier:'default',cache:false});
       const h=r&&r.humano||{};
       if(h.valida===false){ busy=false; pending={text,meta:h}; render(); reject(h); return false; }
       busy='ai'; inp.value=''; accept(text,h); busy='ai'; render();
@@ -1065,6 +1065,20 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
     else setHint('N3 could not answer this time. Your question is still in the box: send it again.',true);
   }
   function lock(on){ inp.disabled=on; $('#send').disabled=on; }
+  /* IA robusta: reintenta y, si el JSON llega mal, lo repara antes de rendirse */
+  function parseLoose(t){ t=String(t||'').trim().replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,''); try{ return JSON.parse(t); }catch(e){} const a=t.indexOf('{'), b=t.lastIndexOf('}'); if(a>=0&&b>a){ try{ return JSON.parse(t.slice(a,b+1)); }catch(e){} } throw {code:'bad_json'}; }
+  async function sj(prompt,opts){
+    let last=null;
+    for(let k=0;k<3;k++){
+      try{ return await sample.json.call(sample,prompt,opts); }
+      catch(e){ last=e; if(PERM.includes(e&&e.code)||(e&&e.code)==='session_expired') throw e; }
+      try{ const r=await sample(prompt+'\n\nIMPORTANTE: responde solo con el JSON, sin texto ni bloques de código.',Object.assign({},opts||{},{cache:false})); return parseLoose(r&&r.text); }
+      catch(e){ last=e; if(PERM.includes(e&&e.code)||(e&&e.code)==='session_expired') throw e; }
+      await new Promise(r=>setTimeout(r,(last&&last.code)==='rate_limited'?2500:700));
+    }
+    throw last||{code:'ai_error'};
+  }
+
 
   async function send(){
     if(closed||busy) return;
@@ -1088,7 +1102,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
     if(mode==='ai' && sample){
       accept(p.text,p.meta); busy='ai'; render(); lock(true);
       try{
-        const r=await sample.json(RULES+'\n\nCadena hasta ahora:\n'+history()+'\n\nEres N3 y juegas tu turno: formula una pregunta (máx 28 palabras, con ¿?) que contenga una respuesta verdadera a la última pregunta y abra un ángulo nuevo; si no puedes sin inventar, CONCEDE con una afirmación honesta. Responde SOLO JSON: {"tipo":"pregunta"|"afirmacion","texto":"","respuesta_implicita":"(OBLIGATORIO si es pregunta: la respuesta que contiene, máx 15 palabras)","aprendizaje":"",'+META+'}',{modelTier:'default',cache:false});
+        const r=await sj(RULES+'\n\nCadena hasta ahora:\n'+history()+'\n\nEres N3 y juegas tu turno: formula una pregunta (máx 28 palabras, con ¿?) que contenga una respuesta verdadera a la última pregunta y abra un ángulo nuevo; si no puedes sin inventar, CONCEDE con una afirmación honesta. Responde SOLO JSON: {"tipo":"pregunta"|"afirmacion","texto":"","respuesta_implicita":"(OBLIGATORIO si es pregunta: la respuesta que contiene, máx 15 palabras)","aprendizaje":"",'+META+'}',{modelTier:'default',cache:false});
         await aiMove(r);
       }catch(e){ busy=false; aiError(e); render(); }
       finally{ lock(false); }
