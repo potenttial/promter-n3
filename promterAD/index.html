@@ -38,7 +38,9 @@ body{background:var(--page);color:var(--ink);font-family:var(--sans)}
 .n3 small{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--bar-muted)}
 .demolabel{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bar-muted)}
 .demolabel strong{color:var(--bar-fg)}
-.barlinks{display:flex;gap:8px}
+.barlinks{display:flex;gap:8px;align-items:center}
+.barlinks a.logo-n3{padding:0;border:0;border-radius:0;margin-left:6px;display:block}
+.logo-n3 img{display:block;height:49px;width:auto}
 .barlinks a{font-size:13px;font-weight:700;color:var(--bar-fg);text-decoration:none;padding:7px 12px;border:1px solid #2a2a35;border-radius:999px;white-space:nowrap}
 .barlinks a.primary{background:var(--n3);border-color:var(--n3)}
 .barlinks a:hover{border-color:var(--bar-fg)}
@@ -77,20 +79,20 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,42px);line-
   .nav,.demolabel{display:none}
   .related{grid-template-columns:1fr 1fr}
 }
-@media (max-width:420px){.barlinks a:not(.primary){display:none}.related{grid-template-columns:1fr}}
+@media (max-width:420px){.barlinks a:not(.primary):not(.logo-n3){display:none}.logo-n3 img{height:40px}.related{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <div class="demobar" role="banner">
   <a class="n3" href="https://n3labs.potenttial.site/" target="_blank" rel="noopener" aria-label="N3 Labs">
-    <span class="mark">N3</span>
     <span><b>Prompter Ad</b><small>by N3 Labs</small></span>
   </a>
   <span class="demolabel"><strong>Live demo</strong> · sample publisher page</span>
   <nav class="barlinks">
     <a href="how-it-works.html">How it works</a>
     <a class="primary" href="https://wa.me/525529050452?text=I%20want%20a%20Prompter%20Ad%20for%20my%20brand" target="_blank" rel="noopener">Get one</a>
+    <a class="logo-n3" href="https://n3labs.potenttial.site/" target="_blank" rel="noopener"><img src="n3-logo.png" alt="N3 Thinktech IA Laboratory" width="96" height="49"></a>
   </nav>
 </div>
 
