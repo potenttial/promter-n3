@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prompter Ad by N3</title>
+<meta name="description" content="Prompter Ad by N3 Labs: a 300x600 display banner where each click opens Claude, ChatGPT, Copilot or Grok with the question already written. Concept demo for Mexican Caribbean tourism.">
+<meta property="og:title" content="Prompter Ad by N3 — the question is built into the click">
+<meta property="og:description" content="A display banner that opens your chosen AI with the brand's question pre-filled. Concept demo by N3 Labs.">
+<meta property="og:image" content="https://potenttial.github.io/promter-n3/promterAD/backup-300x600.jpg">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://potenttial.github.io/promter-n3/promterAD/">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Service","name":"Prompter Ad","serviceType":"AI prompt-link display advertising","description":"Programmatic display banners whose click opens an AI assistant (Claude, ChatGPT, Copilot, Grok) with a pre-written question that cites a trusted source.","provider":{"@type":"Organization","name":"N3 Labs","url":"https://n3labs.potenttial.site/","parentOrganization":{"@type":"Organization","name":"Potenttial Group"}},"areaServed":["MX","US","LATAM"],"availableLanguage":["en","es"]}
+</script>
+<style>
+@font-face{font-family:"Big Shoulders Display";font-weight:900;src:url(banner/fonts/bsd-900.woff2) format("woff2")}
+@font-face{font-family:"Big Shoulders Display";font-weight:700;src:url(banner/fonts/bsd-700.woff2) format("woff2")}
+@font-face{font-family:"Figtree";font-weight:400;src:url(banner/fonts/figtree-400.woff2) format("woff2")}
+@font-face{font-family:"Figtree";font-weight:600 700;src:url(banner/fonts/figtree-700.woff2) format("woff2")}
+/* Layout: two-column showcase — live banner on the left, the mechanism explained on the right; stacks on phones */
+:root{
+  --bg:#f6f1e7; --fg:#16262a; --muted:#53666b; --line:#ddd3c1; --panel:#fffaf1;
+  --deep:#04566b; --turq:#2bb8b2; --coral:#e85a45; --code:#eef6f4;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Figtree","Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1a1d;--fg:#e8f1ef;--muted:#9db3b2;--line:#24393d;--panel:#122428;--deep:#5fd3cc;--turq:#3fd6d0;--coral:#ff7a63;--code:#0f2a2e;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--body)}
+.wrap{max-width:1080px;margin:0 auto;padding:40px max(16px,env(safe-area-inset-left)) 56px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:14px}
+.mark{font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:.08em;text-transform:uppercase}
+.mark b{color:var(--coral)}
+.tag{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.hero{display:grid;grid-template-columns:332px 1fr;gap:48px;margin-top:36px;align-items:start}
+.stage{position:sticky;top:24px;display:flex;flex-direction:column;gap:10px;align-items:center}
+.frame{width:300px;height:600px;border:0;border-radius:6px;box-shadow:0 18px 40px rgba(4,86,107,.22);background:#fff}
+.caption{font-size:12px;color:var(--muted);text-align:center;max-width:300px}
+.replay{font:600 13px var(--body);color:var(--deep);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.replay:hover{border-color:var(--deep)}
+.copy{min-width:0;display:flex;flex-direction:column;gap:30px}
+h1{font-family:var(--display);font-weight:900;font-size:clamp(44px,6vw,72px);line-height:.92;text-transform:uppercase;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--coral)}
+.lede{font-size:19px;max-width:58ch;margin:14px 0 0;color:var(--fg)}
+h2{font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.02em;text-transform:uppercase;margin:0 0 12px}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:14px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start}
+.steps li::before{counter-increment:s;content:counter(s);font-family:var(--display);font-weight:900;font-size:26px;line-height:1;color:var(--deep)}
+.steps b{display:block}
+.anatomy{background:var(--code);border-radius:6px;padding:14px 16px;font:13px/1.6 var(--mono);overflow-x:auto;white-space:nowrap}
+.anatomy .h{color:var(--muted)}.anatomy .p{color:var(--coral);font-weight:700}.anatomy .q{color:var(--deep)}
+.note{font-size:14px;color:var(--muted);margin:8px 0 0}
+.links{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.links a{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--fg);text-decoration:none;font-weight:700}
+.links a span{font:12px var(--mono);color:var(--muted);font-weight:400}
+.links a:hover{border-color:var(--deep)}
+.links a:focus-visible,.cta:focus-visible,.replay:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+.specs{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0;font-size:15px}
+.specs dt{color:var(--muted)}.specs dd{margin:0}
+.ctas{display:flex;gap:10px;flex-wrap:wrap}
+.cta{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:999px;font-weight:700;text-decoration:none;background:var(--deep);color:var(--bg)}
+.cta.ghost{background:none;color:var(--deep);border:1px solid var(--deep)}
+footer{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+@media (max-width:760px){.hero{grid-template-columns:1fr;gap:32px}.stage{position:static}.links{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="mark">Prompter <b>Ad</b> · N3</span>
+    <a class="tag" href="./" style="color:inherit">← See it on a live page</a>
+  </header>
+
+  <main class="hero">
+    <div class="stage">
+      <iframe class="frame" id="ad" src="banner/index.html" title="Prompter Ad 300x600 demo banner" scrolling="no"></iframe>
+      <button class="replay" id="replay" type="button">↺ Replay animation</button>
+      <p class="caption">Live banner. Tap any AI button: it opens with the question already written.</p>
+    </div>
+
+    <div class="copy">
+      <section>
+        <h1>The question is built into <em>the click</em></h1>
+        <p class="lede">A Prompter Ad doesn't send people to a landing page. It sends them to the AI they already trust, with the brand's question pre-written and anchored to a credible source. The AI does the persuading.</p>
+      </section>
+
+      <section>
+        <h2>How it works</h2>
+        <ol class="steps">
+          <li><div><b>The banner asks</b>The headline types itself like an AI answer and poses one question.</div></li>
+          <li><div><b>The viewer picks an AI</b>Claude, ChatGPT, Copilot or Grok. Each button is a separate tracked exit.</div></li>
+          <li><div><b>The AI answers, citing the source</b>The prompt names Travel + Leisure's World's Best Awards 2026, so AIs with web search look it up and build the answer on it.</div></li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Anatomy of a prompt link</h2>
+        <div class="anatomy"><span class="h">https://claude.ai/new</span><span class="p">?q=</span><span class="q">Based%20on%20the%20Travel%20%2B%20Leisure%20World%E2%80%99s%20Best%20Awards%202026%2C%20why%20is%20Mexico…</span></div>
+        <p class="note">The <code>?q=</code> parameter pre-fills the chat. The question is URL-encoded so accents and symbols survive.</p>
+      </section>
+
+      <section>
+        <h2>Try the four exits</h2>
+        <div class="links">
+          <a target="_blank" rel="noopener" href="https://claude.ai/new?q=Based%20on%20the%20Travel%20%2B%20Leisure%20World%E2%80%99s%20Best%20Awards%202026%2C%20why%20is%20Mexico%20one%20of%20the%20best%20travel%20destinations%20in%20the%20world%3F">Claude <span>clickTag1</span></a>
+          <a target="_blank" rel="noopener" href="https://chatgpt.com/?q=Based%20on%20the%20Travel%20%2B%20Leisure%20World%E2%80%99s%20Best%20Awards%202026%2C%20why%20is%20Mexico%20one%20of%20the%20best%20travel%20destinations%20in%20the%20world%3F">ChatGPT <span>clickTag2</span></a>
+          <a target="_blank" rel="noopener" href="https://copilot.microsoft.com/?q=Based%20on%20the%20Travel%20%2B%20Leisure%20World%E2%80%99s%20Best%20Awards%202026%2C%20why%20is%20Mexico%20one%20of%20the%20best%20travel%20destinations%20in%20the%20world%3F">Copilot <span>clickTag3</span></a>
+          <a target="_blank" rel="noopener" href="https://grok.com/?q=Based%20on%20the%20Travel%20%2B%20Leisure%20World%E2%80%99s%20Best%20Awards%202026%2C%20why%20is%20Mexico%20one%20of%20the%20best%20travel%20destinations%20in%20the%20world%3F">Grok <span>clickTag4</span></a>
+        </div>
+      </section>
+
+      <section>
+        <h2>Programmatic-ready</h2>
+        <dl class="specs">
+          <dt>Format</dt><dd>HTML5, 300 × 600, ZIP ≈ 55 KB</dd>
+          <dt>Platforms</dt><dd>Google Display &amp; Video 360 / Campaign Manager 360</dd>
+          <dt>Exits</dt><dd>4 clickTags, one per AI, measured separately</dd>
+          <dt>Animation</dt><dd>≈ 12 s, then static</dd>
+          <dt>Fallback</dt><dd>Static backup image included</dd>
+        </dl>
+      </section>
+
+      <section class="ctas">
+        <a class="cta" target="_blank" rel="noopener" href="https://wa.me/525529050452?text=I%20want%20a%20Prompter%20Ad%20for%20my%20brand">Talk to N3 on WhatsApp</a>
+        <a class="cta ghost" href="prompter-ad-300x600-en.zip">Download HTML5 package</a>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <span>Concept demo by N3 Labs. Not an official Caribe Mexicano campaign. Claude, ChatGPT, Copilot and Grok are trademarks of their owners, shown only as link destinations.</span>
+    <span>Data: Travel + Leisure World's Best Awards 2026; INEGI 2025.</span>
+    <span>© 2026 N3 Thinktech IA Laboratory · Potenttial Group</span>
+  </footer>
+</div>
+<script>
+document.getElementById('replay').addEventListener('click',function(){var f=document.getElementById('ad');f.src=f.src;});
+</script>
+</body>
+</html>

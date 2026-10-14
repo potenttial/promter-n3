@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Prompter Ad by N3 · Live demo</title>
+<meta name="description" content="Live demo of a Prompter Ad by N3 Labs: a 300x600 banner, shown on a sample publisher page, whose click opens Claude, ChatGPT, Copilot or Grok with the question already written.">
+<meta property="og:title" content="Prompter Ad by N3 — the question is built into the click">
+<meta property="og:description" content="See a 300x600 Prompter Ad running inside a sample publisher page. Concept demo by N3 Labs.">
+<meta property="og:image" content="https://potenttial.github.io/promter-n3/promterAD/backup-300x600.jpg">
+<link rel="canonical" href="https://potenttial.github.io/promter-n3/promterAD/">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Service","name":"Prompter Ad","serviceType":"AI prompt-link display advertising","description":"Programmatic display banners whose click opens an AI assistant (Claude, ChatGPT, Copilot, Grok) with a pre-written question that cites a trusted source.","provider":{"@type":"Organization","name":"N3 Labs","url":"https://n3labs.potenttial.site/","parentOrganization":{"@type":"Organization","name":"Potenttial Group"}},"availableLanguage":["en","es"]}
+</script>
+<style>
+@font-face{font-family:"Figtree";font-weight:400;src:url(banner/fonts/figtree-400.woff2) format("woff2")}
+@font-face{font-family:"Figtree";font-weight:600 700;src:url(banner/fonts/figtree-700.woff2) format("woff2")}
+@font-face{font-family:"Big Shoulders Display";font-weight:900;src:url(banner/fonts/bsd-900.woff2) format("woff2")}
+/* Layout: N3 demo bar on top; below it a sample publisher page (masthead, article column, sticky 300x600 ad rail) */
+:root{
+  --n3:#e7000b; --bar:#06060c; --bar-fg:#f4f4f6; --bar-muted:#9a9aa8;
+  --page:#ffffff; --ink:#1b1d21; --muted:#6b7078; --skel:#e9ebee; --skel2:#f2f3f5; --rule:#e4e6ea;
+  --sans:"Figtree","Segoe UI",Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page);color:var(--ink);font-family:var(--sans)}
+
+/* ---------- N3 demo bar ---------- */
+.demobar{position:sticky;top:0;z-index:10;background:var(--bar);color:var(--bar-fg);
+  padding:10px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));
+  padding-top:calc(10px + env(safe-area-inset-top,0px));
+  display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:2px solid var(--n3)}
+.n3{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
+.n3 .mark{width:34px;height:34px;background:var(--n3);display:grid;place-items:center;font:900 16px/1 var(--sans);color:#fff;letter-spacing:.01em}
+.n3 b{display:block;font-size:14px;letter-spacing:.02em}
+.n3 small{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--bar-muted)}
+.demolabel{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bar-muted)}
+.demolabel strong{color:var(--bar-fg)}
+.barlinks{display:flex;gap:8px}
+.barlinks a{font-size:13px;font-weight:700;color:var(--bar-fg);text-decoration:none;padding:7px 12px;border:1px solid #2a2a35;border-radius:999px;white-space:nowrap}
+.barlinks a.primary{background:var(--n3);border-color:var(--n3)}
+.barlinks a:hover{border-color:var(--bar-fg)}
+.barlinks a:focus-visible,.n3:focus-visible{outline:2px solid #fff;outline-offset:2px}
+
+/* ---------- Sample publisher ---------- */
+.pub{max-width:1100px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right)) 60px max(16px,env(safe-area-inset-left))}
+.masthead{display:flex;align-items:center;justify-content:space-between;padding:22px 0 14px;border-bottom:3px double var(--rule)}
+.logo{font:900 30px/1 "Big Shoulders Display","Arial Narrow",Impact,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.logo span{font:400 11px var(--sans);letter-spacing:.16em;color:var(--muted);display:block;margin-top:4px}
+.nav{display:flex;gap:18px;font-size:13px;font-weight:600;color:var(--muted)}
+.nav span:first-child{color:var(--ink)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:44px;margin-top:28px}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0a7f86}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,42px);line-height:1.12;margin:8px 0 12px;text-wrap:balance}
+.byline{font-size:13px;color:var(--muted);margin-bottom:20px}
+.hero{aspect-ratio:16/8;max-width:100%;border-radius:4px;background:
+  linear-gradient(180deg,#0a6f80 0%,#18a6ac 52%,#7fe0d8 64%,#f5ead4 64.5%,#efe0c3 100%);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:9%;top:14%;width:16%;aspect-ratio:1;border-radius:50%;background:#ffd27a;opacity:.9}
+.figcap{font-size:12px;color:var(--muted);margin:6px 0 22px}
+.article p{font-family:var(--serif);font-size:18px;line-height:1.7;margin:0 0 18px;max-width:66ch}
+.skel{height:14px;border-radius:7px;background:var(--skel);margin:0 0 12px}
+.skel.s{width:72%}.skel.m{width:88%}.skel.l{width:96%}
+.inline-ad{display:none}
+.related{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:34px;padding-top:20px;border-top:1px solid var(--rule)}
+.card .img{aspect-ratio:4/3;background:var(--skel2);border-radius:4px;margin-bottom:10px}
+.rail{position:relative}
+.adslot{position:sticky;top:76px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.adlabel{width:300px;max-width:100%;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);align-self:flex-start}
+.adframe{width:300px;height:600px;border:0;display:block;max-width:100%}
+.rail .skelbox{height:250px;background:var(--skel2);border-radius:4px;margin-top:28px}
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--rule);font-size:12px;color:var(--muted);line-height:1.6}
+
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .rail{display:none}
+  .inline-ad{display:flex;flex-direction:column;align-items:center;gap:6px;margin:8px 0 26px}
+  .nav,.demolabel{display:none}
+  .related{grid-template-columns:1fr 1fr}
+}
+@media (max-width:420px){.barlinks a:not(.primary){display:none}.related{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="demobar" role="banner">
+  <a class="n3" href="https://n3labs.potenttial.site/" target="_blank" rel="noopener" aria-label="N3 Labs">
+    <span class="mark">N3</span>
+    <span><b>Prompter Ad</b><small>by N3 Labs</small></span>
+  </a>
+  <span class="demolabel"><strong>Live demo</strong> · sample publisher page</span>
+  <nav class="barlinks">
+    <a href="how-it-works.html">How it works</a>
+    <a class="primary" href="https://wa.me/525529050452?text=I%20want%20a%20Prompter%20Ad%20for%20my%20brand" target="_blank" rel="noopener">Get one</a>
+  </nav>
+</div>
+
+<div class="pub">
+  <header class="masthead" aria-label="Sample publisher (fictional)">
+    <div class="logo">The Coastline<span>Sample publisher · fictional</span></div>
+    <div class="nav" aria-hidden="true"><span>Travel</span><span>Destinations</span><span>Food</span><span>Guides</span></div>
+  </header>
+
+  <div class="layout">
+    <article class="article">
+      <div class="kicker">Destinations</div>
+      <h1>Why travelers keep choosing Mexico's Caribbean coast</h1>
+      <div class="byline">Sample article · 6 min read</div>
+      <div class="hero" role="img" aria-label="Illustration of turquoise sea and white sand"></div>
+      <div class="figcap">Illustration. This page is a mock-up to show how the ad looks in context.</div>
+
+      <p>Turquoise water, white sand and centuries of Maya history sit within a short drive of each other along Mexico's Caribbean coast. It is one reason Mexico welcomed close to 48 million international tourists in 2025.</p>
+
+      <div class="inline-ad">
+        <span class="adlabel">Advertisement</span>
+        <iframe class="adframe" src="banner/index.html" title="Prompter Ad 300x600" scrolling="no" loading="lazy"></iframe>
+      </div>
+
+      <p>Recognition keeps arriving, too. In Travel + Leisure's World's Best Awards 2026, three Mexican cities placed in the world's top ten, a signal that readers rank the country among their favorite places to go.</p>
+      <div class="skel l"></div><div class="skel m"></div><div class="skel l"></div><div class="skel s"></div>
+      <div style="height:10px"></div>
+      <div class="skel m"></div><div class="skel l"></div><div class="skel s"></div>
+      <div style="height:10px"></div>
+      <div class="skel l"></div><div class="skel l"></div><div class="skel m"></div><div class="skel s"></div>
+
+      <div class="related" aria-hidden="true">
+        <div class="card"><div class="img"></div><div class="skel m"></div><div class="skel s"></div></div>
+        <div class="card"><div class="img"></div><div class="skel m"></div><div class="skel s"></div></div>
+        <div class="card"><div class="img"></div><div class="skel m"></div><div class="skel s"></div></div>
+      </div>
+    </article>
+
+    <aside class="rail">
+      <div class="adslot">
+        <span class="adlabel">Advertisement</span>
+        <iframe class="adframe" src="banner/index.html" title="Prompter Ad 300x600" scrolling="no"></iframe>
+      </div>
+      <div class="skelbox" aria-hidden="true"></div>
+    </aside>
+  </div>
+
+  <div class="foot">
+    Concept demo by N3 Labs. "The Coastline" is a fictional publisher and this is not an official Caribe Mexicano campaign.
+    Claude, ChatGPT, Copilot and Grok are trademarks of their owners, shown only as link destinations.
+    Data: Travel + Leisure World's Best Awards 2026; INEGI 2025. © 2026 N3 Thinktech IA Laboratory · Potenttial Group
+  </div>
+</div>
+</body>
+</html>
