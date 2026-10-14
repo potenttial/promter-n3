@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La Costa Hoy · Demo</title>
+<meta name="description" content="Demo de un anuncio 300x600 en una página editorial de ejemplo: cada botón abre Claude, ChatGPT, Copilot o Grok con la pregunta ya escrita.">
+<style>
+@font-face{font-family:"Figtree";font-weight:400;src:url(banner/fonts/figtree-400.woff2) format("woff2")}
+@font-face{font-family:"Figtree";font-weight:600 700;src:url(banner/fonts/figtree-700.woff2) format("woff2")}
+@font-face{font-family:"Big Shoulders Display";font-weight:900;src:url(banner/fonts/bsd-900.woff2) format("woff2")}
+/* Layout: a sample publisher page (masthead, article column, sticky 300x600 ad rail) */
+:root{
+  --n3:#e7000b; --bar:#06060c; --bar-fg:#f4f4f6; --bar-muted:#9a9aa8;
+  --page:#ffffff; --ink:#1b1d21; --muted:#6b7078; --skel:#e9ebee; --skel2:#f2f3f5; --rule:#e4e6ea;
+  --sans:"Figtree","Segoe UI",Helvetica,Arial,sans-serif;
+  --serif:Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--page);color:var(--ink);font-family:var(--sans)}
+
+/* ---------- N3 demo bar ---------- */
+.demobar{position:sticky;top:0;z-index:10;background:var(--bar);color:var(--bar-fg);
+  padding:10px max(16px,env(safe-area-inset-right)) 10px max(16px,env(safe-area-inset-left));
+  padding-top:calc(10px + env(safe-area-inset-top,0px));
+  display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:2px solid var(--n3)}
+.n3{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none}
+.n3 .mark{width:34px;height:34px;background:var(--n3);display:grid;place-items:center;font:900 16px/1 var(--sans);color:#fff;letter-spacing:.01em}
+.n3 b{display:block;font-size:14px;letter-spacing:.02em}
+.n3 small{display:block;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--bar-muted)}
+.demolabel{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--bar-muted)}
+.demolabel strong{color:var(--bar-fg)}
+.barlinks{display:flex;gap:8px;align-items:center}
+.barlinks a.logo-n3{padding:0;border:0;border-radius:0;margin-left:6px;display:block}
+.logo-n3 img{display:block;height:49px;width:auto}
+.barlinks a{font-size:13px;font-weight:700;color:var(--bar-fg);text-decoration:none;padding:7px 12px;border:1px solid #2a2a35;border-radius:999px;white-space:nowrap}
+.barlinks a.primary{background:var(--n3);border-color:var(--n3)}
+.barlinks a:hover{border-color:var(--bar-fg)}
+.barlinks a:focus-visible,.n3:focus-visible{outline:2px solid #fff;outline-offset:2px}
+
+/* ---------- Sample publisher ---------- */
+.pub{max-width:1100px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right)) 60px max(16px,env(safe-area-inset-left))}
+.masthead{display:flex;align-items:center;justify-content:space-between;padding:22px 0 14px;border-bottom:3px double var(--rule)}
+.logo{font:900 30px/1 "Big Shoulders Display","Arial Narrow",Impact,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.logo span{font:400 11px var(--sans);letter-spacing:.16em;color:var(--muted);display:block;margin-top:4px}
+.nav{display:flex;gap:18px;font-size:13px;font-weight:600;color:var(--muted)}
+.nav span:first-child{color:var(--ink)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:44px;margin-top:28px}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0a7f86}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,42px);line-height:1.12;margin:8px 0 12px;text-wrap:balance}
+.byline{font-size:13px;color:var(--muted);margin-bottom:20px}
+.hero{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:16/8;border-radius:4px}
+.figcap{font-size:12px;color:var(--muted);margin:6px 0 22px}
+.article p{font-family:var(--serif);font-size:18px;line-height:1.7;margin:0 0 18px;max-width:66ch}
+.skel{height:14px;border-radius:7px;background:var(--skel);margin:0 0 12px}
+.skel.s{width:72%}.skel.m{width:88%}.skel.l{width:96%}
+.inline-ad{display:none}
+.related{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:34px;padding-top:20px;border-top:1px solid var(--rule)}
+.card .img{aspect-ratio:4/3;background:var(--skel2);border-radius:4px;margin-bottom:10px}
+.rail{position:relative}
+.adslot{position:sticky;top:76px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.adlabel{width:300px;max-width:100%;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);align-self:flex-start}
+.adframe{width:300px;height:600px;border:0;display:block;max-width:100%}
+.rail .skelbox{height:250px;background:var(--skel2);border-radius:4px;margin-top:28px}
+.foot{margin-top:40px;padding-top:16px;border-top:1px solid var(--rule);font-size:12px;color:var(--muted);line-height:1.6}
+
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .rail{display:none}
+  .inline-ad{display:flex;flex-direction:column;align-items:center;gap:6px;margin:8px 0 26px}
+  .nav,.demolabel{display:none}
+  .related{grid-template-columns:1fr 1fr}
+}
+@media (max-width:420px){.barlinks a:not(.primary):not(.logo-n3){display:none}.logo-n3 img{height:40px}.related{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="pub">
+  <header class="masthead" aria-label="Medio de ejemplo (ficticio)">
+    <div class="logo">La Costa Hoy<span>Medio de ejemplo · ficticio</span></div>
+    <div class="nav" aria-hidden="true"><span>Viajes</span><span>Destinos</span><span>Gastronomía</span><span>Guías</span></div>
+  </header>
+
+  <div class="layout">
+    <article class="article">
+      <div class="kicker">Destinos</div>
+      <h1>Cómo elegir playa en el Caribe durante la temporada de sargazo</h1>
+      <div class="byline">Artículo de ejemplo · 5 min de lectura</div>
+      <svg class="hero" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Ilustración de una pirámide maya en la selva al atardecer">
+        <defs><linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b2a52"/><stop offset=".55" stop-color="#c8644a"/><stop offset="1" stop-color="#f2b56b"/></linearGradient></defs>
+        <rect width="800" height="400" fill="url(#dusk)"/>
+        <circle cx="250" cy="250" r="54" fill="#ffe2a8" opacity=".85"/>
+        <g fill="#5a3426">
+          <rect x="430" y="300" width="300" height="40"/><rect x="455" y="262" width="250" height="40"/><rect x="480" y="226" width="200" height="38"/>
+          <rect x="505" y="192" width="150" height="36"/><rect x="530" y="160" width="100" height="34"/><rect x="555" y="128" width="50" height="34"/>
+        </g>
+        <path d="M562 340 L562 128 L598 128 L598 340Z" fill="#7a4733" opacity=".55"/>
+        <path d="M0 400 V318 Q40 286 80 312 Q120 270 170 304 Q210 278 250 306 Q300 268 350 310 Q400 290 430 316 L760 316 Q780 292 800 300 V400Z" fill="#1f3a2a"/>
+        <path d="M0 400 V350 Q60 330 120 352 Q200 326 280 354 Q360 334 440 356 Q540 330 640 356 Q720 338 800 352 V400Z" fill="#142a1e"/>
+      </svg>
+      <div class="figcap">Ilustración. Esta página es una maqueta para mostrar el anuncio en contexto.</div>
+
+      <p>Entre abril y septiembre, el sargazo llega a muchas playas del Caribe. Antes de reservar, conviene revisar los reportes locales y elegir costas protegidas o con programas de limpieza.</p>
+
+      <div class="inline-ad">
+        <span class="adlabel">Publicidad</span>
+        <iframe class="adframe" src="banner/index.html" title="Prompter Ad 300x600" scrolling="no" loading="lazy"></iframe>
+      </div>
+
+      <p>Las costas cambian mucho de un punto a otro: una playa puede estar cubierta mientras otra, a pocos kilómetros, sigue despejada.</p>
+      <div class="skel l"></div><div class="skel m"></div><div class="skel l"></div><div class="skel s"></div>
+      <div style="height:10px"></div>
+      <div class="skel m"></div><div class="skel l"></div><div class="skel s"></div>
+      <div style="height:10px"></div>
+      <div class="skel l"></div><div class="skel l"></div><div class="skel m"></div><div class="skel s"></div>
+
+      <div class="related" aria-hidden="true">
+        <div class="card"><div class="img"></div><div class="skel m"></div><div class="skel s"></div></div>
+        <div class="card"><div class="img"></div><div class="skel m"></div><div class="skel s"></div></div>
+        <div class="card"><div class="img"></div><div class="skel m"></div><div class="skel s"></div></div>
+      </div>
+    </article>
+
+    <aside class="rail">
+      <div class="adslot">
+        <span class="adlabel">Publicidad</span>
+        <iframe class="adframe" src="banner/index.html" title="Prompter Ad 300x600" scrolling="no"></iframe>
+      </div>
+      <div class="skelbox" aria-hidden="true"></div>
+    </aside>
+  </div>
+
+  <div class="foot">Demo conceptual. "La Costa Hoy" y "TravelMaster Magazine" son marcas ficticias. Claude, ChatGPT, Copilot y Grok son marcas de sus dueños, mostradas solo como destino del enlace. Dato citado: Infobae, 2026.</div>
+</div>
+</body>
+</html>
