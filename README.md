@@ -12,5 +12,4 @@ Funciona en el navegador y no consume tokens.
 ## Prompter Ad (`promterAD/`)
 
 - `promterAD/index.html`: live demo — a 300×600 Prompter Ad running on a sample (fictional) publisher page.
-- `promterAD/how-it-works.html`: explainer of the mechanism (prompt links with `?q=`, 4 clickTags).
 - `promterAD/banner/`: the HTML5 creative (DV360/CM360-ready); `prompter-ad-300x600-en.zip` is the upload package.
