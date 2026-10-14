@@ -55,9 +55,7 @@ body{background:var(--page);color:var(--ink);font-family:var(--sans)}
 .kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0a7f86}
 h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,42px);line-height:1.12;margin:8px 0 12px;text-wrap:balance}
 .byline{font-size:13px;color:var(--muted);margin-bottom:20px}
-.hero{aspect-ratio:16/8;max-width:100%;border-radius:4px;background:
-  linear-gradient(180deg,#0a6f80 0%,#18a6ac 52%,#7fe0d8 64%,#f5ead4 64.5%,#efe0c3 100%);position:relative;overflow:hidden}
-.hero::after{content:"";position:absolute;right:9%;top:14%;width:16%;aspect-ratio:1;border-radius:50%;background:#ffd27a;opacity:.9}
+.hero{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:16/8;border-radius:4px}
 .figcap{font-size:12px;color:var(--muted);margin:6px 0 22px}
 .article p{font-family:var(--serif);font-size:18px;line-height:1.7;margin:0 0 18px;max-width:66ch}
 .skel{height:14px;border-radius:7px;background:var(--skel);margin:0 0 12px}
@@ -107,7 +105,18 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,42px);line-
       <div class="kicker">Destinations</div>
       <h1>Why travelers keep choosing Mexico's Caribbean coast</h1>
       <div class="byline">Sample article · 6 min read</div>
-      <div class="hero" role="img" aria-label="Illustration of turquoise sea and white sand"></div>
+      <svg class="hero" viewBox="0 0 800 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration of a Maya pyramid in the jungle at dusk">
+        <defs><linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b2a52"/><stop offset=".55" stop-color="#c8644a"/><stop offset="1" stop-color="#f2b56b"/></linearGradient></defs>
+        <rect width="800" height="400" fill="url(#dusk)"/>
+        <circle cx="250" cy="250" r="54" fill="#ffe2a8" opacity=".85"/>
+        <g fill="#5a3426">
+          <rect x="430" y="300" width="300" height="40"/><rect x="455" y="262" width="250" height="40"/><rect x="480" y="226" width="200" height="38"/>
+          <rect x="505" y="192" width="150" height="36"/><rect x="530" y="160" width="100" height="34"/><rect x="555" y="128" width="50" height="34"/>
+        </g>
+        <path d="M562 340 L562 128 L598 128 L598 340Z" fill="#7a4733" opacity=".55"/>
+        <path d="M0 400 V318 Q40 286 80 312 Q120 270 170 304 Q210 278 250 306 Q300 268 350 310 Q400 290 430 316 L760 316 Q780 292 800 300 V400Z" fill="#1f3a2a"/>
+        <path d="M0 400 V350 Q60 330 120 352 Q200 326 280 354 Q360 334 440 356 Q540 330 640 356 Q720 338 800 352 V400Z" fill="#142a1e"/>
+      </svg>
       <div class="figcap">Illustration. This page is a mock-up to show how the ad looks in context.</div>
 
       <p>Turquoise water, white sand and centuries of Maya history sit within a short drive of each other along Mexico's Caribbean coast. It is one reason Mexico welcomed close to 48 million international tourists in 2025.</p>
