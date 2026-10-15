@@ -5,6 +5,8 @@ Copia de los archivos que cambian en `hbuilds/current/nodejs/` de Hostinger:
 - `server.js`: monta las salas de ¿Xoma! en `/xoma/sala/*` y sirve `.webmanifest`.
 - `sala.js`: salas SPH vs SPH a distancia (computadora en vivo o por turnos con WhatsApp). Guarda cada sala en `data/salas/`.
 - `public/xoma/` (ES, EN, admin): modo **SPH vs SPH a distancia** + favicon.
+- `public/index.html`: portada de ThinkIAs con el **Test Curioxoma VS la indiferencia cognitiva** como primera ThinkIA (antes de ¿Xoma!).
+- `public/curioxoma/index.html`: el Test Curioxoma (CXI 1–100), autocontenido; se sube a `public/curioxoma/`.
 - `public/favicon.*`, `apple-touch-icon.png`, `icon-192/512.png`, `site.webmanifest`: favicon del sitio.
 
 Variables opcionales: `SALA_AI=off` (apaga el juez y las charlas en salas), `SALA_AI_ROOM` (80 llamadas por sala),
