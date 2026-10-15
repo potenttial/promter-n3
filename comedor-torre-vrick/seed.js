@@ -13,7 +13,8 @@
     ['crema', 'Crema', 'l', 60], ['queso', 'Queso fresco', 'kg', 140], ['aceite', 'Aceite', 'l', 45],
     ['limon', 'Limón', 'kg', 35], ['aguacate', 'Aguacate', 'kg', 70], ['huevo', 'Huevo', 'kg', 48],
     ['fruta', 'Fruta de temporada', 'kg', 30], ['azucar', 'Azúcar', 'kg', 28],
-    ['sal', 'Sal', 'porcion', 0.3], ['pimienta', 'Pimienta', 'porcion', 0.25], ['perejil', 'Perejil', 'kg', 60], ['cilantro', 'Cilantro', 'kg', 55]
+    ['sal', 'Sal', 'porcion', 0.3], ['pimienta', 'Pimienta', 'porcion', 0.25], ['perejil', 'Perejil', 'kg', 60], ['cilantro', 'Cilantro', 'kg', 55],
+    ['jamaica', 'Flor de jamaica', 'kg', 160], ['canela', 'Canela', 'porcion', 0.5], ['tamarindo', 'Tamarindo', 'kg', 70], ['pina', 'Piña', 'kg', 25], ['chia', 'Chía', 'kg', 120]
   ].map(([id, name, unit, cost]) => ({ id, name, unit, cost }));
 
   const R = (id, name, cat, items) => ({ id, name, cat, items: items.map(([ing, qty]) => ({ ing, qty })) });
@@ -30,15 +31,20 @@
     R('arroz', 'Arroz rojo', 'Guarnición', [['arroz', 70], ['jitomate', 30], ['cebolla', 10], ['aceite', 8], ['zanahoria', 15]]),
     R('frijoles', 'Frijoles de la olla', 'Guarnición', [['frijol', 60], ['cebolla', 10], ['ajo', 2]]),
     R('ensalada', 'Ensalada verde', 'Guarnición', [['lechuga', 0.15], ['jitomate', 40], ['limon', 10], ['aguacate', 30]]),
-    R('agua', 'Agua fresca del día', 'Bebida', [['fruta', 80], ['azucar', 20]]),
+    R('a-jamaica', 'Agua de jamaica', 'Bebida', [['jamaica', 8], ['azucar', 20]]),
+    R('a-horchata', 'Agua de horchata', 'Bebida', [['arroz', 20], ['azucar', 25], ['canela', 1]]),
+    R('a-limon', 'Agua de limón con chía', 'Bebida', [['limon', 45], ['chia', 4], ['azucar', 20]]),
+    R('a-tamarindo', 'Agua de tamarindo', 'Bebida', [['tamarindo', 25], ['azucar', 25]]),
+    R('a-pina', 'Agua de piña', 'Bebida', [['pina', 90], ['azucar', 15]]),
+    R('gelatina', 'Gelatina de fruta', 'Postre', [['fruta', 40], ['azucar', 15]]),
     R('tortillas', 'Tortillas', 'Acompañamiento', [['tortilla', 80]])
   ];
   const WEEK_MENU = [
-    ['fideo', 'pollo-verde', 'arroz', 'agua', 'tortillas'],
-    ['consome', 'bistec', 'frijoles', 'agua', 'tortillas'],
-    ['crema-cal', 'albondigas', 'arroz', 'agua', 'tortillas'],
-    ['fideo', 'enchiladas', 'ensalada', 'agua'],
-    ['consome', 'pescado', 'arroz', 'agua', 'tortillas']
+    ['fideo', 'pollo-verde', 'arroz', 'a-jamaica', 'tortillas'],
+    ['consome', 'bistec', 'frijoles', 'a-horchata', 'tortillas'],
+    ['crema-cal', 'albondigas', 'arroz', 'a-limon', 'tortillas', 'gelatina'],
+    ['fideo', 'enchiladas', 'nopales', 'ensalada', 'a-tamarindo'],
+    ['consome', 'pescado', 'arroz', 'a-pina', 'tortillas']
   ];
   const PEOPLE = [
     ['Ana López', 'Administración'], ['Carlos Méndez', 'Ventas'], ['Daniela Ruiz', 'Legal'], ['Eduardo Torres', 'Operaciones'],
@@ -58,6 +64,8 @@
     C.range(start, C.addDays(C.monday(today), 11)).filter(C.isWeekday).forEach(d => {
       kv['menu:' + d] = WEEK_MENU[C.dow(d) - 1];
     });
+    // semanas pasadas y la actual publicadas; la próxima queda en borrador para mostrar el flujo
+    for (let m = start; m <= C.monday(today); m = C.addDays(m, 7)) kv['pub:' + m] = { at: Date.now() };
     return kv;
   }
 

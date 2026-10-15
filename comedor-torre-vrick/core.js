@@ -21,7 +21,7 @@
 
   /* ---------- Estado a partir de pares clave/valor ---------- */
   function emptyState() {
-    return { people: {}, purchases: {}, att: {}, menu: {}, served: {}, ingredients: [], recipes: [], settings: {} };
+    return { people: {}, purchases: {}, att: {}, menu: {}, served: {}, pub: {}, ingredients: [], recipes: [], settings: {} };
   }
   function applyKV(S, key, value) {
     const p = key.split(':');
@@ -30,6 +30,7 @@
     else if (p[0] === 'purchase') { del ? delete S.purchases[p[1]] : S.purchases[p[1]] = value; }
     else if (p[0] === 'att') { S.att[p[1]] = S.att[p[1]] || {}; del ? delete S.att[p[1]][p[2]] : S.att[p[1]][p[2]] = value; }
     else if (p[0] === 'menu') { del ? delete S.menu[p[1]] : S.menu[p[1]] = value; }
+    else if (p[0] === 'pub') { del ? delete S.pub[p[1]] : S.pub[p[1]] = value; }
     else if (p[0] === 'served') { del ? delete S.served[p[1]] : S.served[p[1]] = value; }
     else if (['ingredients', 'recipes', 'settings'].includes(key)) S[key] = del ? (key === 'settings' ? {} : []) : value;
     return S;
@@ -48,6 +49,7 @@
   const lineCost = (ing, qty) => !ing ? 0 : (isCount(ing.unit) ? qty * ing.cost : qty / 1000 * ing.cost);
   const recipeCost = (S, r) => (r?.items || []).reduce((a, it) => a + lineCost(ingById(S, it.ing), it.qty), 0);
   const menuOf = (S, d) => (S.menu[d] || []).map(id => recById(S, id)).filter(Boolean);
+  const isPublished = (S, d) => !!S.pub?.[monday(d)];
   const menuCost = (S, d) => menuOf(S, d).reduce((a, r) => a + recipeCost(S, r), 0);
 
   function day(S, d) {
@@ -165,7 +167,7 @@
   const Core = {
     pad, iso, parse, addDays, dow, isWeekday, monday, weekDays, nextWeekday, prevWeekday, range, label, short,
     DIAS, MESES, money, money2, fmtQty, emptyState, applyKV, stateFromKV, DEFAULT_SETTINGS, set,
-    ingById, recById, isCount, UNIT, lineCost, recipeCost, menuOf, menuCost, day, portions, served, needs, balance, msgChef, msgDirector
+    ingById, recById, isCount, UNIT, lineCost, recipeCost, menuOf, isPublished, menuCost, day, portions, served, needs, balance, msgChef, msgDirector
   };
   g.Core = Core;
   if (typeof module !== 'undefined' && module.exports) module.exports = Core;

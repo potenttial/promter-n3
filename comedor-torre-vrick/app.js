@@ -3,10 +3,12 @@
 (function () {
   const C = window.Core, CFG = window.COMEDOR_CONFIG || {};
   const REMOTE = !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY);
-  const LS = 'tv_comedor_kv_v1', LS_USER = 'tv_comedor_user';
+  const LS = 'tv_comedor_kv_v2', LS_USER = 'tv_comedor_user';
   const TEL_CHEF = CFG.TEL_CHEF || '525524962677', TEL_DIR = CFG.TEL_DIRECTOR || '525554054868';
   const TAGS = ['Sin picante', 'Vegetariano', 'Sin cebolla', 'Porción chica', 'Sin gluten', 'Sin lácteos'];
   const CATS = ['Sopa', 'Plato fuerte', 'Guarnición', 'Bebida', 'Postre', 'Acompañamiento'];
+  const CATL = { 'Sopa': 'Sopa / entrada', 'Plato fuerte': 'Guisado del día', 'Guarnición': 'Guarnición', 'Bebida': 'Agua del día', 'Postre': 'Postre', 'Acompañamiento': 'Acompañamiento' };
+  const catL = c => CATL[c] || c;
   let KV = {}, S = C.emptyState();
   const UI = { week: 0, chefTab: 'hoy', chefDay: null, menuWeek: 0, buyRange: 'man', editRec: null, dirPeriod: 'sem', showList: false };
   const $app = document.getElementById('app');
@@ -101,6 +103,20 @@
     </footer>`;
   const kpi = (v, l, cls = '') => `<div class="kpi ${cls}"><b>${v}</b><span>${l}</span></div>`;
 
+  // Menú del día tal como lo ven los comensales
+  function menuBlock(d, big) {
+    const m = C.menuOf(S, d);
+    if (!m.length || !C.isPublished(S, d)) return `<p class="menu muted">Menú por publicar</p>`;
+    const by = c => m.filter(r => r.cat === c).map(r => esc(r.name));
+    const g = by('Plato fuerte'), agua = by('Bebida');
+    const rest = [...by('Sopa'), ...by('Guarnición'), ...by('Postre'), ...by('Acompañamiento')];
+    return `<div class="mb ${big ? 'big' : ''}">
+      ${g.length ? `<p class="mb-g"><small>Guisado del día</small>${g.join(' <i>o</i> ')}</p>` : ''}
+      ${rest.length ? `<p class="mb-r">${rest.join(' · ')}</p>` : ''}
+      ${agua.length ? `<p class="mb-a"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 3s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z" fill="currentColor"/></svg>${agua.join(' · ')}</p>` : ''}
+    </div>`;
+  }
+
   /* ---------------- Inicio ---------------- */
   function vHome() {
     const t = serviceDay(); const k = C.day(S, t);
@@ -111,6 +127,7 @@
         <h1>¿Quién come hoy<br>en el roof?</h1>
         <p class="lead">Confirma tu comida, el Chef Jorge planea insumos exactos y Dirección ve el balance en tiempo real.</p>
         <div class="today"><span>${C.label(t)}</span><b>${k.si}</b><em>confirmados</em></div>
+        <div class="todaymenu"><p class="eyebrow">Menú · ${C.label(t)}</p>${menuBlock(t, true)}<a href="#/comensal" class="link">Ver menú de la semana y confirmar →</a></div>
       </section>
       <nav class="roles">
         <a href="#/comensal" class="role r1"><i>01</i><div><b>Soy comensal</b><span>Confirma tus días, dona tu comida, deja indicaciones</span></div><u>→</u></a>
@@ -149,7 +166,7 @@
       return `<article class="day ${r.s === 'si' ? 'yes' : r.s === 'no' ? 'no' : ''} ${lk ? 'locked' : ''}">
         <div class="day-h"><div><b>${C.label(d)}</b>${d === today() ? '<em class="tag-today">Hoy</em>' : ''}</div>
           ${lk ? '<span class="lock">Cerrado</span>' : `<span class="small muted">Cierra ${C.short(C.prevWeekday(d))} ${esc(st().corte)}</span>`}</div>
-        <p class="menu">${m.length ? m.map(x => esc(x.name)).join(' · ') : '<span class="muted">Menú por publicar</span>'}</p>
+        ${menuBlock(d)}
         <div class="seg">
           <button class="${r.s === 'si' ? 'on' : ''}" data-a="att" data-d="${d}" data-v="si" ${lk ? 'disabled' : ''}>Sí como en el roof</button>
           <button class="${r.s === 'no' ? 'on' : ''}" data-a="att" data-d="${d}" data-v="no" ${lk ? 'disabled' : ''}>No como</button>
@@ -223,18 +240,46 @@
   }
   function chefMenu() {
     const mon = C.addDays(curMon(), UI.menuWeek * 7);
-    const rs = S.recipes;
+    const pub = S.pub[mon]; const filled = C.weekDays(mon).filter(d => (S.menu[d] || []).length).length;
     const days = C.weekDays(mon).map(d => {
       const m = S.menu[d] || [];
       return `<article class="card mday"><div class="day-h"><b>${C.label(d)}</b><span class="small muted">${C.money2(C.menuCost(S, d))}/plato · ${C.day(S, d).si} conf.</span></div>
-        <div class="chips">${m.map(id => { const r = C.recById(S, id); return r ? `<span class="chip on static">${esc(r.name)} <button class="x" data-a="mdel" data-d="${d}" data-v="${id}" aria-label="Quitar">×</button></span>` : ''; }).join('') || '<span class="muted small">Sin platillos</span>'}</div>
-        <select data-c="madd" data-d="${d}"><option value="">+ Agregar platillo…</option>${CATS.map(c => { const g = rs.filter(r => r.cat === c && !m.includes(r.id)); return g.length ? `<optgroup label="${c}">${g.map(r => `<option value="${r.id}">${esc(r.name)}</option>`).join('')}</optgroup>` : ''; }).join('')}</select>
+        ${CATS.map(cat => {
+          const here = m.map(id => C.recById(S, id)).filter(r => r && r.cat === cat);
+          const open = !here.length || UI.slotOpen === d + '|' + cat;
+          return `<div class="slot ${cat === 'Plato fuerte' ? 'main' : ''}"><span class="slot-l">${catL(cat)}</span><div class="slot-v">
+            ${here.map(r => `<span class="chip on static">${esc(r.name)} <button class="x" data-a="mdel" data-d="${d}" data-v="${r.id}" aria-label="Quitar">×</button></span>`).join('')}
+            ${open ? `<div class="ac"><input class="slot-in" data-d="${d}" data-cat="${cat}" autocomplete="off" placeholder="${here.length ? 'Otra opción…' : 'Elegir o escribir…'}"><div class="ac-list" hidden></div></div>` : `<button class="plus" data-a="slotopen" data-v="${d}|${cat}" aria-label="Agregar otra opción">+</button>`}
+          </div></div>`;
+        }).join('')}
       </article>`;
     }).join('');
+    const share = `🍽 *Menú del roof · Torre Vrick*\nSemana ${C.short(mon)} – ${C.short(C.addDays(mon, 4))}\n\n` + C.weekDays(mon).map(d => {
+      const m = C.menuOf(S, d); const f = c => m.filter(r => r.cat === c).map(r => r.name).join(' o ');
+      return `*${C.label(d)}*\n` + [f('Plato fuerte') && `• Guisado: ${f('Plato fuerte')}`, f('Sopa') && `• ${f('Sopa')}`, f('Guarnición') && `• ${f('Guarnición')}`, f('Postre') && `• Postre: ${f('Postre')}`, f('Bebida') && `💧 Agua de hoy: ${f('Bebida').replace(/^Agua (de |fresca de )?/i, '')}`].filter(Boolean).join('\n');
+    }).join('\n\n') + `\n\nConfirma si comes aquí 👉 ${location.origin + location.pathname}#/comensal`;
     return `<h2 class="sec">Menú semanal</h2>
       <div class="weeknav"><button class="icon" data-a="mweek" data-v="-1">‹</button><b>${C.short(mon)} – ${C.short(C.addDays(mon, 4))}</b><button class="icon" data-a="mweek" data-v="1">›</button></div>
+      <section class="card pubbox ${pub ? 'on' : ''}">
+        ${pub ? `<p><b>Publicado</b> · los comensales ya ven este menú. Los cambios se reflejan al instante.</p>
+          <a class="btn wa full" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(share)}">Compartir menú en el grupo de WhatsApp</a>
+          <button class="link" data-a="unpub" data-v="${mon}">Ocultar a comensales</button>`
+        : `<p><b>Borrador</b> · ${filled}/5 días con menú. Los comensales aún no lo ven.</p>
+          <button class="btn full" data-a="pub" data-v="${mon}">Publicar menú de la semana</button>`}
+      </section>
       <button class="btn ghost full" data-a="mcopy" data-v="${mon}">Copiar menú de la semana anterior</button>
       ${days}`;
+  }
+  function slotRender(inp) {
+    const list = inp.parentElement.querySelector('.ac-list'); const cat = inp.dataset.cat, d = inp.dataset.d;
+    const n = norm(inp.value); const m = S.menu[d] || [];
+    const rs = S.recipes.filter(r => r.cat === cat && !m.includes(r.id) && (!n || norm(r.name).includes(n))).sort((a, b) => a.name.localeCompare(b.name, 'es'));
+    const exact = S.recipes.some(r => norm(r.name) === n);
+    list.innerHTML = (n && !exact ? `<button class="ac-new" data-a="slotnew" data-d="${d}" data-cat="${cat}">+ Crear «${esc(inp.value.trim())}» con ingredientes</button>` : '') +
+      rs.slice(0, 30).map(r => `<button data-a="slotpick" data-d="${d}" data-v="${r.id}"><span>${esc(r.name)}</span><em>${C.money2(C.recipeCost(S, r))}</em></button>`).join('') +
+      (!n ? `<button class="ac-new" data-a="slotnew" data-d="${d}" data-cat="${cat}">+ Nuevo ${catL(cat).toLowerCase()}…</button>` : '');
+    document.querySelectorAll('.ac-list').forEach(l => { if (l !== list) l.hidden = true; });
+    list.hidden = false;
   }
   function buyDates() {
     const t = today(); const mon = curMon();
@@ -276,14 +321,14 @@
     return `<h2 class="sec">Platillos</h2>
       <p class="small muted">Escribe el platillo, sus ingredientes y condimentos con su proporción y costo. Cada ingrediente nuevo queda guardado para elegirlo después de la lista.</p>
       <button class="btn full" data-a="rnew">+ Nuevo platillo</button>
-      ${CATS.map(c => { const g = S.recipes.filter(r => r.cat === c); return g.length ? `<section class="card"><h3>${c}</h3><ul class="plain">${g.map(r => `<li class="tap" data-a="redit" data-v="${r.id}"><span>${esc(r.name)}<small>${r.items.map(it => esc(C.ingById(S, it.ing)?.name || '')).filter(Boolean).slice(0, 4).join(', ')}${r.items.length > 4 ? '…' : ''}</small></span><em>${C.money2(C.recipeCost(S, r))}</em></li>`).join('')}</ul></section>` : ''; }).join('')}`;
+      ${CATS.map(c => { const g = S.recipes.filter(r => r.cat === c); return g.length ? `<section class="card"><h3>${catL(c)}</h3><ul class="plain">${g.map(r => `<li class="tap" data-a="redit" data-v="${r.id}"><span>${esc(r.name)}<small>${r.items.map(it => esc(C.ingById(S, it.ing)?.name || '')).filter(Boolean).slice(0, 4).join(', ')}${r.items.length > 4 ? '…' : ''}</small></span><em>${C.money2(C.recipeCost(S, r))}</em></li>`).join('')}</ul></section>` : ''; }).join('')}`;
   }
   function recEditor() {
     const r = UI.editRec; const cost = C.recipeCost(S, r); const ni = UI.ni || (UI.ni = { unit: 'kg' });
-    return `<h2 class="sec">${S.recipes.find(x => x.id === r.id) ? 'Editar' : 'Nuevo'} platillo</h2>
+    return `<h2 class="sec">${S.recipes.find(x => x.id === r.id) ? 'Editar' : 'Nuevo'} platillo</h2>${UI.retMenu ? `<p class="small muted">Al guardar se agregará al menú del ${C.label(UI.retMenu.d)}.</p>` : ''}
       <section class="card">
         <label>Nombre del platillo<input data-c="rname" value="${esc(r.name)}" placeholder="Ej. Pollo al perejil"></label>
-        <label>Categoría<select data-c="rcat">${CATS.map(c => `<option ${c === r.cat ? 'selected' : ''}>${c}</option>`).join('')}</select></label>
+        <label>Tipo<select data-c="rcat">${CATS.map(c => `<option value="${c}" ${c === r.cat ? 'selected' : ''}>${catL(c)}</option>`).join('')}</select></label>
       </section>
       <section class="card">
         <h3>Ingredientes y proporciones <span class="muted small">· por platillo</span></h3>
@@ -453,10 +498,24 @@
       if (v === (role === 'chef' ? st().pinChef : st().pinDir)) { sessionStorage.setItem('tv_' + role, '1'); render(); } else toast('PIN incorrecto');
     },
     lock(el) { sessionStorage.removeItem('tv_' + el.dataset.r); location.hash = '#/'; },
-    ctab(el) { UI.chefTab = el.dataset.v; UI.editRec = null; window.scrollTo(0, 0); render(); },
+    ctab(el) { UI.chefTab = el.dataset.v; UI.editRec = null; UI.retMenu = null; window.scrollTo(0, 0); render(); },
     cday(el) { UI.chefDay = el.dataset.v; render(); },
     toggleList() { UI.showList = !UI.showList; render(); },
     mweek(el) { UI.menuWeek += +el.dataset.v; render(); },
+    slotopen(el) { UI.slotOpen = el.dataset.v; render(); const i = document.querySelector(`.slot-in[data-d="${el.dataset.v.split('|')[0]}"][data-cat="${el.dataset.v.split('|')[1]}"]`); i && i.focus(); },
+    async slotpick(el) { const d = el.dataset.d; await kvSet('menu:' + d, [...(S.menu[d] || []), el.dataset.v]); UI.slotOpen = null; render(); toast('Agregado al menú'); },
+    slotnew(el) {
+      const inp = el.closest('.ac').querySelector('.slot-in'); const name = inp.value.trim();
+      UI.ni = null; UI.retMenu = { d: el.dataset.d };
+      UI.editRec = { id: 'r' + uidGen(), name: name ? name.charAt(0).toUpperCase() + name.slice(1) : '', cat: el.dataset.cat, items: [] };
+      UI.chefTab = 'recetas'; window.scrollTo(0, 0); render();
+    },
+    async pub(el) {
+      const mon = el.dataset.v; const empty = C.weekDays(mon).filter(d => !(S.menu[d] || []).length);
+      if (empty.length && !confirm(`${empty.length} día(s) sin menú. ¿Publicar de todos modos?`)) return;
+      await kvSet('pub:' + mon, { at: Date.now() }); render(); toast('Menú publicado: ya lo ven los comensales');
+    },
+    async unpub(el) { await kvSet('pub:' + el.dataset.v, null); render(); toast('Menú oculto'); },
     async mdel(el) { const d = el.dataset.d; await kvSet('menu:' + d, (S.menu[d] || []).filter(x => x !== el.dataset.v)); render(); },
     async mcopy(el) { for (const d of C.weekDays(el.dataset.v)) { const prev = S.menu[C.addDays(d, -7)]; if (prev) await kvSet('menu:' + d, [...prev]); } render(); toast('Menú copiado'); },
     brange(el) { UI.buyRange = el.dataset.v; render(); },
@@ -504,12 +563,14 @@
       const a = document.getElementById('acIn'); a && a.focus();
     },
     ridel(el) { UI.editRec.items.splice(+el.dataset.v, 1); render(); },
-    rcancel() { UI.editRec = null; render(); },
+    rcancel() { UI.editRec = null; if (UI.retMenu) { UI.retMenu = null; UI.chefTab = 'menu'; } render(); },
     async rsave() {
       const r = UI.editRec; if (!r.name.trim()) return toast('Ponle nombre al platillo');
       const list = S.recipes.filter(x => x.id !== r.id); const idx = S.recipes.findIndex(x => x.id === r.id);
       idx >= 0 ? list.splice(idx, 0, r) : list.push(r);
-      await kvSet('recipes', list); UI.editRec = null; render(); toast('Platillo guardado');
+      await kvSet('recipes', list); UI.editRec = null;
+      if (UI.retMenu) { const d = UI.retMenu.d; if (!(S.menu[d] || []).includes(r.id)) await kvSet('menu:' + d, [...(S.menu[d] || []), r.id]); UI.retMenu = null; UI.chefTab = 'menu'; render(); toast('Platillo guardado y agregado al menú'); return; }
+      render(); toast('Platillo guardado');
     },
     async rdelete() { if (!confirm('¿Eliminar platillo?')) return; await kvSet('recipes', S.recipes.filter(x => x.id !== UI.editRec.id)); UI.editRec = null; render(); },
     async iadd() { await kvSet('ingredients', [...S.ingredients, { id: 'i' + uidGen(), name: 'Nuevo insumo', unit: 'kg', cost: 0 }]); render(); },
@@ -539,13 +600,15 @@
   document.addEventListener('change', e => { const el = e.target.closest('[data-c]'); if (el && CHG[el.dataset.c]) CHG[el.dataset.c](el, e); });
   document.addEventListener('input', e => {
     const t = e.target;
+    if (t.classList.contains('slot-in')) { slotRender(t); return; }
     if (t.id === 'acIn') { if (UI.ni) { UI.ni.name = t.value; UI.ni.ing = null; } acRender(t.value); }
     else if (t.id === 'ingQ') { UI.ingQ = t.value; const p = t.selectionStart; render(); const n = document.getElementById('ingQ'); n.focus(); n.setSelectionRange(p, p); }
     else if (t.dataset.c === 'rname') UI.editRec.name = t.value;
   });
-  document.addEventListener('focusin', e => { if (e.target.id === 'acIn') acRender(e.target.value); });
-  document.addEventListener('click', e => { const l = document.getElementById('acList'); if (l && !e.target.closest('.ac')) l.hidden = true; });
+  document.addEventListener('focusin', e => { if (e.target.id === 'acIn') acRender(e.target.value); else if (e.target.classList.contains('slot-in')) slotRender(e.target); });
+  document.addEventListener('click', e => { if (!e.target.closest('.ac')) document.querySelectorAll('.ac-list').forEach(l => l.hidden = true); });
   document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.classList.contains('slot-in')) { e.preventDefault(); e.target.parentElement.querySelector('.ac-list button')?.click(); return; }
     if (e.key === 'Enter' && e.target.id === 'acIn') { e.preventDefault(); const f = document.querySelector('#acList button'); f ? f.click() : null; return; }
     if (e.key === 'Enter' && e.target.id === 'niQty') { e.preventDefault(); ACT.niadd(); return; } if (e.key === 'Enter' && e.target.id === 'pin') document.querySelector('[data-a="pin"]')?.click(); });
 
