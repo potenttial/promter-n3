@@ -21,7 +21,7 @@
 
   /* ---------- Estado a partir de pares clave/valor ---------- */
   function emptyState() {
-    return { people: {}, purchases: {}, att: {}, menu: {}, served: {}, pub: {}, ingredients: [], recipes: [], settings: {} };
+    return { people: {}, purchases: {}, att: {}, menu: {}, served: {}, pub: {}, tickets: {}, ingredients: [], recipes: [], settings: {} };
   }
   function applyKV(S, key, value) {
     const p = key.split(':');
@@ -30,6 +30,8 @@
     else if (p[0] === 'purchase') { del ? delete S.purchases[p[1]] : S.purchases[p[1]] = value; }
     else if (p[0] === 'att') { S.att[p[1]] = S.att[p[1]] || {}; del ? delete S.att[p[1]][p[2]] : S.att[p[1]][p[2]] = value; }
     else if (p[0] === 'menu') { del ? delete S.menu[p[1]] : S.menu[p[1]] = value; }
+    else if (p[0] === 'ticket') { del ? delete S.tickets[p[1]] : S.tickets[p[1]] = value; }
+    else if (p[0] === 'ticketimg') { /* las fotos se leen aparte */ }
     else if (p[0] === 'pub') { del ? delete S.pub[p[1]] : S.pub[p[1]] = value; }
     else if (p[0] === 'served') { del ? delete S.served[p[1]] : S.served[p[1]] = value; }
     else if (['ingredients', 'recipes', 'settings'].includes(key)) S[key] = del ? (key === 'settings' ? {} : []) : value;
@@ -95,7 +97,9 @@
       comidas += sv; consumo += sv * mc; don += k.don; confirm += k.si; resp += k.si + k.no;
       return { d, n: sv, cost: sv * mc, mc };
     });
-    const inversion = Object.values(S.purchases).filter(p => p.date >= a && p.date <= b).reduce((x, p) => x + (+p.total || 0), 0);
+    const inRange = p => p.date >= a && p.date <= b;
+    const inversion = Object.values(S.purchases).filter(inRange).reduce((x, p) => x + (+p.total || 0), 0)
+      + Object.values(S.tickets || {}).filter(inRange).reduce((x, t) => x + (+t.total || 0), 0);
     const ingresos = comidas * st.precio;
     const rent = ingresos - inversion;
     // recurrencia por persona

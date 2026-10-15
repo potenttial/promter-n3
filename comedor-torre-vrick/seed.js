@@ -99,11 +99,16 @@
     let n = 0;
     for (let mon = start; mon <= C.monday(today); mon = C.addDays(mon, 7)) {
       const days = C.weekDays(mon).filter(d => d <= today || mon === C.monday(today));
-      C.needs(S, days).forEach(x => {
+      const lines = C.needs(S, days).map(x => {
         const f = 1.03 + r() * 0.09;
         const qty = C.isCount(x.unit) ? Math.ceil(x.qty * f) : Math.round(x.qty * f * 10) / 10;
         const ing = C.ingById(S, x.id);
-        kv['purchase:p' + (++n)] = { date: mon, ing: x.id, qty, unit: x.unit, total: Math.round(qty * ing.cost), note: 'Central de Abasto' };
+        return { ing: x.id, name: ing.name, qty, unit: x.unit, amount: Math.round(qty * ing.cost) };
+      });
+      // un ticket de proteínas (carnicería) y uno de verdura y abarrotes (Central de Abasto)
+      const prot = ['pollo', 'res', 'molida', 'pescado'];
+      [['Carnicería San Juan', lines.filter(l => prot.includes(l.ing))], ['Central de Abasto', lines.filter(l => !prot.includes(l.ing))]].forEach(([vendor, ls]) => {
+        if (ls.length) kv['ticket:s' + (++n)] = { date: mon, vendor, lines: ls, total: ls.reduce((a, l) => a + l.amount, 0), img: false, at: n };
       });
     }
     return kv;

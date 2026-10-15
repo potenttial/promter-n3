@@ -3,7 +3,7 @@
 (function () {
   const C = window.Core, CFG = window.COMEDOR_CONFIG || {};
   const REMOTE = !!(CFG.SUPABASE_URL && CFG.SUPABASE_ANON_KEY);
-  const LS = 'tv_comedor_kv_v2', LS_USER = 'tv_comedor_user';
+  const LS = 'tv_comedor_kv_v3', LS_USER = 'tv_comedor_user';
   const TEL_CHEF = CFG.TEL_CHEF || '525524962677', TEL_DIR = CFG.TEL_DIRECTOR || '525554054868';
   const TAGS = ['Sin picante', 'Vegetariano', 'Sin cebolla', 'Porción chica', 'Sin gluten', 'Sin lácteos'];
   const CATS = ['Sopa', 'Plato fuerte', 'Guarnición', 'Bebida', 'Postre', 'Acompañamiento'];
@@ -22,7 +22,7 @@
   async function remoteAll() {
     const out = {}; let from = 0;
     for (;;) {
-      const r = await fetch(`${CFG.SUPABASE_URL}/rest/v1/kv?select=key,value&order=key`, { headers: { ...H(), Range: `${from}-${from + 999}` } });
+      const r = await fetch(`${CFG.SUPABASE_URL}/rest/v1/kv?select=key,value&order=key&key=not.like.ticketimg*`, { headers: { ...H(), Range: `${from}-${from + 999}` } });
       if (!r.ok) throw new Error('Supabase ' + r.status);
       const rows = await r.json(); rows.forEach(x => out[x.key] = x.value);
       if (rows.length < 1000) break; from += 1000;
@@ -39,6 +39,56 @@
       } catch (e) { toast('Sin conexión: el cambio no se guardó'); }
     } else localStorage.setItem(LS, JSON.stringify(KV));
   }
+  /* Fotos de tickets: IndexedDB en este equipo, o Supabase en modo compartido */
+  const IDB = () => new Promise((ok, ko) => { const r = indexedDB.open('tv_comedor_img', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); });
+  async function imgPut(id, data) {
+    if (REMOTE) return fetch(`${CFG.SUPABASE_URL}/rest/v1/kv`, { method: 'POST', headers: { ...H(), Prefer: 'resolution=merge-duplicates' }, body: JSON.stringify({ key: 'ticketimg:' + id, value: data }) });
+    const db = await IDB(); return new Promise(ok => { const t = db.transaction('img', 'readwrite'); t.objectStore('img').put(data, id); t.oncomplete = ok; });
+  }
+  const imgCache = {};
+  async function imgGet(id) {
+    if (imgCache[id]) return imgCache[id];
+    try {
+      if (REMOTE) { const r = await fetch(`${CFG.SUPABASE_URL}/rest/v1/kv?select=value&key=eq.ticketimg:${id}`, { headers: H() }); const j = await r.json(); return imgCache[id] = j[0]?.value || null; }
+      const db = await IDB(); return imgCache[id] = await new Promise(ok => { const q = db.transaction('img').objectStore('img').get(id); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); });
+    } catch (e) { return null; }
+  }
+  async function imgDel(id) {
+    delete imgCache[id];
+    if (REMOTE) return fetch(`${CFG.SUPABASE_URL}/rest/v1/kv?key=eq.ticketimg:${id}`, { method: 'DELETE', headers: H() });
+    const db = await IDB(); db.transaction('img', 'readwrite').objectStore('img').delete(id);
+  }
+  function hydrateImgs() { document.querySelectorAll('img[data-img]').forEach(async el => { const d = await imgGet(el.dataset.img); if (d) { el.src = d; el.classList.add('ok'); } }); }
+  // Reduce la foto (máx. 1200 px, JPEG) para que se guarde rápido
+  const shrink = file => new Promise((ok, ko) => {
+    const im = new Image(); const url = URL.createObjectURL(file);
+    im.onload = () => { const k = Math.min(1, 1200 / Math.max(im.width, im.height)); const cv = document.createElement('canvas'); cv.width = Math.round(im.width * k); cv.height = Math.round(im.height * k); cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); URL.revokeObjectURL(url); ok(cv.toDataURL('image/jpeg', 0.7)); };
+    im.onerror = ko; im.src = url;
+  });
+
+  /* Lectura automática del ticket (OCR en el celular, sin enviar la foto a terceros) */
+  let tessP = null;
+  const loadTess = () => tessP || (tessP = new Promise((ok, ko) => { const sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'; sc.onload = () => ok(window.Tesseract); sc.onerror = () => { tessP = null; ko(new Error('sin conexión')); }; document.head.appendChild(sc); }));
+  function parseTicket(text) {
+    const lines = text.split(/\n+/).map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const num = t => { const m = [...t.matchAll(/\$?\s?(\d{1,3}(?:[,.]\d{3})*(?:[.,]\d{2})|\d+[.,]\d{2})(?!\d)/g)].map(x => parseFloat(x[1].replace(/[.,](?=\d{3}\b)/g, '').replace(',', '.'))); return m; };
+    let total = null;
+    for (const l of lines) { if (/total/i.test(l) && !/sub\s*-?\s*total/i.test(l)) { const n = num(l); if (n.length) total = n[n.length - 1]; } }
+    if (total == null) { const all = lines.flatMap(num); if (all.length) total = Math.max(...all); }
+    let date = null; const dm = text.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);
+    if (dm) { let [, d, m, y] = dm; if (y.length === 2) y = '20' + y; if (+m >= 1 && +m <= 12 && +d >= 1 && +d <= 31) date = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; }
+    const vendor = (lines.find(l => /[a-záéíóúñ]{4,}/i.test(l) && !/ticket|fecha|rfc|folio|caja/i.test(l)) || '').slice(0, 40);
+    const items = [];
+    for (const l of lines) {
+      if (/total|cambio|efectivo|iva|tarjeta/i.test(l)) continue;
+      const ing = S.ingredients.find(x => { const w = norm(x.name).split(/[ /]/).filter(t => t.length >= 4); return w.length && w.some(t => norm(l).includes(t)); });
+      const n = num(l); if (!ing || !n.length) continue;
+      const q = l.match(/(\d+(?:[.,]\d+)?)\s*(kg|kgs|kilo|k\b|lt|lts|l\b|pz|pza|pzas)/i);
+      items.push({ name: ing.name, unit: ing.unit, qty: q ? parseFloat(q[1].replace(',', '.')) : '', amount: n[n.length - 1] });
+    }
+    return { total, date, vendor, items };
+  }
+
   async function load() {
     if (REMOTE) {
       KV = await remoteAll();
@@ -203,11 +253,14 @@
   /* ---------------- Chef ---------------- */
   function vChef() {
     const g = gate('chef', 'Chef'); if (g) return g;
-    const tabs = [['hoy', 'Hoy'], ['menu', 'Menú'], ['compras', 'Compras'], ['recetas', 'Platillos'], ['insumos', 'Costos']];
-    const body = { hoy: chefHoy, menu: chefMenu, compras: chefCompras, recetas: chefRecetas, insumos: chefInsumos, ajustes: chefAjustes }[UI.chefTab]();
+    const I = p => `<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+    const tabs = [['hoy', 'Hoy', I('<path d="M4 20V10l8-6 8 6v10z"/><path d="M10 20v-6h4v6"/>')], ['menu', 'Menú', I('<rect x="4" y="4" width="16" height="17" rx="2"/><path d="M8 2v4M16 2v4M4 10h16"/>')],
+      ['recetas', 'Platillos', I('<path d="M3 13h18a9 9 0 0 1-18 0z"/><path d="M8 9c0-2 2-2 2-4M13 9c0-2 2-2 2-4"/>')], ['gastos', 'Tickets', I('<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>')],
+      ['compras', 'Compras', I('<path d="M3 4h2l2.4 11h11L21 7H6.2"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/>')]];
+    const body = { hoy: chefHoy, menu: chefMenu, compras: chefCompras, recetas: chefRecetas, gastos: chefGastos, insumos: chefInsumos, ajustes: chefAjustes }[UI.chefTab]();
     return `${header('Chef Jorge', `<button class="icon" data-a="ctab" data-v="ajustes" aria-label="Ajustes">⚙︎</button>`)}
       <main class="wrap pb">${body}</main>
-      <nav class="bottom">${tabs.map(([k, l]) => `<button class="${UI.chefTab === k ? 'on' : ''}" data-a="ctab" data-v="${k}">${l}</button>`).join('')}</nav>
+      <nav class="bottom">${tabs.map(([k, l, ic]) => `<button class="${UI.chefTab === k || (k === 'gastos' && UI.chefTab === 'insumos') ? 'on' : ''}" data-a="ctab" data-v="${k}">${ic}<span>${l}</span></button>`).join('')}</nav>
       ${footer()}`;
   }
   function dayPicker(sel, act) {
@@ -219,7 +272,13 @@
     const total = Object.keys(S.people).length; const sin = Math.max(0, total - k.si - k.no);
     const m = C.menuOf(S, d); const mc = C.menuCost(S, d);
     const tags = Object.entries(k.notes).sort((a, b) => b[1] - a[1]);
-    return `<h2 class="sec">Comensales</h2>${dayPicker(d, 'cday')}
+    return `<div class="quick">
+        <button data-a="qrec"><b>Platillos y porciones</b><span>Crea platillos con ingredientes, gramos y costo</span></button>
+        <label class="qcam"><input type="file" accept="image/*" capture="environment" data-c="tkphoto" hidden><b>Foto del ticket</b><span>Documenta tus compras y costos</span></label>
+        <button data-a="ctab" data-v="menu"><b>Menú de la semana</b><span>Guisado y agua del día; publícalo</span></button>
+        <button data-a="ctab" data-v="compras"><b>Lista de compra</b><span>Insumos según confirmados</span></button>
+      </div>
+      <h2 class="sec">Comensales</h2>${dayPicker(d, 'cday')}
       <section class="card big">
         <p class="eyebrow">${C.label(d)}${locked(d) ? ' · lista cerrada' : ' · aún pueden cambiar'}</p>
         <div class="bign"><b>${k.si}</b><span>confirmados<br>para comer</span></div>
@@ -300,17 +359,7 @@
         <div class="kpis k2">${kpi(ports, 'porciones totales', 'acc')}${kpi(C.money(tot), 'costo estimado')}</div>
         ${nd.length ? `<table class="tbl"><thead><tr><th>Insumo</th><th>Cantidad</th><th>Costo</th></tr></thead><tbody>${nd.map(x => `<tr><td>${esc(x.name)}</td><td>${C.fmtQty(x.qty, x.unit)}</td><td>${C.money(x.cost)}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">Aún no hay confirmados o menú para estos días.</p>'}
         <a class="btn wa full" target="_blank" rel="noopener" href="${wa(TEL_CHEF, msg)}">Mandar lista a mi WhatsApp</a></section>
-      <section class="card"><h3>Registrar compra (inversión)</h3>
-        <div class="grid2">
-          <label>Fecha<input type="date" id="pDate" value="${today()}"></label>
-          <label>Insumo<select id="pIng">${S.ingredients.map(i => `<option value="${i.id}">${esc(i.name)}</option>`).join('')}</select></label>
-          <label>Cantidad<input type="number" step="0.01" id="pQty" placeholder="kg / l / pza"></label>
-          <label>Total pagado $<input type="number" step="0.01" id="pTot" placeholder="0.00"></label>
-        </div>
-        <label>Proveedor / nota<input id="pNote" placeholder="Ej. Central de Abasto"></label>
-        <button class="btn full" data-a="buy">Guardar compra</button></section>
-      <section class="card"><h3>Compras recientes</h3>
-        <ul class="plain">${purch.map(([id, p]) => { const i = C.ingById(S, p.ing); return `<li><span>${esc(i?.name || p.ing)}<small>${C.short(p.date)} · ${p.qty} ${p.unit || i?.unit || ''} ${p.note ? '· ' + esc(p.note) : ''}</small></span><em>${C.money(p.total)} <button class="x" data-a="pdel" data-v="${id}" aria-label="Eliminar">×</button></em></li>`; }).join('') || '<li class="muted">Sin compras registradas</li>'}</ul></section>`;
+      <button class="btn ghost full" data-a="ctab" data-v="gastos">Registrar lo que compré (foto del ticket) →</button>`;
   }
   const UNITS = [['kg', 'Kilo'], ['l', 'Litro'], ['pza', 'Pieza'], ['porcion', 'Porción']];
   const uBuy = u => (C.UNIT[u] || C.UNIT.kg).buy, uUse = u => (C.UNIT[u] || C.UNIT.kg).use;
@@ -374,13 +423,70 @@
   function chefInsumos() {
     const q = norm(UI.ingQ || '');
     const rows = S.ingredients.map((x, i) => [x, i]).filter(([x]) => !q || norm(x.name).includes(q)).sort((a, b) => a[0].name.localeCompare(b[0].name, 'es'));
-    return `<h2 class="sec">Ingredientes y condimentos</h2>
+    return `<h2 class="sec">Gastos y costos</h2><div class="tabs"><button data-a="ctab" data-v="gastos">Tickets de compra</button><button class="on" data-a="ctab" data-v="insumos">Precios por kilo / porción</button></div>
       <p class="small muted">Tu lista crece sola cada vez que agregas un ingrediente nuevo a un platillo. Costo por kilo, litro, pieza o porción.</p>
       <input class="search" id="ingQ" placeholder="Buscar ingrediente…" value="${esc(UI.ingQ || '')}">
       <section class="card">${rows.map(([x, i]) => `<div class="ingr"><input data-c="iname" data-i="${i}" value="${esc(x.name)}">
         <select data-c="iunit" data-i="${i}">${UNITS.map(([u, l]) => `<option value="${u}" ${u === x.unit ? 'selected' : ''}>${l}</option>`).join('')}</select>
         <label class="money"><span>$</span><input type="number" step="0.01" data-c="icost" data-i="${i}" value="${x.cost}"></label></div>`).join('') || '<p class="muted small">Sin resultados.</p>'}
         <button class="btn ghost full" data-a="iadd">+ Agregar ingrediente</button></section>`;
+  }
+  function chefGastos() {
+    const sub = `<div class="tabs"><button class="${UI.chefTab === 'gastos' ? 'on' : ''}" data-a="ctab" data-v="gastos">Tickets de compra</button><button class="${UI.chefTab === 'insumos' ? 'on' : ''}" data-a="ctab" data-v="insumos">Precios por kilo / porción</button></div>`;
+    if (UI.tk) return sub + ticketForm();
+    const t = today(); const mon = C.monday(t); const ms = t.slice(0, 8) + '01';
+    const all = [...Object.entries(S.tickets).map(([id, x]) => ({ id, kind: 't', ...x })), ...Object.entries(S.purchases).map(([id, p]) => ({ id, kind: 'p', date: p.date, total: p.total, vendor: p.note, lines: [{ name: C.ingById(S, p.ing)?.name || p.ing, qty: p.qty, unit: p.unit }] }))]
+      .sort((a, b) => b.date.localeCompare(a.date) || (b.at || 0) - (a.at || 0));
+    const sum = f => all.filter(f).reduce((x, y) => x + (+y.total || 0), 0);
+    return `<h2 class="sec">Gastos y costos</h2>${sub}
+      <label class="cam"><input type="file" accept="image/*" capture="environment" data-c="tkphoto" hidden>
+        <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <b>Tomar foto del ticket</b><span>La app lee el total y la fecha; tú confirmas</span></label>
+      <button class="btn ghost full" data-a="tknew">Capturar gasto sin foto</button>
+      <div class="kpis k2 loose">${kpi(C.money(sum(x => x.date >= mon)), 'gastado esta semana', 'acc')}${kpi(C.money(sum(x => x.date >= ms)), 'gastado este mes')}</div>
+      <section class="card"><h3>Historial de compras</h3>
+        <ul class="tlist">${all.slice(0, 40).map(x => `<li>${x.kind === 't' && x.img ? `<img data-img="${x.id}" alt="Ticket" data-a="tkview" data-v="${x.id}">` : `<i class="noimg">${x.kind === 't' ? '🧾' : '·'}</i>`}
+          <span><b>${esc(x.vendor || 'Compra')}</b><small>${C.short(x.date)}${x.lines?.length ? ' · ' + x.lines.map(l => esc(l.name)).slice(0, 3).join(', ') + (x.lines.length > 3 ? '…' : '') : ''}</small></span>
+          <em>${C.money(x.total)}<button class="x" data-a="${x.kind === 't' ? 'tkdel' : 'pdel'}" data-v="${x.id}" aria-label="Eliminar">×</button></em></li>`).join('') || '<li class="muted">Aún no hay tickets.</li>'}</ul></section>
+      ${UI.tkView ? `<div class="sheet-bg" data-a="tkclose"></div><section class="sheet photo"><img data-img="${UI.tkView}" alt="Ticket"><button class="btn full" data-a="tkclose">Cerrar</button></section>` : ''}`;
+  }
+  function ticketForm() {
+    const k = UI.tk;
+    return `<section class="card">
+      <h3>${k.img ? 'Ticket fotografiado' : 'Nuevo gasto'}</h3>
+      ${k.img ? `<img class="tkprev" src="${k.img}" alt="Foto del ticket">
+        <div class="ocr">${k.ocr === 'run' ? `<span class="spin"></span> Leyendo ticket… ${k.pct || 0}%` : k.ocr === 'ok' ? '✓ Leído automáticamente: revisa los datos' : k.ocr === 'err' ? 'No se pudo leer automáticamente; captura el total a mano.' : `<button class="btn ghost full" data-a="tkocr">Leer ticket automáticamente</button>`}</div>` : ''}
+      <div class="grid2"><label>Fecha<input type="date" data-k="date" class="tkf" value="${k.date || today()}"></label>
+        <label>Total pagado<div class="money"><span>$</span><input type="number" step="0.01" data-k="total" class="tkf" value="${k.total ?? ''}" placeholder="0.00"></div></label></div>
+      <label>Proveedor<input data-k="vendor" class="tkf" value="${esc(k.vendor || '')}" placeholder="Ej. Central de Abasto, Costco"></label>
+      <h3 class="mt">Detalle (opcional)</h3>
+      <p class="small muted">Si capturas cantidad e importe, el costo por kilo o porción del ingrediente se actualiza solo.</p>
+      ${(k.lines || []).map((l, i) => `<div class="tl"><input list="ingNames" data-i="${i}" data-k="name" class="tkl" value="${esc(l.name || '')}" placeholder="Ingrediente">
+        <input type="number" step="0.01" data-i="${i}" data-k="qty" class="tkl" value="${l.qty ?? ''}" placeholder="Cant.">
+        <select data-i="${i}" data-k="unit" class="tkl">${UNITS.map(([u, n]) => `<option value="${u}" ${u === (l.unit || 'kg') ? 'selected' : ''}>${u === 'porcion' ? 'porc.' : u}</option>`).join('')}</select>
+        <div class="money"><span>$</span><input type="number" step="0.01" data-i="${i}" data-k="amount" class="tkl" value="${l.amount ?? ''}" placeholder="0"></div>
+        <button class="x" data-a="tkldel" data-v="${i}" aria-label="Quitar">×</button></div>`).join('')}
+      <datalist id="ingNames">${S.ingredients.map(x => `<option value="${esc(x.name)}">`).join('')}</datalist>
+      <button class="btn ghost full" data-a="tkladd">+ Agregar renglón</button>
+      ${(k.lines || []).length ? `<p class="small muted">Suma del detalle: ${C.money((k.lines || []).reduce((a, l) => a + (+l.amount || 0), 0))}</p>` : ''}
+      <div class="grid2"><button class="btn ghost" data-a="tkcancel">Cancelar</button><button class="btn" data-a="tksave">Guardar ticket</button></div>
+    </section>`;
+  }
+  async function runOCR() {
+    const k = UI.tk; if (!k?.img) return;
+    k.ocr = 'run'; k.pct = 0; render();
+    try {
+      const T = await loadTess();
+      const r = await T.recognize(k.img, 'spa', { logger: m => { if (m.status === 'recognizing text' && UI.tk) { UI.tk.pct = Math.round(m.progress * 100); const o = document.querySelector('.ocr'); if (o) o.innerHTML = `<span class="spin"></span> Leyendo ticket… ${UI.tk.pct}%`; } } });
+      if (!UI.tk) return;
+      const p = parseTicket(r.data.text || '');
+      if (p.total != null && !k.total) k.total = p.total;
+      if (p.date) k.date = p.date;
+      if (p.vendor && !k.vendor) k.vendor = p.vendor;
+      if (p.items.length && !(k.lines || []).length) k.lines = p.items;
+      k.ocr = 'ok';
+    } catch (e) { if (UI.tk) UI.tk.ocr = 'err'; }
+    render();
   }
   function chefAjustes() {
     const s = st();
@@ -455,7 +561,7 @@
   function render() {
     const r = (location.hash || '#/').slice(2);
     const view = r.startsWith('comensal') ? vComensal : r.startsWith('chef') ? vChef : r.startsWith('director') ? vDirector : vHome;
-    const y = window.scrollY; $app.innerHTML = view() + installSheet(); window.scrollTo(0, y);
+    const y = window.scrollY; $app.innerHTML = view() + installSheet(); window.scrollTo(0, y); hydrateImgs();
   }
   window.addEventListener('hashchange', () => { window.scrollTo(0, 0); render(); });
 
@@ -498,10 +604,36 @@
       if (v === (role === 'chef' ? st().pinChef : st().pinDir)) { sessionStorage.setItem('tv_' + role, '1'); render(); } else toast('PIN incorrecto');
     },
     lock(el) { sessionStorage.removeItem('tv_' + el.dataset.r); location.hash = '#/'; },
-    ctab(el) { UI.chefTab = el.dataset.v; UI.editRec = null; UI.retMenu = null; window.scrollTo(0, 0); render(); },
+    ctab(el) { UI.chefTab = el.dataset.v; UI.editRec = null; UI.retMenu = null; UI.tk = null; window.scrollTo(0, 0); render(); },
     cday(el) { UI.chefDay = el.dataset.v; render(); },
     toggleList() { UI.showList = !UI.showList; render(); },
     mweek(el) { UI.menuWeek += +el.dataset.v; render(); },
+    qrec() { UI.chefTab = 'recetas'; UI.ni = null; UI.editRec = { id: 'r' + uidGen(), name: '', cat: 'Plato fuerte', items: [] }; window.scrollTo(0, 0); render(); },
+    tknew() { UI.tk = { date: today(), lines: [] }; render(); },
+    tkocr() { runOCR(); },
+    tkladd() { UI.tk.lines = [...(UI.tk.lines || []), { unit: 'kg' }]; render(); },
+    tkldel(el) { UI.tk.lines.splice(+el.dataset.v, 1); render(); },
+    tkcancel() { UI.tk = null; render(); },
+    tkview(el) { UI.tkView = el.dataset.v; render(); },
+    tkclose() { UI.tkView = null; render(); },
+    async tkdel(el) { if (!confirm('¿Eliminar este ticket?')) return; const t = S.tickets[el.dataset.v]; await kvSet('ticket:' + el.dataset.v, null); if (t?.img) imgDel(el.dataset.v); render(); },
+    async tksave() {
+      const k = UI.tk; const total = +k.total;
+      if (!total) return toast('Captura el total pagado');
+      const id = uidGen(); const lines = (k.lines || []).filter(l => (l.name || '').trim());
+      let list = [...S.ingredients]; let upd = 0;
+      for (const l of lines) {
+        let ing = list.find(x => norm(x.name) === norm(l.name));
+        if (!ing) { ing = { id: 'i' + uidGen(), name: l.name.trim().charAt(0).toUpperCase() + l.name.trim().slice(1), unit: l.unit || 'kg', cost: 0 }; list.push(ing); }
+        if (+l.qty > 0 && +l.amount > 0) { const i = list.findIndex(x => x.id === ing.id); list[i] = { ...list[i], unit: l.unit || list[i].unit, cost: Math.round(+l.amount / +l.qty * 100) / 100 }; upd++; }
+        l.ing = ing.id;
+      }
+      if (lines.length) await kvSet('ingredients', list);
+      if (k.img) await imgPut(id, k.img);
+      await kvSet('ticket:' + id, { date: k.date || today(), total, vendor: (k.vendor || '').trim(), lines: lines.map(l => ({ ing: l.ing, name: l.name, qty: +l.qty || 0, unit: l.unit || 'kg', amount: +l.amount || 0 })), img: !!k.img, at: Date.now() });
+      if (k.img) imgCache[id] = k.img;
+      UI.tk = null; UI.chefTab = 'gastos'; render(); toast(upd ? `Ticket guardado · ${upd} precio(s) actualizado(s)` : 'Ticket guardado');
+    },
     slotopen(el) { UI.slotOpen = el.dataset.v; render(); const i = document.querySelector(`.slot-in[data-d="${el.dataset.v.split('|')[0]}"][data-cat="${el.dataset.v.split('|')[1]}"]`); i && i.focus(); },
     async slotpick(el) { const d = el.dataset.d; await kvSet('menu:' + d, [...(S.menu[d] || []), el.dataset.v]); UI.slotOpen = null; render(); toast('Agregado al menú'); },
     slotnew(el) {
@@ -582,6 +714,11 @@
     reset() { if (confirm('¿Reiniciar todos los datos de demostración?')) { localStorage.removeItem(LS); localStorage.removeItem(LS_USER); location.reload(); } }
   };
   const CHG = {
+    async tkphoto(el) {
+      const f = el.files?.[0]; if (!f) return;
+      try { const img = await shrink(f); UI.tk = { img, date: today(), lines: [] }; UI.chefTab = 'gastos'; window.scrollTo(0, 0); render(); runOCR(); }
+      catch (e) { toast('No se pudo abrir la foto'); }
+    },
     async donate(el) { const u = user(), d = el.dataset.d; const cur = S.att[d]?.[u.id] || {}; await kvSet(`att:${d}:${u.id}`, { ...cur, d: el.checked, t: Date.now() }); render(); toast(el.checked ? 'Gracias: tu comida se donará' : 'Donación cancelada'); },
     async note(el) { const u = user(), d = el.dataset.d; const cur = S.att[d]?.[u.id] || {}; await kvSet(`att:${d}:${u.id}`, { ...cur, n: el.value.trim().slice(0, 140), t: Date.now() }); toast('Sugerencia enviada al chef'); },
     async served(el) { await kvSet('served:' + el.dataset.d, el.value === '' ? null : +el.value); toast('Guardado'); },
@@ -597,10 +734,13 @@
     async set(el) { const s = { ...st(), [el.dataset.k]: el.type === 'number' ? +el.value : el.value }; await kvSet('settings', s); toast('Ajuste guardado'); }
   };
   document.addEventListener('click', e => { const el = e.target.closest('[data-a]'); if (el && ACT[el.dataset.a]) { e.preventDefault(); ACT[el.dataset.a](el, e); } });
+  document.addEventListener('change', e => { const t = e.target; if (t.classList?.contains('tkl') && t.tagName === 'SELECT' && UI.tk) UI.tk.lines[+t.dataset.i].unit = t.value; });
   document.addEventListener('change', e => { const el = e.target.closest('[data-c]'); if (el && CHG[el.dataset.c]) CHG[el.dataset.c](el, e); });
   document.addEventListener('input', e => {
     const t = e.target;
     if (t.classList.contains('slot-in')) { slotRender(t); return; }
+    if (t.classList.contains('tkf') && UI.tk) { UI.tk[t.dataset.k] = t.value; return; }
+    if (t.classList.contains('tkl') && UI.tk) { const l = UI.tk.lines[+t.dataset.i]; l[t.dataset.k] = t.value; if (t.dataset.k === 'name') { const g = S.ingredients.find(x => norm(x.name) === norm(t.value)); if (g) { l.unit = g.unit; const sel = t.parentElement.querySelector('select'); if (sel) sel.value = g.unit; } } return; }
     if (t.id === 'acIn') { if (UI.ni) { UI.ni.name = t.value; UI.ni.ing = null; } acRender(t.value); }
     else if (t.id === 'ingQ') { UI.ingQ = t.value; const p = t.selectionStart; render(); const n = document.getElementById('ingQ'); n.focus(); n.setSelectionRange(p, p); }
     else if (t.dataset.c === 'rname') UI.editRec.name = t.value;
@@ -617,7 +757,7 @@
   setInterval(async () => {
     const active = document.activeElement; if (active && /INPUT|SELECT|TEXTAREA/.test(active.tagName)) return;
     if (REMOTE) { try { KV = await remoteAll(); S = C.stateFromKV(KV); } catch (e) { } }
-    if (!UI.editRec) render();
+    if (!UI.editRec && !UI.tk) render();
   }, 20000);
 
   load().then(render).catch(err => { $app.innerHTML = `<main class="wrap"><section class="card"><h2>No se pudo conectar</h2><p class="muted">${esc(err.message)}</p></section></main>`; });
