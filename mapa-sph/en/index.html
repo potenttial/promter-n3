@@ -205,6 +205,8 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
 .chip-r:hover{border-color:var(--red)}
 .chip-r .l{flex:0 0 1.6rem;height:1.6rem;border-radius:50%;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);font-size:.8rem}
 .chip-r.ghost{border-style:dashed;color:var(--muted)}
+.chip-r.on{border-color:var(--red);background:color-mix(in srgb,var(--red) 10%,var(--paper))}
+.chip-r.on::before{content:'✓';color:var(--red);font-weight:700}
 .other{display:flex;gap:.5rem;width:100%;max-width:520px}
 .other input{flex:1;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:.55rem .95rem}
 .other input:focus{border-color:var(--red);outline:none}
@@ -522,7 +524,7 @@ const INTAKE=[
  {k:'genero',q:'What gender do you identify with?',o:['Woman','Man','Prefer not to say'],other:'Type how you identify'},
  {k:'sector',q:'Which industry do you work in, or want to work in?',o:['Technology','Food and beverage','Financial services','Healthcare','Manufacturing','Retail and consumer','Education','Energy','Government','Professional services'],other:'Type your industry'},
  {k:'puesto',q:'What position do you hold, or what do you do?',o:['CEO / General Management','CFO / Finance','COO / Operations','CMO / Sales & Marketing','CHRO / Human Resources','CTO / CIO / Technology','Area Director','Manager','Entrepreneur','Student'],other:'Type your position'},
- {k:'estudios',q:'What did you study, or what are you studying?',o:['Engineering','Business Administration','Economics / Finance','Law','Health sciences','Social sciences / Humanities','Exact sciences','Design / Communication'],other:'Type what you studied or study'},
+ {k:'estudios',multi:true,q:'What did you study, or what are you studying? (you can pick more than one)',o:['Engineering','Business Administration','Economics / Finance','Law','Health sciences','Social sciences / Humanities','Exact sciences','Design / Communication'],other:'Type what you studied or study'},
  {k:'voz',q:'In your inner speech (you think 300 to 500 words per minute), from which angle do you talk to yourself?',o:['First person (“I feel that…”)','Third person','I’m not aware of it']}
 ];
 const ACKS=['Noted.','Understood.','Interesting.','Very well.','Thank you.','Got it.','Sure.','Let’s continue.'];
@@ -559,7 +561,7 @@ function bubble(who,content,meta){
 function scrollEnd(){ if(log) log.scrollTo({top:log.scrollHeight,behavior:reduceMotion?'auto':'smooth'}); }
 function typing(ms){ return new Promise(res=>{ if(reduceMotion||ms===0){ res(); return; } const t=el('div','msg bot typing'); t.append(el('span','m-av','')); const b=el('div','bub'); b.append(el('i'),el('i'),el('i')); t.append(b); log.append(t); scrollEnd(); setTimeout(()=>{ t.remove(); res(); },ms); }); }
 function questionAt(step){
-  if(step<NI){ const it=INTAKE[step]; return {text:it.q,meta:'Your context · '+(step+1)+' of '+NI,opts:it.o.map(o=>({label:o,val:o})),other:it.other}; }
+  if(step<NI){ const it=INTAKE[step]; return {text:it.q,meta:'Your context · '+(step+1)+' of '+NI,opts:it.o.map(o=>({label:o,val:o})),other:it.other,multi:it.multi}; }
   const qi=step-NI, q=QS[qi]; return {text:q.q,meta:'Question '+(qi+1)+' of '+QS.length+' · '+LAYER[q.l],opts:st.order[qi].map(oi=>({label:q.o[oi][0],val:oi})),long:true};
 }
 function answerLabel(step){ if(step<NI) return st.who[INTAKE[step].k]; const qi=step-NI; return QS[qi].o[st.ans[qi]][0]; }
@@ -584,9 +586,33 @@ async function next(){
   await typing(st.step===0?600:850);
   busy=false; ask(false);
 }
+function askMulti(q){
+  const picked=[];
+  const cont=el('button','cta small','Continue'); cont.type='button'; cont.style.margin='0'; cont.disabled=true;
+  const sync=()=>{ cont.disabled=!picked.length; };
+  const mkChip=(label,on)=>{ const b=el('button','chip-r'+(on?' on':'')); b.type='button'; b.setAttribute('aria-pressed',on?'true':'false'); b.append(el('span',null,label));
+    b.addEventListener('click',()=>{ const i=picked.indexOf(label); if(i>-1){ picked.splice(i,1); b.classList.remove('on'); b.setAttribute('aria-pressed','false'); } else { picked.push(label); b.classList.add('on'); b.setAttribute('aria-pressed','true'); } sync(); });
+    return b; };
+  q.opts.forEach(o=>replies.append(mkChip(o.label,false)));
+  let otherBtn=null;
+  if(q.other){
+    otherBtn=el('button','chip-r ghost','Other'); otherBtn.type='button';
+    otherBtn.addEventListener('click',()=>{
+      const f=el('form','other'); const i=el('input'); i.placeholder=q.other; i.setAttribute('aria-label',q.other); i.maxLength=60;
+      const s=el('button','cta small','Add'); s.type='submit'; s.style.margin='0'; f.append(i,s);
+      f.addEventListener('submit',e=>{ e.preventDefault(); const v=i.value.trim(); if(v.length<2){ i.focus(); return; }
+        if(picked.indexOf(v)===-1){ picked.push(v); replies.insertBefore(mkChip(v,true),f); }
+        f.replaceWith(otherBtn); sync(); });
+      otherBtn.replaceWith(f); i.focus(); });
+    replies.append(otherBtn);
+  }
+  cont.addEventListener('click',()=>{ if(!picked.length) return; const v=picked.join(', '); choose(v,v); });
+  replies.append(cont);
+}
 function ask(instant){
   const q=questionAt(st.step); bubble('bot',q.text,q.meta);
   replies.innerHTML=''; replies.classList.toggle('long',!!q.long);
+  if(q.multi){ askMulti(q); progress(); const f1=replies.querySelector('button'); if(f1&&st.started&&!instant) f1.focus({preventScroll:true}); return; }
   q.opts.forEach((o,n)=>{ const b=el('button','chip-r'); b.type='button'; if(q.long) b.append(el('span','l',String.fromCharCode(65+n))); b.append(el('span',null,o.label)); b.addEventListener('click',()=>choose(o.val,o.label)); replies.append(b); });
   if(q.other){
     const b=el('button','chip-r ghost','Other'); b.type='button';
