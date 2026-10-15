@@ -1,0 +1,31 @@
+name: Avisos WhatsApp del comedor
+on:
+  schedule:
+    - cron: '55 23 * * 1-5'   # 17:55 h Ciudad de México (UTC-6), lunes a viernes
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'auto | chef | director | both'
+        default: 'both'
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    env:
+      HAS_DB: ${{ secrets.SUPABASE_URL != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Enviar resúmenes
+        if: ${{ env.HAS_DB == 'true' }}
+        run: node scripts/notify.js
+        env:
+          MODE: ${{ github.event.inputs.mode || 'auto' }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          WA_PROVIDER: ${{ secrets.WA_PROVIDER }}
+          WA_TOKEN: ${{ secrets.WA_TOKEN }}
+          WA_PHONE_ID: ${{ secrets.WA_PHONE_ID }}
+          WA_TEMPLATE: ${{ secrets.WA_TEMPLATE }}
+          CALLMEBOT_KEY_CHEF: ${{ secrets.CALLMEBOT_KEY_CHEF }}
+          CALLMEBOT_KEY_DIR: ${{ secrets.CALLMEBOT_KEY_DIR }}
