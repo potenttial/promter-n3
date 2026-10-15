@@ -229,6 +229,22 @@ details{margin-top:14px}details summary{cursor:pointer}
 .tl input,.tl select{margin:0;padding:9px 6px;font-size:14px}.tl .money input{padding-left:16px}.tl .money span{left:5px}
 .mt{margin-top:16px}
 .sheet.photo img{width:100%;max-height:70vh;object-fit:contain;border-radius:12px;background:#F4F3F1}
+.capt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.capt .cam{margin:0;padding:16px 10px;width:100%}.capt .cam b{font-size:16px}.capt .cam span{font-size:12px}
+.cam.vox{background:var(--ink);color:#fff}.cam.vox span{color:#C9C9CD}
+.quick .qvox{background:#fff;border-color:var(--ink)}
+.voice{background:#F4F3F1;border-radius:14px;padding:12px;margin:10px 0 4px}
+.voice.on{background:var(--acc-s)}
+.mic{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;background:var(--ink);color:#fff;border-radius:12px;padding:14px;font-size:16px}
+.voice.on .mic{background:var(--acc)}
+.pulse{width:14px;height:14px;border-radius:50%;background:#fff;animation:pl 1s ease-in-out infinite}
+@keyframes pl{0%,100%{transform:scale(.7);opacity:.6}50%{transform:scale(1.15);opacity:1}}
+.vlive{font-size:14px;color:var(--ink);margin-top:8px;min-height:1px}.vlive:empty{display:none}
+.vhint,.vmsg{font-size:12.5px;color:var(--mute);margin-top:8px}.vmsg{color:#8a2a18}
+.vtype{display:flex;gap:6px;margin-top:10px}.vtype input{margin:0;font-size:15px;padding:10px}
+.vtype button{flex:none;border:1px solid var(--line);background:#fff;border-radius:12px;padding:0 14px;font-size:14px}
+.auto{color:var(--ok);font-weight:300;font-size:11.5px}
+.newi{grid-column:1/-1;font-size:11.5px;color:var(--acc);margin-top:-2px}
 .pb~.n3{padding-bottom:110px}
 #toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--ink);color:#fff;font-size:14px;padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:90vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -241,6 +257,7 @@ details{margin-top:14px}details summary{cursor:pointer}
 <script src="config.js"></script>
 <script src="core.js"></script>
 <script src="seed.js"></script>
+<script src="dictado.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

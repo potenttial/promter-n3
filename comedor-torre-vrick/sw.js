@@ -1,7 +1,7 @@
 /* Service worker · Comedor Torre Vrick (N3 Labs)
    Red primero para siempre tener la versión más reciente; caché como respaldo sin conexión. */
-const CACHE = 'comedor-tv-v5';
-const SHELL = ['./', 'index.html', 'app.js', 'core.js', 'seed.js', 'config.js', 'manifest.webmanifest',
+const CACHE = 'comedor-tv-v6';
+const SHELL = ['./', 'index.html', 'app.js', 'core.js', 'seed.js', 'dictado.js', 'config.js', 'manifest.webmanifest',
   'assets/torre-vrick.png', 'assets/n3-labs.png', 'assets/icon-192.png', 'assets/icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {

@@ -276,7 +276,7 @@
         <button data-a="qrec"><b>Platillos y porciones</b><span>Crea platillos con ingredientes, gramos y costo</span></button>
         <label class="qcam"><input type="file" accept="image/*" capture="environment" data-c="tkphoto" hidden><b>Foto del ticket</b><span>Documenta tus compras y costos</span></label>
         <button data-a="ctab" data-v="menu"><b>Menú de la semana</b><span>Guisado y agua del día; publícalo</span></button>
-        <button data-a="ctab" data-v="compras"><b>Lista de compra</b><span>Insumos según confirmados</span></button>
+        <button class="qvox" data-a="vnew"><b>Dictar compra</b><span>Precios por voz, se suman solos</span></button>
       </div>
       <h2 class="sec">Comensales</h2>${dayPicker(d, 'cday')}
       <section class="card big">
@@ -439,10 +439,13 @@
       .sort((a, b) => b.date.localeCompare(a.date) || (b.at || 0) - (a.at || 0));
     const sum = f => all.filter(f).reduce((x, y) => x + (+y.total || 0), 0);
     return `<h2 class="sec">Gastos y costos</h2>${sub}
+      <div class="capt">
       <label class="cam"><input type="file" accept="image/*" capture="environment" data-c="tkphoto" hidden>
-        <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
-        <b>Tomar foto del ticket</b><span>La app lee el total y la fecha; tú confirmas</span></label>
-      <button class="btn ghost full" data-a="tknew">Capturar gasto sin foto</button>
+        <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <b>Foto del ticket</b><span>Lee total y fecha</span></label>
+      <button class="cam vox" data-a="vnew"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><b>Dictar compra</b><span>Di producto, cantidad y precio; se suma solo</span></button>
+      </div>
+      <button class="btn ghost full" data-a="tknew">Capturar a mano</button>
       <div class="kpis k2 loose">${kpi(C.money(sum(x => x.date >= mon)), 'gastado esta semana', 'acc')}${kpi(C.money(sum(x => x.date >= ms)), 'gastado este mes')}</div>
       <section class="card"><h3>Historial de compras</h3>
         <ul class="tlist">${all.slice(0, 40).map(x => `<li>${x.kind === 't' && x.img ? `<img data-img="${x.id}" alt="Ticket" data-a="tkview" data-v="${x.id}">` : `<i class="noimg">${x.kind === 't' ? '🧾' : '·'}</i>`}
@@ -456,22 +459,79 @@
       <h3>${k.img ? 'Ticket fotografiado' : 'Nuevo gasto'}</h3>
       ${k.img ? `<img class="tkprev" src="${k.img}" alt="Foto del ticket">
         <div class="ocr">${k.ocr === 'run' ? `<span class="spin"></span> Leyendo ticket… ${k.pct || 0}%` : k.ocr === 'ok' ? '✓ Leído automáticamente: revisa los datos' : k.ocr === 'err' ? 'No se pudo leer automáticamente; captura el total a mano.' : `<button class="btn ghost full" data-a="tkocr">Leer ticket automáticamente</button>`}</div>` : ''}
+      ${voiceBlock()}
       <div class="grid2"><label>Fecha<input type="date" data-k="date" class="tkf" value="${k.date || today()}"></label>
-        <label>Total pagado<div class="money"><span>$</span><input type="number" step="0.01" data-k="total" class="tkf" value="${k.total ?? ''}" placeholder="0.00"></div></label></div>
+        <label>Total pagado${k.autoTotal ? ' <small class="auto">· auto</small>' : ''}<div class="money"><span>$</span><input type="number" step="0.01" data-k="total" class="tkf" value="${k.total ?? ''}" placeholder="0.00"></div></label></div>
       <label>Proveedor<input data-k="vendor" class="tkf" value="${esc(k.vendor || '')}" placeholder="Ej. Central de Abasto, Costco"></label>
-      <h3 class="mt">Detalle (opcional)</h3>
-      <p class="small muted">Si capturas cantidad e importe, el costo por kilo o porción del ingrediente se actualiza solo.</p>
+      <h3 class="mt">Detalle ${(k.lines || []).length ? `<span class="muted small">· ${(k.lines || []).length} renglón(es)</span>` : '(opcional)'}</h3>
+      <p class="small muted">Con cantidad e importe, el costo por kilo o porción del ingrediente se actualiza solo.</p>
       ${(k.lines || []).map((l, i) => `<div class="tl"><input list="ingNames" data-i="${i}" data-k="name" class="tkl" value="${esc(l.name || '')}" placeholder="Ingrediente">
         <input type="number" step="0.01" data-i="${i}" data-k="qty" class="tkl" value="${l.qty ?? ''}" placeholder="Cant.">
         <select data-i="${i}" data-k="unit" class="tkl">${UNITS.map(([u, n]) => `<option value="${u}" ${u === (l.unit || 'kg') ? 'selected' : ''}>${u === 'porcion' ? 'porc.' : u}</option>`).join('')}</select>
         <div class="money"><span>$</span><input type="number" step="0.01" data-i="${i}" data-k="amount" class="tkl" value="${l.amount ?? ''}" placeholder="0"></div>
-        <button class="x" data-a="tkldel" data-v="${i}" aria-label="Quitar">×</button></div>`).join('')}
+        <button class="x" data-a="tkldel" data-v="${i}" aria-label="Quitar">×</button>${l.voz && !l.known ? '<small class="newi">Nuevo ingrediente</small>' : ''}</div>`).join('')}
       <datalist id="ingNames">${S.ingredients.map(x => `<option value="${esc(x.name)}">`).join('')}</datalist>
       <button class="btn ghost full" data-a="tkladd">+ Agregar renglón</button>
-      ${(k.lines || []).length ? `<p class="small muted">Suma del detalle: ${C.money((k.lines || []).reduce((a, l) => a + (+l.amount || 0), 0))}</p>` : ''}
+      ${(k.lines || []).length ? `<div class="total"><span>Suma de la compra</span><b id="tkSum">${C.money2(lineSum())}</b></div>` : ''}
       <div class="grid2"><button class="btn ghost" data-a="tkcancel">Cancelar</button><button class="btn" data-a="tksave">Guardar ticket</button></div>
     </section>`;
   }
+  /* ---------- Dictado por voz ---------- */
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null;
+  const lineSum = () => (UI.tk?.lines || []).reduce((a, l) => a + (+l.amount || 0), 0);
+  function syncTotal() {
+    if (!UI.tk?.autoTotal) return;
+    UI.tk.total = Math.round(lineSum() * 100) / 100 || '';
+    const t = document.querySelector('.tkf[data-k="total"]'); if (t) t.value = UI.tk.total;
+    const s = document.getElementById('tkSum'); if (s) s.textContent = C.money2(lineSum());
+  }
+  function voiceBlock() {
+    const on = !!UI.listening;
+    return `<div class="voice ${on ? 'on' : ''}">
+      <button class="mic" data-a="vtoggle">${on ? '<span class="pulse"></span>' : '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>'}
+        <span>${on ? 'Escuchando… toca para terminar' : 'Dictar compras'}</span></button>
+      <p class="vlive" id="vlive">${esc(UI.vLast || '')}</p>
+      ${UI.vMsg ? `<p class="vmsg">${esc(UI.vMsg)}</p>` : `<p class="vhint">Di, por ejemplo: «pollo, tres kilos, cuatrocientos treinta y ocho pesos… jitomate, dos kilos y medio, ochenta». Para corregir: «borra el último».</p>`}
+      <div class="vtype"><input id="vtext" autocomplete="off" placeholder="…o escribe: cebolla 1 kilo 30"><button data-a="vtext" aria-label="Agregar">Agregar</button></div>
+    </div>`;
+  }
+  function vApply(text) {
+    if (!UI.tk) UI.tk = { date: today(), lines: [], autoTotal: true };
+    const r = Dictado.parse(text, S.ingredients); const k = UI.tk; k.lines = k.lines || [];
+    UI.vLast = '«' + text.trim() + '»';
+    let msg = [];
+    if (r.clear) { k.lines = []; msg.push('Detalle borrado'); }
+    for (let i = 0; i < r.undo; i++) { const x = k.lines.pop(); if (x) msg.push('Quitado: ' + x.name); }
+    r.items.forEach(x => k.lines.push({ ...x, voz: true }));
+    if (r.items.length) msg.push(r.items.map(x => `${x.name}${x.qty ? ' ' + x.qty + ' ' + (x.unit === 'porcion' ? 'porc.' : x.unit) : ''}${x.amount !== '' ? ' ' + C.money2(+x.amount) : ''}`).join(' · '));
+    if (r.total != null) { k.total = r.total; k.autoTotal = false; msg.push('Total ' + C.money2(r.total)); }
+    if (!msg.length) { UI.vMsg = 'No entendí un producto con precio. Intenta: «cebolla un kilo treinta pesos».'; render(); return; }
+    UI.vMsg = '';
+    syncTotal(); navigator.vibrate && navigator.vibrate(25);
+    render(); toast(msg.join(' · ') + (k.lines.length ? ` · Suma ${C.money2(lineSum())}` : ''));
+  }
+  function vStart() {
+    if (!SR) { UI.vMsg = 'Este navegador no permite dictado directo. Toca el campo de abajo y usa el micrófono de tu teclado.'; render(); setTimeout(() => document.getElementById('vtext')?.focus(), 50); return; }
+    try { rec && rec.abort(); } catch (e) { }
+    rec = new SR(); rec.lang = 'es-MX'; rec.continuous = false; rec.interimResults = true; rec.maxAlternatives = 1;
+    rec.onresult = e => {
+      let interim = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) { const x = e.results[i]; if (x.isFinal) vApply(x[0].transcript); else interim += x[0].transcript; }
+      if (interim) { const el = document.getElementById('vlive'); if (el) el.textContent = interim + '…'; }
+    };
+    rec.onerror = e => {
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture') {
+        UI.listening = false; UI.vMsg = 'No hay permiso de micrófono. Actívalo en el navegador, o usa el micrófono del teclado en el campo de abajo.'; render();
+      }
+    };
+    rec.onend = () => { if (UI.listening) { try { rec.start(); } catch (e) { UI.listening = false; render(); } } };
+    UI.listening = true; UI.vMsg = '';
+    try { rec.start(); } catch (e) { }
+    render();
+  }
+  function vStop() { UI.listening = false; try { rec && rec.stop(); } catch (e) { } render(); }
+
   async function runOCR() {
     const k = UI.tk; if (!k?.img) return;
     k.ocr = 'run'; k.pct = 0; render();
@@ -604,16 +664,19 @@
       if (v === (role === 'chef' ? st().pinChef : st().pinDir)) { sessionStorage.setItem('tv_' + role, '1'); render(); } else toast('PIN incorrecto');
     },
     lock(el) { sessionStorage.removeItem('tv_' + el.dataset.r); location.hash = '#/'; },
-    ctab(el) { UI.chefTab = el.dataset.v; UI.editRec = null; UI.retMenu = null; UI.tk = null; window.scrollTo(0, 0); render(); },
+    ctab(el) { if (UI.listening) vStop(); UI.chefTab = el.dataset.v; UI.editRec = null; UI.retMenu = null; UI.tk = null; window.scrollTo(0, 0); render(); },
     cday(el) { UI.chefDay = el.dataset.v; render(); },
     toggleList() { UI.showList = !UI.showList; render(); },
     mweek(el) { UI.menuWeek += +el.dataset.v; render(); },
     qrec() { UI.chefTab = 'recetas'; UI.ni = null; UI.editRec = { id: 'r' + uidGen(), name: '', cat: 'Plato fuerte', items: [] }; window.scrollTo(0, 0); render(); },
-    tknew() { UI.tk = { date: today(), lines: [] }; render(); },
+    tknew() { UI.tk = { date: today(), lines: [], autoTotal: true }; render(); },
+    vnew() { UI.chefTab = 'gastos'; UI.vLast = ''; UI.vMsg = ''; UI.tk = { date: today(), lines: [], autoTotal: true }; window.scrollTo(0, 0); vStart(); },
+    vtoggle() { UI.listening ? vStop() : vStart(); },
+    vtext() { const i = document.getElementById('vtext'); const v = i?.value.trim(); if (!v) return; vApply(v); const n = document.getElementById('vtext'); if (n) { n.value = ''; n.focus(); } },
     tkocr() { runOCR(); },
     tkladd() { UI.tk.lines = [...(UI.tk.lines || []), { unit: 'kg' }]; render(); },
-    tkldel(el) { UI.tk.lines.splice(+el.dataset.v, 1); render(); },
-    tkcancel() { UI.tk = null; render(); },
+    tkldel(el) { UI.tk.lines.splice(+el.dataset.v, 1); syncTotal(); render(); },
+    tkcancel() { if (UI.listening) vStop(); UI.tk = null; render(); },
     tkview(el) { UI.tkView = el.dataset.v; render(); },
     tkclose() { UI.tkView = null; render(); },
     async tkdel(el) { if (!confirm('¿Eliminar este ticket?')) return; const t = S.tickets[el.dataset.v]; await kvSet('ticket:' + el.dataset.v, null); if (t?.img) imgDel(el.dataset.v); render(); },
@@ -625,14 +688,14 @@
       for (const l of lines) {
         let ing = list.find(x => norm(x.name) === norm(l.name));
         if (!ing) { ing = { id: 'i' + uidGen(), name: l.name.trim().charAt(0).toUpperCase() + l.name.trim().slice(1), unit: l.unit || 'kg', cost: 0 }; list.push(ing); }
-        if (+l.qty > 0 && +l.amount > 0) { const i = list.findIndex(x => x.id === ing.id); list[i] = { ...list[i], unit: l.unit || list[i].unit, cost: Math.round(+l.amount / +l.qty * 100) / 100 }; upd++; }
+        if (+l.qty > 0 && +l.amount > 0 && (!ing.cost || (l.unit || 'kg') === ing.unit)) { const i = list.findIndex(x => x.id === ing.id); list[i] = { ...list[i], unit: list[i].cost ? list[i].unit : (l.unit || list[i].unit), cost: Math.round(+l.amount / +l.qty * 100) / 100 }; upd++; }
         l.ing = ing.id;
       }
       if (lines.length) await kvSet('ingredients', list);
       if (k.img) await imgPut(id, k.img);
       await kvSet('ticket:' + id, { date: k.date || today(), total, vendor: (k.vendor || '').trim(), lines: lines.map(l => ({ ing: l.ing, name: l.name, qty: +l.qty || 0, unit: l.unit || 'kg', amount: +l.amount || 0 })), img: !!k.img, at: Date.now() });
       if (k.img) imgCache[id] = k.img;
-      UI.tk = null; UI.chefTab = 'gastos'; render(); toast(upd ? `Ticket guardado · ${upd} precio(s) actualizado(s)` : 'Ticket guardado');
+      if (UI.listening) vStop(); UI.tk = null; UI.chefTab = 'gastos'; render(); toast(upd ? `Ticket guardado · ${upd} precio(s) actualizado(s)` : 'Ticket guardado');
     },
     slotopen(el) { UI.slotOpen = el.dataset.v; render(); const i = document.querySelector(`.slot-in[data-d="${el.dataset.v.split('|')[0]}"][data-cat="${el.dataset.v.split('|')[1]}"]`); i && i.focus(); },
     async slotpick(el) { const d = el.dataset.d; await kvSet('menu:' + d, [...(S.menu[d] || []), el.dataset.v]); UI.slotOpen = null; render(); toast('Agregado al menú'); },
@@ -739,8 +802,8 @@
   document.addEventListener('input', e => {
     const t = e.target;
     if (t.classList.contains('slot-in')) { slotRender(t); return; }
-    if (t.classList.contains('tkf') && UI.tk) { UI.tk[t.dataset.k] = t.value; return; }
-    if (t.classList.contains('tkl') && UI.tk) { const l = UI.tk.lines[+t.dataset.i]; l[t.dataset.k] = t.value; if (t.dataset.k === 'name') { const g = S.ingredients.find(x => norm(x.name) === norm(t.value)); if (g) { l.unit = g.unit; const sel = t.parentElement.querySelector('select'); if (sel) sel.value = g.unit; } } return; }
+    if (t.classList.contains('tkf') && UI.tk) { UI.tk[t.dataset.k] = t.value; if (t.dataset.k === 'total') UI.tk.autoTotal = false; return; }
+    if (t.classList.contains('tkl') && UI.tk) { const l = UI.tk.lines[+t.dataset.i]; l[t.dataset.k] = t.value; if (t.dataset.k === 'name') { const g = S.ingredients.find(x => norm(x.name) === norm(t.value)); if (g) { l.unit = g.unit; const sel = t.parentElement.querySelector('select'); if (sel) sel.value = g.unit; } } if (t.dataset.k === 'amount') syncTotal(); return; }
     if (t.id === 'acIn') { if (UI.ni) { UI.ni.name = t.value; UI.ni.ing = null; } acRender(t.value); }
     else if (t.id === 'ingQ') { UI.ingQ = t.value; const p = t.selectionStart; render(); const n = document.getElementById('ingQ'); n.focus(); n.setSelectionRange(p, p); }
     else if (t.dataset.c === 'rname') UI.editRec.name = t.value;
@@ -748,6 +811,7 @@
   document.addEventListener('focusin', e => { if (e.target.id === 'acIn') acRender(e.target.value); else if (e.target.classList.contains('slot-in')) slotRender(e.target); });
   document.addEventListener('click', e => { if (!e.target.closest('.ac')) document.querySelectorAll('.ac-list').forEach(l => l.hidden = true); });
   document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.id === 'vtext') { e.preventDefault(); ACT.vtext(); return; }
     if (e.key === 'Enter' && e.target.classList.contains('slot-in')) { e.preventDefault(); e.target.parentElement.querySelector('.ac-list button')?.click(); return; }
     if (e.key === 'Enter' && e.target.id === 'acIn') { e.preventDefault(); const f = document.querySelector('#acList button'); f ? f.click() : null; return; }
     if (e.key === 'Enter' && e.target.id === 'niQty') { e.preventDefault(); ACT.niadd(); return; } if (e.key === 'Enter' && e.target.id === 'pin') document.querySelector('[data-a="pin"]')?.click(); });
