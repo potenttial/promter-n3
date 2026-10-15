@@ -165,6 +165,7 @@ section.band{padding:clamp(2.8rem,7vw,5rem) 0;border-top:1px solid var(--line)}
 .change .cta{justify-content:center;margin:0}
 @media (max-width:760px){.change{grid-template-columns:1fr}}
 .disc{font-size:.82rem;color:var(--muted);margin-top:1.4rem;max-width:80ch}
+.gifbox{display:grid;grid-template-columns:minmax(0,280px) 1fr;gap:1.6rem;align-items:center;margin-top:1.6rem;padding:clamp(1rem,3vw,1.5rem);border-radius:18px;background:var(--paper);border:1px solid var(--line)}.gifprev{width:100%;height:auto;display:block;border-radius:12px;box-shadow:0 10px 30px rgba(10,10,30,.25)}.gifbox h3{margin:0 0 .3rem}.gifbox p{margin:0 0 .4rem;color:var(--muted)}.gifbox .acts{display:flex;flex-wrap:wrap;gap:.6rem}.gifbox .cta:disabled{opacity:.75;cursor:progress}@media (max-width:640px){.gifbox{grid-template-columns:1fr}.gifprev{max-width:340px;margin:0 auto}}
 .dare{margin-top:1.6rem;padding:clamp(1rem,3vw,1.5rem);border-radius:18px;border:1px solid color-mix(in srgb,#1F8F57 35%,transparent);background:color-mix(in srgb,#1F8F57 7%,transparent)}.dare h3{margin:0 0 .3rem}.dare p{margin:0 0 .9rem;color:var(--muted)}
 .toolrow{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.4rem}
 
@@ -675,12 +676,191 @@ function results(){
   const pdf=el('button','cta ghost','Descargar mi resultado en PDF'); pdf.type='button'; pdf.style.color='#fff'; pdf.style.boxShadow='inset 0 0 0 2px #fff'; pdf.addEventListener('click',()=>makePDF(pdf));
   ca.append(wa,pdf); cg.append(cl,ca); app.append(cg);
 
+  app.append(sphGifBlock(R));
   const dz=el('div','dare'); dz.append(el('h3',null,'¿A quién retarías a descubrir su SPH?'), el('p',null,'Desafía a alguien a identificar su Sistema de Pensamiento Humano y comparen sus mapas.'));
   const dzb=el('button','cta wa','Desafiar a alguien por WhatsApp'); dzb.type='button'; dzb.addEventListener('click',()=>{ window.open('https://wa.me/?text='+encodeURIComponent(dareText(T)),'_blank','noopener'); }); dz.append(dzb); app.append(dz);
   const tr=el('div','toolrow'); const again=el('button','cta ghost small','Repetir el test'); again.type='button'; again.addEventListener('click',()=>{ st={step:NI,who:st.who,ans:[],order:QS.map(()=>shuffle([0,1,2,3])),started:true}; save(); if(mapStop) mapStop(); $('#results').innerHTML=''; $('#results').classList.remove('panel'); rebuild(); $('#app').scrollIntoView({behavior:'smooth',block:'start'}); }); tr.append(again); app.append(tr);
   app.append(el('p','disc','Mapa SPH es una herramienta de reflexión basada en el método Thinktech de metacognición tecnológica. No es un diagnóstico psicológico ni clínico: muestra tendencias según tus respuestas para que puedas observarlas y configurarlas.'));
   app.scrollIntoView({behavior:'smooth',block:'start'});
 }
+/* ================= GIF compartible del SPH ================= */
+const GIFTXT={kicker:'THINKIA · MAPA SPH',title:'Mi Sistema de Pensamiento',dom:'PENSAMIENTO DOMINANTE',sup:'con apoyo ',ask:'¿Cuál es el tuyo?',foot:'Método Thinktech · N3 Labs · Potenttial Group'};
+const GIFTYPE={
+ A:['Corteza prefrontal + memoria de trabajo','Mide, ordena y decide paso a paso'],
+ I:['Reconocimiento de patrones + marcador somático','Lee señales y decide rápido'],
+ S:['Redes de control y de memoria en conjunto','Ve el sistema completo y sus conexiones'],
+ D:['Red por defecto + control ejecutivo','Abre alternativas donde otros ven límites']};
+const GHEX={A:'#6CC0DB',I:'#E56C9C',S:'#B795CF',D:'#E6A84A'};
+const G={W:600,H:780,PX:30,PY:118,PW:540,PH:300,N:40,DELAY:8,BG:'#14142B',PANEL:'#0E0F22',LAV:'#9C9CF0',MUTED:'#A5ABC0',FONT:'"Helvetica Neue",Helvetica,Arial,sans-serif'};
+function hexRgb(h){ h=h.replace('#',''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+function rgba(h,a){ const [r,g,b]=hexRgb(h); return 'rgba('+r+','+g+','+b+','+a+')'; }
+function gRound(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function gFit(ctx,txt,max,size,weight){ let s=size; do{ ctx.font=weight+' '+s+'px '+G.FONT; if(ctx.measureText(txt).width<=max) break; s--; }while(s>10); return s; }
+function gGlow(ctx,x,y,r,col,a){ const g=ctx.createRadialGradient(x,y,0,x,y,r); g.addColorStop(0,rgba(col,a)); g.addColorStop(1,rgba(col,0)); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); }
+function gDot(ctx,x,y,r,col){ ctx.fillStyle=col; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill(); }
+function gRand(seed){ let s=seed; return ()=>{ s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
+
+/* Fondo, textos y barras: lo que no se mueve */
+function gifStatic(ctx,R,logo){
+  const T=TYPES[R.dom], T2=TYPES[R.sec], c=GHEX[R.dom], X=G.PX, CW=G.PW;
+  ctx.fillStyle=G.BG; ctx.fillRect(0,0,G.W,G.H);
+  ctx.textBaseline='alphabetic'; ctx.textAlign='left';
+  ctx.fillStyle=G.LAV; ctx.font='400 13px '+G.FONT; try{ ctx.letterSpacing='2px'; }catch(e){} ctx.fillText(GIFTXT.kicker,X,50); try{ ctx.letterSpacing='0px'; }catch(e){}
+  ctx.fillStyle='#FFFFFF'; gRound(ctx,470,24,100,58,10); ctx.fill();
+  if(logo&&logo.naturalWidth){ const lw=92, lh=lw*logo.naturalHeight/logo.naturalWidth; ctx.drawImage(logo,474,24+(58-lh)/2,lw,lh); }
+  ctx.fillStyle='#FFFFFF'; gFit(ctx,GIFTXT.title,420,32,'300'); ctx.fillText(GIFTXT.title,X,98);
+  ctx.fillStyle=G.PANEL; gRound(ctx,G.PX,G.PY,G.PW,G.PH,16); ctx.fill();
+  let y=G.PY+G.PH+36;
+  ctx.fillStyle=G.MUTED; ctx.font='400 12px '+G.FONT; try{ ctx.letterSpacing='2px'; }catch(e){} ctx.fillText(GIFTXT.dom,X,y); try{ ctx.letterSpacing='0px'; }catch(e){}
+  y+=46; ctx.fillStyle=c; gFit(ctx,T.n,CW*0.62,44,'400'); ctx.fillText(T.n,X,y);
+  const sup=GIFTXT.sup+T2.n.toLowerCase(); ctx.fillStyle=GHEX[R.sec]; gFit(ctx,sup,CW*0.36,17,'400'); ctx.textAlign='right'; ctx.fillText(sup,X+CW,y-4); ctx.textAlign='left';
+  y+=30; ctx.fillStyle=G.MUTED; gFit(ctx,GIFTYPE[R.dom][0],CW,16,'300'); ctx.fillText(GIFTYPE[R.dom][0],X,y);
+  y+=30; ctx.fillStyle='#FFFFFF'; gFit(ctx,GIFTYPE[R.dom][1],CW,20,'400'); ctx.fillText(GIFTYPE[R.dom][1],X,y);
+  y+=26;
+  ORDER.slice().sort((a,b)=>R.tc[b]-R.tc[a]).forEach((k,i)=>{
+    const ry=y+i*22; ctx.fillStyle=G.MUTED; gFit(ctx,TYPES[k].n,110,14,'300'); ctx.fillText(TYPES[k].n,X,ry+10);
+    ctx.fillStyle='rgba(255,255,255,.08)'; gRound(ctx,X+120,ry+3,CW-180,7,3.5); ctx.fill();
+    const w=Math.max(7,(CW-180)*R.tc[k]/10); ctx.fillStyle=GHEX[k]; gRound(ctx,X+120,ry+3,w,7,3.5); ctx.fill();
+    ctx.fillStyle='#FFFFFF'; ctx.font='400 14px '+G.FONT; ctx.textAlign='right'; ctx.fillText((R.tc[k]*10)+'%',X+CW,ry+10); ctx.textAlign='left';
+  });
+  y+=4*22+10; ctx.fillStyle='rgba(255,255,255,.1)'; ctx.fillRect(X,y,CW,1);
+  const url=SELF_URL.replace(/^https?:\/\//,'').replace(/\/$/,'');
+  y+=28; ctx.fillStyle='#FFFFFF'; ctx.font='400 16px '+G.FONT; ctx.fillText(GIFTXT.ask,X,y); const aw=ctx.measureText(GIFTXT.ask+'  ').width;
+  ctx.fillStyle=G.LAV; gFit(ctx,url,CW-aw,16,'400'); ctx.fillText(url,X+aw,y);
+  y+=24; ctx.fillStyle=G.MUTED; gFit(ctx,GIFTXT.foot,CW,12,'300'); ctx.fillText(GIFTXT.foot,X,y);
+}
+
+/* Animación del panel según el tipo de pensamiento (t de 0 a 1, en bucle) */
+function gifPanel(ctx,R,t){
+  const k=R.dom, c=GHEX[k], c2=GHEX[R.sec], x0=G.PX, y0=G.PY, w=G.PW, h=G.PH, cx=x0+w/2, cy=y0+h/2, TAU=Math.PI*2;
+  ctx.save(); gRound(ctx,x0,y0,w,h,16); ctx.clip(); ctx.fillStyle=G.PANEL; ctx.fillRect(x0,y0,w,h);
+  ctx.lineCap='round';
+  if(k==='A'){ /* secuencial: un pulso recorre la red paso a paso */
+    const cols=9, rows=4, pts=[];
+    for(let r=0;r<rows;r++) for(let i=0;i<cols;i++){ const col=r%2?cols-1-i:i; pts.push([x0+60+col*(w-120)/(cols-1), y0+62+r*(h-124)/(rows-1)]); }
+    const n=pts.length;
+    ctx.strokeStyle=rgba(c,.22); ctx.lineWidth=1.5; ctx.beginPath(); pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])); ctx.closePath(); ctx.stroke();
+    const pos=t*n, hi=Math.floor(pos), fr=pos-hi;
+    pts.forEach((p,i)=>{ const back=(hi-i+n)%n, a=back<7?1-back/7:0; gDot(ctx,p[0],p[1],3.2,rgba(c,.35+.5*a)); if(a>0) gGlow(ctx,p[0],p[1],14,c,.45*a); });
+    for(let b=0;b<6;b++){ const i=(hi-b+n)%n, j=(i+1)%n; ctx.strokeStyle=rgba(c,.85*(1-b/6)); ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(pts[i][0],pts[i][1]); const e=b===0?fr:1; ctx.lineTo(pts[i][0]+(pts[j][0]-pts[i][0])*e,pts[i][1]+(pts[j][1]-pts[i][1])*e); ctx.stroke(); }
+    const a=pts[hi%n], b=pts[(hi+1)%n], hx=a[0]+(b[0]-a[0])*fr, hy=a[1]+(b[1]-a[1])*fr;
+    gGlow(ctx,hx,hy,34,c,.7); gDot(ctx,hx,hy,6,'#FFFFFF');
+  } else if(k==='I'){ /* intuitivo: destellos rápidos que conectan con el centro */
+    const rnd=gRand(7), nodes=[];
+    for(let i=0;i<14;i++){ const ang=i/14*TAU+rnd()*.35, rr=.55+rnd()*.42; nodes.push([cx+Math.cos(ang)*rr*w*.44, cy+Math.sin(ang)*rr*h*.42, (i*5%14)/14]); }
+    const ring=(t*2)%1; ctx.strokeStyle=rgba(c,.5*(1-ring)); ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,26+ring*190,0,TAU); ctx.stroke();
+    nodes.forEach(([x,y,ph],i)=>{ const d=((t-ph)%1+1)%1, a=d<.28?1-d/.28:0, col=i%3===0?c2:c;
+      gDot(ctx,x,y,3,rgba(col,.3+.6*a));
+      if(a>0){ ctx.strokeStyle=rgba(col,.8*a); ctx.lineWidth=1.6; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx+(x-cx)*Math.min(1,a*1.6+.2),cy+(y-cy)*Math.min(1,a*1.6+.2)); ctx.stroke(); gGlow(ctx,x,y,22,col,.6*a); } });
+    const pr=1+.18*Math.sin(t*TAU*2);
+    gGlow(ctx,cx,cy,70*pr,c,.45); gDot(ctx,cx,cy,13*pr,rgba(c,.9)); gDot(ctx,cx,cy,7,'#FFFFFF');
+  } else if(k==='S'){ /* sistémico: una onda recorre una red donde todo se conecta */
+    const n=10, rot=t*TAU/n, th=t*TAU, nodes=[];
+    for(let i=0;i<n;i++){ const a=i/n*TAU+rot; nodes.push([cx+Math.cos(a)*w*.36, cy+Math.sin(a)*h*.36, a]); }
+    const inner=[[cx-w*.11,cy-h*.06],[cx+w*.1,cy+h*.08],[cx+w*.02,cy-h*.16]];
+    const near=a=>{ const d=Math.abs(((a-th)%TAU+TAU+Math.PI)%TAU-Math.PI); return Math.max(0,1-d/1.1); };
+    for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){ const ma=Math.atan2((nodes[i][1]+nodes[j][1])/2-cy,(nodes[i][0]+nodes[j][0])/2-cx), q=near(ma); ctx.strokeStyle=rgba(c,.06+.5*q*q); ctx.lineWidth=1+q; ctx.beginPath(); ctx.moveTo(nodes[i][0],nodes[i][1]); ctx.lineTo(nodes[j][0],nodes[j][1]); ctx.stroke(); }
+    inner.forEach(p=>nodes.forEach(q=>{ ctx.strokeStyle=rgba(c2,.08+.3*near(q[2])); ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(p[0],p[1]); ctx.lineTo(q[0],q[1]); ctx.stroke(); }));
+    inner.forEach(p=>{ gGlow(ctx,p[0],p[1],18,c2,.5); gDot(ctx,p[0],p[1],5,c2); });
+    nodes.forEach(p=>{ const q=near(p[2]); gGlow(ctx,p[0],p[1],16+14*q,c,.3+.5*q); gDot(ctx,p[0],p[1],5.5,q>.5?'#FFFFFF':c); });
+  } else { /* divergente: ramas que se abren desde una idea */
+    const rnd=gRand(11), segs=[];
+    const grow=(x,y,ang,len,lv)=>{ if(lv>3) return; const x2=x+Math.cos(ang)*len, y2=y+Math.sin(ang)*len*.78; segs.push([x,y,x2,y2,lv]); const k2=lv<1?2:2; for(let i=0;i<k2;i++) grow(x2,y2,ang+(i?1:-1)*(.38+rnd()*.32),len*.66,lv+1); };
+    for(let i=0;i<5;i++) grow(cx,cy,i/5*TAU-Math.PI/2+.2,72,0);
+    const fade=t<.82?1:Math.max(0,1-(t-.82)/.18);
+    segs.forEach(([x,y,x2,y2,lv])=>{ const s=lv*.17, p=Math.min(1,Math.max(0,(t-s)/.17)), col=lv===3?c2:c;
+      ctx.strokeStyle=rgba(col,.12); ctx.lineWidth=2.4-lv*.4; ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x2,y2); ctx.stroke();
+      if(p>0){ const ex=x+(x2-x)*p, ey=y+(y2-y)*p; ctx.strokeStyle=rgba(col,.9*fade); ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(ex,ey); ctx.stroke();
+        if(p<1) gGlow(ctx,ex,ey,16,col,.8*fade); else { gDot(ctx,x2,y2,lv===3?4:3,rgba(col,.95*fade)); if(lv===3) gGlow(ctx,x2,y2,14,col,.5*fade); } } });
+    gGlow(ctx,cx,cy,52,c,.55); gDot(ctx,cx,cy,9,'#FFFFFF');
+  }
+  ctx.restore();
+}
+
+/* ---- Codificador GIF (LZW, paleta de 256 colores construida con los colores del tipo) ---- */
+function gifPalette(R){
+  const keys=['#FFFFFF',GHEX[R.dom],GHEX[R.sec],G.MUTED,G.LAV], out=[];
+  const mix=(a,b,s)=>a.map((v,i)=>Math.round(v+(b[i]-v)*s));
+  const ramp=(from,to,n)=>{ const A=hexRgb(from),B=hexRgb(to); for(let i=0;i<n;i++) out.push(mix(A,B,i/(n-1))); };
+  keys.forEach(k=>ramp(G.PANEL,k,24));
+  ['#FFFFFF',G.MUTED,G.LAV,'#E5332A',GHEX.A,GHEX.I,GHEX.S,GHEX.D].forEach(k=>ramp(G.BG,k,12));
+  ramp('#FFFFFF','#1B1C31',16); ramp('#FFFFFF','#E5332A',8); ramp(GHEX[R.dom],'#FFFFFF',8); ramp(GHEX[R.sec],'#FFFFFF',8);
+  while(out.length<256) out.push([0,0,0]);
+  return out.slice(0,256);
+}
+function gifIndex(data,pal,lut){
+  const n=data.length/4, idx=new Uint8Array(n);
+  for(let i=0;i<n;i++){
+    const r=data[i*4],g=data[i*4+1],b=data[i*4+2], key=(r>>3)<<10|(g>>3)<<5|(b>>3);
+    let v=lut[key];
+    if(v<0){ let best=1e9; for(let j=0;j<256;j++){ const p=pal[j], dr=p[0]-r, dg=p[1]-g, db=p[2]-b, d=dr*dr*2+dg*dg*4+db*db*3; if(d<best){best=d; v=j;} } lut[key]=v; }
+    idx[i]=v;
+  }
+  return idx;
+}
+function gifLZW(idx){
+  const out=[]; let sub=[], cur=0, shift=0; const MIN=8, CLEAR=256, EOI=257; let size=9, next=258, table=new Map();
+  const byte=b=>{ sub.push(b); if(sub.length===255){ out.push(255,...sub); sub=[]; } };
+  const emit=c=>{ cur|=c<<shift; shift+=size; while(shift>=8){ byte(cur&255); cur>>>=8; shift-=8; } };
+  emit(CLEAR); let prefix=idx[0];
+  for(let i=1;i<idx.length;i++){
+    const k=idx[i], key=prefix<<8|k, hit=table.get(key);
+    if(hit!==undefined){ prefix=hit; continue; }
+    emit(prefix);
+    if(next===4096){ emit(CLEAR); table=new Map(); size=9; next=258; }
+    else { table.set(key,next); if(next===(1<<size)&&size<12) size++; next++; }
+    prefix=k;
+  }
+  emit(prefix); emit(EOI); if(shift>0) byte(cur&255);
+  if(sub.length) out.push(sub.length,...sub);
+  out.push(0);
+  return {min:MIN,data:out};
+}
+async function buildSphGif(R,logo,onProgress){
+  const cv=document.createElement('canvas'); cv.width=G.W; cv.height=G.H; const ctx=cv.getContext('2d',{willReadFrequently:true});
+  const pal=gifPalette(R), lut=new Int16Array(32768).fill(-1), parts=[];
+  const u16=v=>[v&255,(v>>8)&255];
+  parts.push([71,73,70,56,57,97,...u16(G.W),...u16(G.H),0xF7,0,0]); parts.push(pal.flat());
+  parts.push([0x21,0xFF,11,...'NETSCAPE2.0'.split('').map(ch=>ch.charCodeAt(0)),3,1,0,0,0]);
+  gifStatic(ctx,R,logo);
+  for(let f=0;f<G.N;f++){
+    gifPanel(ctx,R,f/G.N);
+    const full=f===0, x=full?0:G.PX, y=full?0:G.PY, w=full?G.W:G.PW, h=full?G.H:G.PH;
+    const idx=gifIndex(ctx.getImageData(x,y,w,h).data,pal,lut), z=gifLZW(idx);
+    parts.push([0x21,0xF9,4,0x04,...u16(G.DELAY),0,0, 0x2C,...u16(x),...u16(y),...u16(w),...u16(h),0, z.min]); parts.push(z.data);
+    if(onProgress) onProgress((f+1)/G.N);
+    await new Promise(r=>setTimeout(r,0));
+  }
+  parts.push([0x3B]);
+  let len=0; parts.forEach(p=>len+=p.length); const buf=new Uint8Array(len); let o=0; parts.forEach(p=>{ buf.set(p,o); o+=p.length; });
+  return new Blob([buf],{type:'image/gif'});
+}
+function gifName(R){ return 'mi-sph-'+TYPES[R.dom].n.toLowerCase().normalize('NFD').replace(/[^a-z]/g,'')+'.gif'; }
+
+/* Bloque en resultados: vista previa animada + descargar + compartir */
+function sphGifBlock(R){
+  const box=el('div','gifbox');
+  const txt=el('div'); txt.append(el('h3',null,'Tu SPH en un GIF'), el('p',null,'Descárgalo y compártelo en redes o por WhatsApp para retar a otros a descubrir el suyo.'));
+  const cv=document.createElement('canvas'); cv.width=G.W; cv.height=G.H; cv.className='gifprev'; cv.setAttribute('role','img'); cv.setAttribute('aria-label',GIFTXT.title+': '+TYPES[R.dom].n);
+  const ctx=cv.getContext('2d'); const logo=new Image(); logo.src=$('.logo-n3')?$('.logo-n3').src:'';
+  const st0=document.createElement('canvas'); st0.width=G.W; st0.height=G.H; const sctx=st0.getContext('2d');
+  const paintStatic=()=>gifStatic(sctx,R,logo); paintStatic(); logo.onload=paintStatic;
+  let t0=performance.now(), raf=0; const loop=now=>{ ctx.drawImage(st0,0,0); gifPanel(ctx,R,reduceMotion?.35:((now-t0)/(G.N*G.DELAY*10))%1); if(!reduceMotion&&box.isConnected) raf=requestAnimationFrame(loop); };
+  raf=requestAnimationFrame(loop); if(reduceMotion) setTimeout(()=>loop(0),200);
+  const acts=el('div','acts'); const dl=el('button','cta','Descargar GIF'); dl.type='button'; const sh=el('button','cta wa','Compartir en redes o WhatsApp'); sh.type='button'; const note=el('p','note',''); note.setAttribute('aria-live','polite');
+  let blob=null;
+  const ensure=async(btn)=>{ if(blob) return blob; const lbl=btn.textContent; btn.disabled=true; await (logo.complete?Promise.resolve():new Promise(r=>{logo.onload=()=>{paintStatic();r();}; logo.onerror=r;}));
+    blob=await buildSphGif(R,logo,p=>{ btn.textContent='Creando tu GIF… '+Math.round(p*100)+'%'; }); btn.textContent=lbl; btn.disabled=false; return blob; };
+  const download=b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=gifName(R); document.body.append(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000); };
+  dl.addEventListener('click',async()=>{ try{ download(await ensure(dl)); }catch(e){ note.textContent='No se pudo crear el GIF en este navegador.'; } });
+  sh.addEventListener('click',async()=>{ try{
+    const b=await ensure(sh), file=new File([b],gifName(R),{type:'image/gif'}), text=dareText(TYPES[R.dom]);
+    if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],text}); return; }catch(e){ if(e&&e.name==='AbortError') return; } }
+    download(b); note.textContent='Tu GIF se descargó: adjúntalo en el chat de WhatsApp que se abrió.'; window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
+  }catch(e){ note.textContent='No se pudo crear el GIF en este navegador.'; } });
+  acts.append(dl,sh); txt.append(acts,note); box.append(cv,txt); return box;
+}
+
 function dareText(T){ return 'Hice el Mapa SPH, una ThinkIA de Engel Fonseca: mi pensamiento dominante es '+T.n.toLowerCase()+'. Te desafío a identificar tu Sistema de Pensamiento Humano. ¿Cuál será el tuyo? Hazlo aquí: '+SELF_URL; }
 const SELF_URL='https://potenttial.github.io/promter-n3/mapa-sph/';
 const SPHE_MSG='Me interesa cotizar consultoría para fomentar el Change Management con fundamento neurocientífico para mi empresa.';
