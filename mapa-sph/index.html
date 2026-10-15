@@ -205,8 +205,6 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
 .chip-r:hover{border-color:var(--red)}
 .chip-r .l{flex:0 0 1.6rem;height:1.6rem;border-radius:50%;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);font-size:.8rem}
 .chip-r.ghost{border-style:dashed;color:var(--muted)}
-.chip-r.on{border-color:var(--red);background:color-mix(in srgb,var(--red) 10%,var(--paper))}
-.chip-r.on::before{content:'✓';color:var(--red);font-weight:700}
 .other{display:flex;gap:.5rem;width:100%;max-width:520px}
 .other input{flex:1;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:.55rem .95rem}
 .other input:focus{border-color:var(--red);outline:none}
@@ -524,7 +522,7 @@ const INTAKE=[
  {k:'genero',q:'¿Con qué género te identificas?',o:['Mujer','Hombre','Prefiero no decirlo'],other:'Escribe cómo te identificas'},
  {k:'sector',q:'¿En qué sector industrial trabajas o quieres trabajar?',o:['Tecnología','Alimentos y bebidas','Financiero','Salud','Manufactura','Retail y consumo','Educación','Energía','Gobierno','Servicios profesionales'],other:'Escribe tu sector'},
  {k:'puesto',q:'¿Qué puesto ocupas o cuál es tu actividad?',o:['CEO / Dirección General','CFO / Finanzas','COO / Operaciones','CMO / Comercial','CHRO / Recursos Humanos','CTO / CIO / Tecnología','Director(a) de área','Gerente','Emprendedor(a)','Estudiante'],other:'Escribe tu puesto'},
- {k:'estudios',multi:true,q:'¿Qué estudiaste o estudias? (puedes elegir varias)',o:['Ingeniería','Administración / Negocios','Economía / Finanzas','Derecho','Ciencias de la salud','Ciencias sociales / Humanidades','Ciencias exactas','Diseño / Comunicación'],other:'Escribe lo que estudiaste o estudias'},
+ {k:'estudios',q:'¿Qué estudiaste o estudias?',o:['Ingeniería','Administración / Negocios','Economía / Finanzas','Derecho','Ciencias de la salud','Ciencias sociales / Humanidades','Ciencias exactas','Diseño / Comunicación'],other:'Escribe lo que estudiaste o estudias'},
  {k:'voz',q:'Dentro de tu discurso interno (piensas entre 300 y 500 palabras por minuto), ¿desde qué ángulo te hablas?',o:['Primera persona (“yo siento que…”)','Tercera persona','No soy consciente de ello']}
 ];
 const ACKS=['Anotado.','Entendido.','Interesante.','Muy bien.','Gracias.','Lo registro.','Claro.','Sigamos.'];
@@ -561,7 +559,7 @@ function bubble(who,content,meta){
 function scrollEnd(){ if(log) log.scrollTo({top:log.scrollHeight,behavior:reduceMotion?'auto':'smooth'}); }
 function typing(ms){ return new Promise(res=>{ if(reduceMotion||ms===0){ res(); return; } const t=el('div','msg bot typing'); t.append(el('span','m-av','')); const b=el('div','bub'); b.append(el('i'),el('i'),el('i')); t.append(b); log.append(t); scrollEnd(); setTimeout(()=>{ t.remove(); res(); },ms); }); }
 function questionAt(step){
-  if(step<NI){ const it=INTAKE[step]; return {text:it.q,meta:'Tu contexto · '+(step+1)+' de '+NI,opts:it.o.map(o=>({label:o,val:o})),other:it.other,multi:it.multi}; }
+  if(step<NI){ const it=INTAKE[step]; return {text:it.q,meta:'Tu contexto · '+(step+1)+' de '+NI,opts:it.o.map(o=>({label:o,val:o})),other:it.other}; }
   const qi=step-NI, q=QS[qi]; return {text:q.q,meta:'Pregunta '+(qi+1)+' de '+QS.length+' · '+LAYER[q.l],opts:st.order[qi].map(oi=>({label:q.o[oi][0],val:oi})),long:true};
 }
 function answerLabel(step){ if(step<NI) return st.who[INTAKE[step].k]; const qi=step-NI; return QS[qi].o[st.ans[qi]][0]; }
@@ -586,33 +584,9 @@ async function next(){
   await typing(st.step===0?600:850);
   busy=false; ask(false);
 }
-function askMulti(q){
-  const picked=[];
-  const cont=el('button','cta small','Continuar'); cont.type='button'; cont.style.margin='0'; cont.disabled=true;
-  const sync=()=>{ cont.disabled=!picked.length; };
-  const mkChip=(label,on)=>{ const b=el('button','chip-r'+(on?' on':'')); b.type='button'; b.setAttribute('aria-pressed',on?'true':'false'); b.append(el('span',null,label));
-    b.addEventListener('click',()=>{ const i=picked.indexOf(label); if(i>-1){ picked.splice(i,1); b.classList.remove('on'); b.setAttribute('aria-pressed','false'); } else { picked.push(label); b.classList.add('on'); b.setAttribute('aria-pressed','true'); } sync(); });
-    return b; };
-  q.opts.forEach(o=>replies.append(mkChip(o.label,false)));
-  let otherBtn=null;
-  if(q.other){
-    otherBtn=el('button','chip-r ghost','Otro'); otherBtn.type='button';
-    otherBtn.addEventListener('click',()=>{
-      const f=el('form','other'); const i=el('input'); i.placeholder=q.other; i.setAttribute('aria-label',q.other); i.maxLength=60;
-      const s=el('button','cta small','Agregar'); s.type='submit'; s.style.margin='0'; f.append(i,s);
-      f.addEventListener('submit',e=>{ e.preventDefault(); const v=i.value.trim(); if(v.length<2){ i.focus(); return; }
-        if(picked.indexOf(v)===-1){ picked.push(v); replies.insertBefore(mkChip(v,true),f); }
-        f.replaceWith(otherBtn); sync(); });
-      otherBtn.replaceWith(f); i.focus(); });
-    replies.append(otherBtn);
-  }
-  cont.addEventListener('click',()=>{ if(!picked.length) return; const v=picked.join(', '); choose(v,v); });
-  replies.append(cont);
-}
 function ask(instant){
   const q=questionAt(st.step); bubble('bot',q.text,q.meta);
   replies.innerHTML=''; replies.classList.toggle('long',!!q.long);
-  if(q.multi){ askMulti(q); progress(); const f1=replies.querySelector('button'); if(f1&&st.started&&!instant) f1.focus({preventScroll:true}); return; }
   q.opts.forEach((o,n)=>{ const b=el('button','chip-r'); b.type='button'; if(q.long) b.append(el('span','l',String.fromCharCode(65+n))); b.append(el('span',null,o.label)); b.addEventListener('click',()=>choose(o.val,o.label)); replies.append(b); });
   if(q.other){
     const b=el('button','chip-r ghost','Otro'); b.type='button';
@@ -702,9 +676,9 @@ function results(){
   const pdf=el('button','cta ghost','Descargar mi resultado en PDF'); pdf.type='button'; pdf.style.color='#fff'; pdf.style.boxShadow='inset 0 0 0 2px #fff'; pdf.addEventListener('click',()=>makePDF(pdf));
   ca.append(wa,pdf); cg.append(cl,ca); app.append(cg);
 
-  app.append(sphGifBlock(R));
+  const gifB=sphGifBlock(R); app.append(gifB);
   const dz=el('div','dare'); dz.append(el('h3',null,'¿A quién retarías a descubrir su SPH?'), el('p',null,'Desafía a alguien a identificar su Sistema de Pensamiento Humano y comparen sus mapas.'));
-  const dzb=el('button','cta wa','Desafiar a alguien por WhatsApp'); dzb.type='button'; dzb.addEventListener('click',()=>{ window.open('https://wa.me/?text='+encodeURIComponent(dareText(T)),'_blank','noopener'); }); dz.append(dzb); app.append(dz);
+  const dzb=el('button','cta wa','Desafiar a alguien por WhatsApp'); dzb.type='button'; dzb.addEventListener('click',()=>gifB.__share(dzb)); dz.append(dzb); app.append(dz);
   const tr=el('div','toolrow'); const again=el('button','cta ghost small','Repetir el test'); again.type='button'; again.addEventListener('click',()=>{ st={step:NI,who:st.who,ans:[],order:QS.map(()=>shuffle([0,1,2,3])),started:true}; save(); if(mapStop) mapStop(); $('#results').innerHTML=''; $('#results').classList.remove('panel'); rebuild(); $('#app').scrollIntoView({behavior:'smooth',block:'start'}); }); tr.append(again); app.append(tr);
   app.append(el('p','disc','Mapa SPH es una herramienta de reflexión basada en el método Thinktech de metacognición tecnológica. No es un diagnóstico psicológico ni clínico: muestra tendencias según tus respuestas para que puedas observarlas y configurarlas.'));
   app.scrollIntoView({behavior:'smooth',block:'start'});
@@ -758,6 +732,7 @@ function gifStatic(ctx,R,logo){
 
 /* Animación del panel según el tipo de pensamiento (t de 0 a 1, en bucle) */
 function gifPanel(ctx,R,t){
+  t=((t%1)+1)%1;
   const k=R.dom, c=GHEX[k], c2=GHEX[R.sec], x0=G.PX, y0=G.PY, w=G.PW, h=G.PH, cx=x0+w/2, cy=y0+h/2, TAU=Math.PI*2;
   ctx.save(); gRound(ctx,x0,y0,w,h,16); ctx.clip(); ctx.fillStyle=G.PANEL; ctx.fillRect(x0,y0,w,h);
   ctx.lineCap='round';
@@ -879,16 +854,17 @@ function sphGifBlock(R){
     blob=await buildSphGif(R,logo,p=>{ btn.textContent='Creando tu GIF… '+Math.round(p*100)+'%'; }); btn.textContent=lbl; btn.disabled=false; return blob; };
   const download=b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=gifName(R); document.body.append(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },4000); };
   dl.addEventListener('click',async()=>{ try{ download(await ensure(dl)); }catch(e){ note.textContent='No se pudo crear el GIF en este navegador.'; } });
-  sh.addEventListener('click',async()=>{ try{
-    const b=await ensure(sh), file=new File([b],gifName(R),{type:'image/gif'}), text=dareText(TYPES[R.dom]);
+  const doShare=async(btn)=>{ try{
+    const b=await ensure(btn), file=new File([b],gifName(R),{type:'image/gif'}), text=dareText(TYPES[R.dom]);
     if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],text}); return; }catch(e){ if(e&&e.name==='AbortError') return; } }
     download(b); note.textContent='Tu GIF se descargó: adjúntalo en el chat de WhatsApp que se abrió.'; window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');
-  }catch(e){ note.textContent='No se pudo crear el GIF en este navegador.'; } });
+  }catch(e){ note.textContent='No se pudo crear el GIF en este navegador.'; } };
+  sh.addEventListener('click',()=>doShare(sh)); box.__share=doShare;
   acts.append(dl,sh); txt.append(acts,note); box.append(cv,txt); return box;
 }
 
-function dareText(T){ return 'Hice el Mapa SPH, una ThinkIA de Engel Fonseca: mi pensamiento dominante es '+T.n.toLowerCase()+'. Te desafío a identificar tu Sistema de Pensamiento Humano. ¿Cuál será el tuyo? Hazlo aquí: '+SELF_URL; }
-const SELF_URL='https://potenttial.github.io/promter-n3/mapa-sph/';
+function dareText(T){ return 'Te desafío a ver tu mente e identificar tu Sistema de Pensamiento Humano (SPH). Hazlo aquí: '+SELF_URL; }
+const SELF_URL='https://n3.potenttial.com/mapa-sph/';
 const SPHE_MSG='Me interesa cotizar consultoría para fomentar el Change Management con fundamento neurocientífico para mi empresa.';
 function spheText(f){ return 'Hola Engel, soy '+f.nombre+', '+f.cargo+' en '+f.empresa+'. '+SPHE_MSG; }
 const dlg=$('#spheDlg'), form=$('#spheForm');
