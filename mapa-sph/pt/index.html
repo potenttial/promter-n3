@@ -204,6 +204,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
 .replies.long .chip-r{border-radius:14px;padding:.7rem .95rem}
 .chip-r:hover{border-color:var(--red)}
 .chip-r .l{flex:0 0 1.6rem;height:1.6rem;border-radius:50%;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);font-size:.8rem}
+.chip-r.on{background:var(--teal-soft);border-color:var(--teal)}.chip-r.on::before{content:'✓';color:var(--teal);font-weight:500}.replies .go:disabled{opacity:.45;cursor:not-allowed}
 .chip-r.ghost{border-style:dashed;color:var(--muted)}
 .other{display:flex;gap:.5rem;width:100%;max-width:520px}
 .other input{flex:1;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:.55rem .95rem}
@@ -517,12 +518,13 @@ renderCube($('#heroCube'),[{k:'tam',key:'Tamanho'},{k:'olor',key:'Cheiro'},{k:'f
 
 /* ================= flujo conversacional ================= */
 const app=$('#app');
+const MULTI_HINT=' · você pode escolher várias', MULTI_GO='Continuar', MULTI_ADD='Adicionar';
 const INTAKE=[
  {k:'edad',q:'Para começar, qual é a sua faixa etária?',o:['10 a 20','21 a 29','30 a 39','40 a 49','50 a 59','60 ou mais']},
  {k:'genero',q:'Com qual gênero você se identifica?',o:['Mulher','Homem','Prefiro não dizer'],other:'Escreva como você se identifica'},
  {k:'sector',q:'Em qual setor você trabalha ou quer trabalhar?',o:['Tecnologia','Alimentos e bebidas','Financeiro','Saúde','Manufatura','Varejo e consumo','Educação','Energia','Governo','Serviços profissionais'],other:'Escreva o seu setor'},
  {k:'puesto',q:'Qual cargo você ocupa ou qual é a sua atividade?',o:['CEO / Diretoria Geral','CFO / Finanças','COO / Operações','CMO / Comercial','CHRO / Recursos Humanos','CTO / CIO / Tecnologia','Diretor(a) de área','Gerente','Empreendedor(a)','Estudante'],other:'Escreva o seu cargo'},
- {k:'estudios',q:'O que você estudou ou estuda?',o:['Engenharia','Administração / Negócios','Economia / Finanças','Direito','Ciências da saúde','Ciências sociais / Humanidades','Ciências exatas','Design / Comunicação'],other:'Escreva o que você estudou ou estuda'},
+ {k:'estudios',multi:true,q:'O que você estudou ou estuda?',o:['Engenharia','Administração / Negócios','Economia / Finanças','Direito','Ciências da saúde','Ciências sociais / Humanidades','Ciências exatas','Design / Comunicação'],other:'Escreva o que você estudou ou estuda'},
  {k:'voz',q:'No seu discurso interno (você pensa entre 300 e 500 palavras por minuto), de que ângulo você fala consigo?',o:['Primeira pessoa (“eu sinto que…”)','Terceira pessoa','Não tenho consciência disso']}
 ];
 const ACKS=['Anotado.','Entendido.','Interessante.','Muito bem.','Obrigado.','Registrado.','Claro.','Sigamos.'];
@@ -559,7 +561,7 @@ function bubble(who,content,meta){
 function scrollEnd(){ if(log) log.scrollTo({top:log.scrollHeight,behavior:reduceMotion?'auto':'smooth'}); }
 function typing(ms){ return new Promise(res=>{ if(reduceMotion||ms===0){ res(); return; } const t=el('div','msg bot typing'); t.append(el('span','m-av','')); const b=el('div','bub'); b.append(el('i'),el('i'),el('i')); t.append(b); log.append(t); scrollEnd(); setTimeout(()=>{ t.remove(); res(); },ms); }); }
 function questionAt(step){
-  if(step<NI){ const it=INTAKE[step]; return {text:it.q,meta:'Seu contexto · '+(step+1)+' de '+NI,opts:it.o.map(o=>({label:o,val:o})),other:it.other}; }
+  if(step<NI){ const it=INTAKE[step]; return {text:it.q,meta:'Seu contexto · '+(step+1)+' de '+NI+(it.multi?MULTI_HINT:''),opts:it.o.map(o=>({label:o,val:o})),other:it.other,multi:!!it.multi}; }
   const qi=step-NI, q=QS[qi]; return {text:q.q,meta:'Pergunta '+(qi+1)+' de '+QS.length+' · '+LAYER[q.l],opts:st.order[qi].map(oi=>({label:q.o[oi][0],val:oi})),long:true};
 }
 function answerLabel(step){ if(step<NI) return st.who[INTAKE[step].k]; const qi=step-NI; return QS[qi].o[st.ans[qi]][0]; }
@@ -587,6 +589,24 @@ async function next(){
 function ask(instant){
   const q=questionAt(st.step); bubble('bot',q.text,q.meta);
   replies.innerHTML=''; replies.classList.toggle('long',!!q.long);
+  if(q.multi){
+    const sel=new Set(); const go=el('button','cta small go',MULTI_GO); go.type='button'; go.style.margin='0'; go.disabled=true;
+    const upd=()=>{ go.disabled=!sel.size; go.textContent=MULTI_GO+(sel.size?' ('+sel.size+')':''); };
+    const tog=(b,v)=>{ const on=!sel.has(v); on?sel.add(v):sel.delete(v); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); upd(); };
+    const chip=(v,on)=>{ const b=el('button','chip-r',v); b.type='button'; b.setAttribute('aria-pressed','false'); b.addEventListener('click',()=>tog(b,v)); if(on) tog(b,v); return b; };
+    q.opts.forEach(o=>replies.append(chip(o.label)));
+    if(q.other){
+      const b=el('button','chip-r ghost','Outro'); b.type='button';
+      b.addEventListener('click',()=>{ const f=el('form','other'); const i=el('input'); i.placeholder=q.other; i.setAttribute('aria-label',q.other); i.maxLength=60; const s=el('button','cta small',MULTI_ADD); s.type='submit'; s.style.margin='0'; f.append(i,s);
+        f.addEventListener('submit',e=>{ e.preventDefault(); const v=i.value.trim(); if(v.length<2){ i.focus(); return; } if(!sel.has(v)) replies.insertBefore(chip(v,true),f); i.value=''; i.focus(); });
+        b.replaceWith(f); i.focus(); });
+      replies.append(b);
+    }
+    go.addEventListener('click',()=>{ if(!sel.size) return; const v=[...sel].join(', '); choose(v,v); });
+    replies.append(go); progress();
+    const first=replies.querySelector('button'); if(first&&st.started&&!instant) first.focus({preventScroll:true});
+    return;
+  }
   q.opts.forEach((o,n)=>{ const b=el('button','chip-r'); b.type='button'; if(q.long) b.append(el('span','l',String.fromCharCode(65+n))); b.append(el('span',null,o.label)); b.addEventListener('click',()=>choose(o.val,o.label)); replies.append(b); });
   if(q.other){
     const b=el('button','chip-r ghost','Outro'); b.type='button';
@@ -863,7 +883,7 @@ function sphGifBlock(R){
   acts.append(dl,sh); txt.append(acts,note); box.append(cv,txt); return box;
 }
 
-function dareText(T){ return 'Desafio você a ver sua mente e identificar seu Sistema de Pensamento Humano (SPH). Faça aqui: '+SELF_URL; }
+function dareText(T){ return 'Olá, compartilho meu Sistema de Pensamento Humano (SPH) e desafio você a identificar o seu para encontrar seus pontos cegos. Faça aqui: '+SELF_URL+' (esta informação não é armazenada, para sua privacidade)'; }
 const SELF_URL='https://n3.potenttial.com/mapa-sph/pt/';
 const SPHE_MSG='Tenho interesse em cotar uma consultoria para promover a Gestão da Mudança (Change Management) com fundamento neurocientífico para minha empresa.';
 function spheText(f){ return 'Olá Engel, sou '+f.nombre+', '+f.cargo+' na '+f.empresa+'. '+SPHE_MSG; }

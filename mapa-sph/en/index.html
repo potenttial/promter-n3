@@ -204,6 +204,7 @@ footer{padding:3rem 0 3.5rem;border-top:1px solid var(--line);background:var(--p
 .replies.long .chip-r{border-radius:14px;padding:.7rem .95rem}
 .chip-r:hover{border-color:var(--red)}
 .chip-r .l{flex:0 0 1.6rem;height:1.6rem;border-radius:50%;display:grid;place-items:center;background:var(--teal-soft);color:var(--teal);font-size:.8rem}
+.chip-r.on{background:var(--teal-soft);border-color:var(--teal)}.chip-r.on::before{content:'✓';color:var(--teal);font-weight:500}.replies .go:disabled{opacity:.45;cursor:not-allowed}
 .chip-r.ghost{border-style:dashed;color:var(--muted)}
 .other{display:flex;gap:.5rem;width:100%;max-width:520px}
 .other input{flex:1;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:999px;padding:.55rem .95rem}
@@ -517,12 +518,13 @@ renderCube($('#heroCube'),[{k:'tam',key:'Size'},{k:'olor',key:'Smell'},{k:'forma
 
 /* ================= flujo conversacional ================= */
 const app=$('#app');
+const MULTI_HINT=' · you can pick several', MULTI_GO='Continue', MULTI_ADD='Add';
 const INTAKE=[
  {k:'edad',q:'To start, what is your age range?',o:['10 to 20','21 to 29','30 to 39','40 to 49','50 to 59','60 or over']},
  {k:'genero',q:'What gender do you identify with?',o:['Woman','Man','Prefer not to say'],other:'Type how you identify'},
  {k:'sector',q:'Which industry do you work in, or want to work in?',o:['Technology','Food and beverage','Financial services','Healthcare','Manufacturing','Retail and consumer','Education','Energy','Government','Professional services'],other:'Type your industry'},
  {k:'puesto',q:'What position do you hold, or what do you do?',o:['CEO / General Management','CFO / Finance','COO / Operations','CMO / Sales & Marketing','CHRO / Human Resources','CTO / CIO / Technology','Area Director','Manager','Entrepreneur','Student'],other:'Type your position'},
- {k:'estudios',q:'What did you study, or what are you studying?',o:['Engineering','Business Administration','Economics / Finance','Law','Health sciences','Social sciences / Humanities','Exact sciences','Design / Communication'],other:'Type what you studied or study'},
+ {k:'estudios',multi:true,q:'What did you study, or what are you studying?',o:['Engineering','Business Administration','Economics / Finance','Law','Health sciences','Social sciences / Humanities','Exact sciences','Design / Communication'],other:'Type what you studied or study'},
  {k:'voz',q:'In your inner speech (you think 300 to 500 words per minute), from which angle do you talk to yourself?',o:['First person (“I feel that…”)','Third person','I’m not aware of it']}
 ];
 const ACKS=['Noted.','Understood.','Interesting.','Very well.','Thank you.','Got it.','Sure.','Let’s continue.'];
@@ -559,7 +561,7 @@ function bubble(who,content,meta){
 function scrollEnd(){ if(log) log.scrollTo({top:log.scrollHeight,behavior:reduceMotion?'auto':'smooth'}); }
 function typing(ms){ return new Promise(res=>{ if(reduceMotion||ms===0){ res(); return; } const t=el('div','msg bot typing'); t.append(el('span','m-av','')); const b=el('div','bub'); b.append(el('i'),el('i'),el('i')); t.append(b); log.append(t); scrollEnd(); setTimeout(()=>{ t.remove(); res(); },ms); }); }
 function questionAt(step){
-  if(step<NI){ const it=INTAKE[step]; return {text:it.q,meta:'Your context · '+(step+1)+' of '+NI,opts:it.o.map(o=>({label:o,val:o})),other:it.other}; }
+  if(step<NI){ const it=INTAKE[step]; return {text:it.q,meta:'Your context · '+(step+1)+' of '+NI+(it.multi?MULTI_HINT:''),opts:it.o.map(o=>({label:o,val:o})),other:it.other,multi:!!it.multi}; }
   const qi=step-NI, q=QS[qi]; return {text:q.q,meta:'Question '+(qi+1)+' of '+QS.length+' · '+LAYER[q.l],opts:st.order[qi].map(oi=>({label:q.o[oi][0],val:oi})),long:true};
 }
 function answerLabel(step){ if(step<NI) return st.who[INTAKE[step].k]; const qi=step-NI; return QS[qi].o[st.ans[qi]][0]; }
@@ -587,6 +589,24 @@ async function next(){
 function ask(instant){
   const q=questionAt(st.step); bubble('bot',q.text,q.meta);
   replies.innerHTML=''; replies.classList.toggle('long',!!q.long);
+  if(q.multi){
+    const sel=new Set(); const go=el('button','cta small go',MULTI_GO); go.type='button'; go.style.margin='0'; go.disabled=true;
+    const upd=()=>{ go.disabled=!sel.size; go.textContent=MULTI_GO+(sel.size?' ('+sel.size+')':''); };
+    const tog=(b,v)=>{ const on=!sel.has(v); on?sel.add(v):sel.delete(v); b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on)); upd(); };
+    const chip=(v,on)=>{ const b=el('button','chip-r',v); b.type='button'; b.setAttribute('aria-pressed','false'); b.addEventListener('click',()=>tog(b,v)); if(on) tog(b,v); return b; };
+    q.opts.forEach(o=>replies.append(chip(o.label)));
+    if(q.other){
+      const b=el('button','chip-r ghost','Other'); b.type='button';
+      b.addEventListener('click',()=>{ const f=el('form','other'); const i=el('input'); i.placeholder=q.other; i.setAttribute('aria-label',q.other); i.maxLength=60; const s=el('button','cta small',MULTI_ADD); s.type='submit'; s.style.margin='0'; f.append(i,s);
+        f.addEventListener('submit',e=>{ e.preventDefault(); const v=i.value.trim(); if(v.length<2){ i.focus(); return; } if(!sel.has(v)) replies.insertBefore(chip(v,true),f); i.value=''; i.focus(); });
+        b.replaceWith(f); i.focus(); });
+      replies.append(b);
+    }
+    go.addEventListener('click',()=>{ if(!sel.size) return; const v=[...sel].join(', '); choose(v,v); });
+    replies.append(go); progress();
+    const first=replies.querySelector('button'); if(first&&st.started&&!instant) first.focus({preventScroll:true});
+    return;
+  }
   q.opts.forEach((o,n)=>{ const b=el('button','chip-r'); b.type='button'; if(q.long) b.append(el('span','l',String.fromCharCode(65+n))); b.append(el('span',null,o.label)); b.addEventListener('click',()=>choose(o.val,o.label)); replies.append(b); });
   if(q.other){
     const b=el('button','chip-r ghost','Other'); b.type='button';
@@ -863,7 +883,7 @@ function sphGifBlock(R){
   acts.append(dl,sh); txt.append(acts,note); box.append(cv,txt); return box;
 }
 
-function dareText(T){ return 'I challenge you to see your mind and identify your Human Thinking System (SPH). Take it here: '+SELF_URL; }
+function dareText(T){ return 'Hi, I’m sharing my Human Thinking System (SPH) and I challenge you to identify yours to find your blind spots. Take it here: '+SELF_URL+' (this information is not stored, for your privacy)'; }
 const SELF_URL='https://n3.potenttial.com/mapa-sph/en/';
 const SPHE_MSG='I’m interested in a quote for consulting to foster Change Management on a neuroscientific foundation for my company.';
 function spheText(f){ return 'Hi Engel, I’m '+f.nombre+', '+f.cargo+' at '+f.empresa+'. '+SPHE_MSG; }
