@@ -186,7 +186,7 @@
   /* ---------------- Chef ---------------- */
   function vChef() {
     const g = gate('chef', 'Chef'); if (g) return g;
-    const tabs = [['hoy', 'Hoy'], ['menu', 'Menú'], ['compras', 'Compras'], ['recetas', 'Recetas'], ['insumos', 'Insumos']];
+    const tabs = [['hoy', 'Hoy'], ['menu', 'Menú'], ['compras', 'Compras'], ['recetas', 'Platillos'], ['insumos', 'Costos']];
     const body = { hoy: chefHoy, menu: chefMenu, compras: chefCompras, recetas: chefRecetas, insumos: chefInsumos, ajustes: chefAjustes }[UI.chefTab]();
     return `${header('Chef Jorge', `<button class="icon" data-a="ctab" data-v="ajustes" aria-label="Ajustes">⚙︎</button>`)}
       <main class="wrap pb">${body}</main>
@@ -267,35 +267,75 @@
       <section class="card"><h3>Compras recientes</h3>
         <ul class="plain">${purch.map(([id, p]) => { const i = C.ingById(S, p.ing); return `<li><span>${esc(i?.name || p.ing)}<small>${C.short(p.date)} · ${p.qty} ${p.unit || i?.unit || ''} ${p.note ? '· ' + esc(p.note) : ''}</small></span><em>${C.money(p.total)} <button class="x" data-a="pdel" data-v="${id}" aria-label="Eliminar">×</button></em></li>`; }).join('') || '<li class="muted">Sin compras registradas</li>'}</ul></section>`;
   }
+  const UNITS = [['kg', 'Kilo'], ['l', 'Litro'], ['pza', 'Pieza'], ['porcion', 'Porción']];
+  const uBuy = u => (C.UNIT[u] || C.UNIT.kg).buy, uUse = u => (C.UNIT[u] || C.UNIT.kg).use;
+  const norm = t => String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+  const qtyLabel = u => ({ kg: 'Gramos por platillo', l: 'Mililitros por platillo', pza: 'Piezas por platillo', porcion: 'Porciones por platillo' }[u] || 'Cantidad por platillo');
   function chefRecetas() {
     if (UI.editRec) return recEditor();
-    return `<h2 class="sec">Platillos y gramajes</h2>
+    return `<h2 class="sec">Platillos</h2>
+      <p class="small muted">Escribe el platillo, sus ingredientes y condimentos con su proporción y costo. Cada ingrediente nuevo queda guardado para elegirlo después de la lista.</p>
       <button class="btn full" data-a="rnew">+ Nuevo platillo</button>
-      ${CATS.map(c => { const g = S.recipes.filter(r => r.cat === c); return g.length ? `<section class="card"><h3>${c}</h3><ul class="plain">${g.map(r => `<li class="tap" data-a="redit" data-v="${r.id}"><span>${esc(r.name)}<small>${r.items.length} insumos · ${Math.round(r.items.reduce((a, it) => a + (C.ingById(S, it.ing)?.unit === 'pza' ? 0 : it.qty), 0))} g/ml por porción</small></span><em>${C.money2(C.recipeCost(S, r))}</em></li>`).join('')}</ul></section>` : ''; }).join('')}`;
+      ${CATS.map(c => { const g = S.recipes.filter(r => r.cat === c); return g.length ? `<section class="card"><h3>${c}</h3><ul class="plain">${g.map(r => `<li class="tap" data-a="redit" data-v="${r.id}"><span>${esc(r.name)}<small>${r.items.map(it => esc(C.ingById(S, it.ing)?.name || '')).filter(Boolean).slice(0, 4).join(', ')}${r.items.length > 4 ? '…' : ''}</small></span><em>${C.money2(C.recipeCost(S, r))}</em></li>`).join('')}</ul></section>` : ''; }).join('')}`;
   }
   function recEditor() {
-    const r = UI.editRec;
-    const cost = C.recipeCost(S, r);
+    const r = UI.editRec; const cost = C.recipeCost(S, r); const ni = UI.ni || (UI.ni = { unit: 'kg' });
     return `<h2 class="sec">${S.recipes.find(x => x.id === r.id) ? 'Editar' : 'Nuevo'} platillo</h2>
       <section class="card">
-        <label>Nombre<input data-c="rname" value="${esc(r.name)}"></label>
+        <label>Nombre del platillo<input data-c="rname" value="${esc(r.name)}" placeholder="Ej. Pollo al perejil"></label>
         <label>Categoría<select data-c="rcat">${CATS.map(c => `<option ${c === r.cat ? 'selected' : ''}>${c}</option>`).join('')}</select></label>
-        <h3>Insumos por porción</h3>
-        ${r.items.map((it, i) => { const ing = C.ingById(S, it.ing); return `<div class="ri"><select data-c="riing" data-i="${i}">${S.ingredients.map(x => `<option value="${x.id}" ${x.id === it.ing ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
-          <input type="number" step="0.01" data-c="riqty" data-i="${i}" value="${it.qty}"><span>${ing?.unit === 'pza' ? 'pza' : ing?.unit === 'l' ? 'ml' : 'g'}</span><em>${C.money2(C.lineCost(ing, it.qty))}</em><button class="x" data-a="ridel" data-v="${i}">×</button></div>`; }).join('')}
-        <button class="btn ghost full" data-a="riadd">+ Agregar insumo</button>
-        <div class="total"><span>Costo por porción</span><b>${C.money2(cost)}</b></div>
-        <div class="grid2"><button class="btn ghost" data-a="rcancel">Cancelar</button><button class="btn" data-a="rsave">Guardar</button></div>
-        ${S.recipes.find(x => x.id === r.id) ? `<button class="link danger" data-a="rdelete">Eliminar platillo</button>` : ''}
-      </section>`;
+      </section>
+      <section class="card">
+        <h3>Ingredientes y proporciones <span class="muted small">· por platillo</span></h3>
+        ${r.items.length ? r.items.map((it, i) => { const ing = C.ingById(S, it.ing); return `<div class="ri2">
+          <div class="ri2-h"><b>${esc(ing?.name || '—')}</b><em>${C.money2(C.lineCost(ing, it.qty))}</em><button class="x" data-a="ridel" data-v="${i}" aria-label="Quitar">×</button></div>
+          <div class="ri2-b"><label class="mini"><input type="number" step="0.01" min="0" data-c="riqty" data-i="${i}" value="${it.qty}"><span>${uUse(ing?.unit)}</span></label>
+          <label class="mini money"><span>$</span><input type="number" step="0.01" min="0" data-c="ricost" data-v="${ing?.id}" value="${ing?.cost ?? 0}"><i>/ ${uBuy(ing?.unit)}</i></label></div>
+        </div>`; }).join('') : '<p class="muted small">Aún no hay ingredientes. Agrega el primero abajo.</p>'}
+        <div class="total"><span>Costo por platillo</span><b>${C.money2(cost)}</b></div>
+      </section>
+      <section class="card addbox">
+        <h3>Agregar ingrediente o condimento</h3>
+        <label>Ingrediente
+          <div class="ac"><input id="acIn" autocomplete="off" autocapitalize="sentences" placeholder="Escribe: perejil, sal, pollo…" value="${esc(ni.name || '')}"><div class="ac-list" id="acList" hidden></div></div></label>
+        <div class="grid2">
+          <label>Se compra por<select id="niUnit" data-c="niunit">${UNITS.map(([u, l]) => `<option value="${u}" ${u === ni.unit ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
+          <label><span id="niCostL">Costo por ${uBuy(ni.unit)}</span><div class="money"><span>$</span><input id="niCost" type="number" step="0.01" min="0" value="${ni.cost ?? ''}" placeholder="0.00"></div></label>
+        </div>
+        <label><span id="niQtyL">${qtyLabel(ni.unit)}</span><input id="niQty" type="number" step="0.01" min="0" value="${ni.qty ?? ''}" placeholder="Ej. 15"></label>
+        <p class="small muted" id="niHint">${ni.ing ? 'Ingrediente de tu lista: puedes ajustar su costo.' : 'Si es nuevo, se agregará a tu lista de ingredientes.'}</p>
+        <button class="btn full" data-a="niadd">+ Agregar al platillo</button>
+      </section>
+      <div class="grid2"><button class="btn ghost" data-a="rcancel">Cancelar</button><button class="btn" data-a="rsave">Guardar platillo</button></div>
+      ${S.recipes.find(x => x.id === r.id) ? `<button class="link danger" data-a="rdelete">Eliminar platillo</button>` : ''}`;
+  }
+  // Lista en cascada: se filtra mientras escribes, sin recargar la pantalla
+  function acRender(q) {
+    const list = document.getElementById('acList'); if (!list) return;
+    const n = norm(q);
+    const used = new Set((UI.editRec?.items || []).map(i => i.ing));
+    const m = S.ingredients.filter(x => !n || norm(x.name).includes(n))
+      .sort((a, b) => (norm(a.name).startsWith(n) ? 0 : 1) - (norm(b.name).startsWith(n) ? 0 : 1) || a.name.localeCompare(b.name, 'es'));
+    const exact = S.ingredients.some(x => norm(x.name) === n);
+    list.innerHTML = (n && !exact ? `<button class="ac-new" data-a="acnew">+ Nuevo: <b>${esc(q.trim())}</b></button>` : '') +
+      m.slice(0, 40).map(x => `<button data-a="acpick" data-v="${x.id}"><span>${esc(x.name)}${used.has(x.id) ? ' <i>en el platillo</i>' : ''}</span><em>${C.money2(x.cost)} / ${uBuy(x.unit)}</em></button>`).join('') ||
+      '';
+    list.hidden = !list.innerHTML;
+  }
+  function niLabels(u) {
+    const a = document.getElementById('niCostL'), b = document.getElementById('niQtyL');
+    if (a) a.textContent = 'Costo por ' + uBuy(u); if (b) b.textContent = qtyLabel(u);
   }
   function chefInsumos() {
-    return `<h2 class="sec">Costos de insumos</h2>
-      <p class="small muted">Precio por kilo, litro o pieza. Actualízalo con cada compra para que los costos por platillo sean exactos.</p>
-      <section class="card">${S.ingredients.map((x, i) => `<div class="ingr"><input data-c="iname" data-i="${i}" value="${esc(x.name)}">
-        <select data-c="iunit" data-i="${i}">${['kg', 'l', 'pza'].map(u => `<option ${u === x.unit ? 'selected' : ''}>${u}</option>`).join('')}</select>
-        <label class="money"><span>$</span><input type="number" step="0.01" data-c="icost" data-i="${i}" value="${x.cost}"></label></div>`).join('')}
-        <button class="btn ghost full" data-a="iadd">+ Agregar insumo</button></section>`;
+    const q = norm(UI.ingQ || '');
+    const rows = S.ingredients.map((x, i) => [x, i]).filter(([x]) => !q || norm(x.name).includes(q)).sort((a, b) => a[0].name.localeCompare(b[0].name, 'es'));
+    return `<h2 class="sec">Ingredientes y condimentos</h2>
+      <p class="small muted">Tu lista crece sola cada vez que agregas un ingrediente nuevo a un platillo. Costo por kilo, litro, pieza o porción.</p>
+      <input class="search" id="ingQ" placeholder="Buscar ingrediente…" value="${esc(UI.ingQ || '')}">
+      <section class="card">${rows.map(([x, i]) => `<div class="ingr"><input data-c="iname" data-i="${i}" value="${esc(x.name)}">
+        <select data-c="iunit" data-i="${i}">${UNITS.map(([u, l]) => `<option value="${u}" ${u === x.unit ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <label class="money"><span>$</span><input type="number" step="0.01" data-c="icost" data-i="${i}" value="${x.cost}"></label></div>`).join('') || '<p class="muted small">Sin resultados.</p>'}
+        <button class="btn ghost full" data-a="iadd">+ Agregar ingrediente</button></section>`;
   }
   function chefAjustes() {
     const s = st();
@@ -430,9 +470,39 @@
       await kvSet('ingredients', list); render(); toast('Compra registrada y costo actualizado');
     },
     async pdel(el) { if (confirm('¿Eliminar esta compra?')) { await kvSet('purchase:' + el.dataset.v, null); render(); } },
-    rnew() { UI.editRec = { id: 'r' + uidGen(), name: '', cat: 'Plato fuerte', items: [] }; render(); },
-    redit(el) { const r = C.recById(S, el.dataset.v); UI.editRec = JSON.parse(JSON.stringify(r)); render(); },
-    riadd() { UI.editRec.items.push({ ing: S.ingredients[0].id, qty: 100 }); render(); },
+    rnew() { UI.ni = null; UI.editRec = { id: 'r' + uidGen(), name: '', cat: 'Plato fuerte', items: [] }; render(); },
+    redit(el) { UI.ni = null; const r = C.recById(S, el.dataset.v); UI.editRec = JSON.parse(JSON.stringify(r)); render(); },
+    acpick(el) {
+      const x = C.ingById(S, el.dataset.v); if (!x) return;
+      UI.ni = { name: x.name, ing: x.id, unit: x.unit, cost: x.cost, qty: document.getElementById('niQty')?.value || '' };
+      render(); const q = document.getElementById('niQty'); q && q.focus();
+    },
+    acnew() {
+      const name = document.getElementById('acIn').value.trim(); const name2 = name.charAt(0).toUpperCase() + name.slice(1);
+      UI.ni = { name: name2, ing: null, unit: document.getElementById('niUnit').value, cost: '', qty: document.getElementById('niQty')?.value || '' };
+      render(); const c = document.getElementById('niCost'); c && c.focus();
+    },
+    async niadd() {
+      const name = document.getElementById('acIn').value.trim();
+      const unit = document.getElementById('niUnit').value;
+      const cost = document.getElementById('niCost').value; const qty = +document.getElementById('niQty').value;
+      if (!name) return toast('Escribe el ingrediente');
+      if (!qty) return toast('Indica la cantidad por platillo');
+      let ing = S.ingredients.find(x => norm(x.name) === norm(name));
+      const list = [...S.ingredients];
+      if (ing) {
+        const upd = { ...ing, unit, cost: cost === '' ? ing.cost : +cost };
+        if (upd.unit !== ing.unit || upd.cost !== ing.cost) { list[list.findIndex(x => x.id === ing.id)] = upd; await kvSet('ingredients', list); }
+      } else {
+        if (cost === '') return toast('Agrega el costo por ' + uBuy(unit));
+        ing = { id: 'i' + uidGen(), name: name.charAt(0).toUpperCase() + name.slice(1), unit, cost: +cost };
+        list.push(ing); await kvSet('ingredients', list);
+      }
+      const ex = UI.editRec.items.find(it => it.ing === ing.id);
+      if (ex) ex.qty = qty; else UI.editRec.items.push({ ing: ing.id, qty });
+      UI.ni = { unit }; render(); toast(`${ing.name} agregado`);
+      const a = document.getElementById('acIn'); a && a.focus();
+    },
     ridel(el) { UI.editRec.items.splice(+el.dataset.v, 1); render(); },
     rcancel() { UI.editRec = null; render(); },
     async rsave() {
@@ -457,7 +527,8 @@
     async madd(el) { if (!el.value) return; const d = el.dataset.d; await kvSet('menu:' + d, [...(S.menu[d] || []), el.value]); render(); },
     rname(el) { UI.editRec.name = el.value; },
     rcat(el) { UI.editRec.cat = el.value; },
-    riing(el) { UI.editRec.items[+el.dataset.i].ing = el.value; render(); },
+    niunit(el) { niLabels(el.value); },
+    async ricost(el) { const l = S.ingredients.map(x => x.id === el.dataset.v ? { ...x, cost: +el.value || 0 } : x); await kvSet('ingredients', l); render(); toast('Costo actualizado'); },
     riqty(el) { UI.editRec.items[+el.dataset.i].qty = +el.value || 0; render(); },
     async iname(el) { const l = [...S.ingredients]; l[+el.dataset.i] = { ...l[+el.dataset.i], name: el.value }; await kvSet('ingredients', l); },
     async iunit(el) { const l = [...S.ingredients]; l[+el.dataset.i] = { ...l[+el.dataset.i], unit: el.value }; await kvSet('ingredients', l); },
@@ -466,7 +537,17 @@
   };
   document.addEventListener('click', e => { const el = e.target.closest('[data-a]'); if (el && ACT[el.dataset.a]) { e.preventDefault(); ACT[el.dataset.a](el, e); } });
   document.addEventListener('change', e => { const el = e.target.closest('[data-c]'); if (el && CHG[el.dataset.c]) CHG[el.dataset.c](el, e); });
-  document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'pin') document.querySelector('[data-a="pin"]')?.click(); });
+  document.addEventListener('input', e => {
+    const t = e.target;
+    if (t.id === 'acIn') { if (UI.ni) { UI.ni.name = t.value; UI.ni.ing = null; } acRender(t.value); }
+    else if (t.id === 'ingQ') { UI.ingQ = t.value; const p = t.selectionStart; render(); const n = document.getElementById('ingQ'); n.focus(); n.setSelectionRange(p, p); }
+    else if (t.dataset.c === 'rname') UI.editRec.name = t.value;
+  });
+  document.addEventListener('focusin', e => { if (e.target.id === 'acIn') acRender(e.target.value); });
+  document.addEventListener('click', e => { const l = document.getElementById('acList'); if (l && !e.target.closest('.ac')) l.hidden = true; });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.id === 'acIn') { e.preventDefault(); const f = document.querySelector('#acList button'); f ? f.click() : null; return; }
+    if (e.key === 'Enter' && e.target.id === 'niQty') { e.preventDefault(); ACT.niadd(); return; } if (e.key === 'Enter' && e.target.id === 'pin') document.querySelector('[data-a="pin"]')?.click(); });
 
   // "Tiempo real": otros pestañas del mismo equipo / sondeo al servidor cada 20 s
   window.addEventListener('storage', e => { if (e.key === LS) { KV = JSON.parse(e.newValue || '{}'); S = C.stateFromKV(KV); render(); } });

@@ -43,7 +43,9 @@
   const ingById = (S, id) => S.ingredients.find(i => i.id === id);
   const recById = (S, id) => S.recipes.find(r => r.id === id);
   // qty por porción: g (kg), ml (l) o piezas (pza)
-  const lineCost = (ing, qty) => !ing ? 0 : (ing.unit === 'pza' ? qty * ing.cost : qty / 1000 * ing.cost);
+  const isCount = u => u === 'pza' || u === 'porcion';
+  const UNIT = { kg: { buy: 'kilo', use: 'g' }, l: { buy: 'litro', use: 'ml' }, pza: { buy: 'pieza', use: 'pza' }, porcion: { buy: 'porción', use: 'porc.' } };
+  const lineCost = (ing, qty) => !ing ? 0 : (isCount(ing.unit) ? qty * ing.cost : qty / 1000 * ing.cost);
   const recipeCost = (S, r) => (r?.items || []).reduce((a, it) => a + lineCost(ingById(S, it.ing), it.qty), 0);
   const menuOf = (S, d) => (S.menu[d] || []).map(id => recById(S, id)).filter(Boolean);
   const menuCost = (S, d) => menuOf(S, d).reduce((a, r) => a + recipeCost(S, r), 0);
@@ -75,8 +77,8 @@
     });
     return Object.keys(tot).map(id => {
       const ing = ingById(S, id); if (!ing) return null;
-      const qty = ing.unit === 'pza' ? tot[id] : tot[id] / 1000;
-      return { id, name: ing.name, unit: ing.unit, qty, cost: ing.unit === 'pza' ? qty * ing.cost : qty * ing.cost };
+      const qty = isCount(ing.unit) ? tot[id] : tot[id] / 1000;
+      return { id, name: ing.name, unit: ing.unit, qty, cost: qty * ing.cost };
     }).filter(Boolean).sort((a, b) => b.cost - a.cost);
   }
 
@@ -155,6 +157,7 @@
   }
   function fmtQty(q, u) {
     if (u === 'pza') return `${Math.ceil(q)} pza`;
+    if (u === 'porcion') return `${Math.ceil(q)} porc.`;
     if (q < 1) return `${Math.round(q * 1000)} ${u === 'l' ? 'ml' : 'g'}`;
     return `${q.toFixed(2)} ${u}`;
   }
@@ -162,7 +165,7 @@
   const Core = {
     pad, iso, parse, addDays, dow, isWeekday, monday, weekDays, nextWeekday, prevWeekday, range, label, short,
     DIAS, MESES, money, money2, fmtQty, emptyState, applyKV, stateFromKV, DEFAULT_SETTINGS, set,
-    ingById, recById, lineCost, recipeCost, menuOf, menuCost, day, portions, served, needs, balance, msgChef, msgDirector
+    ingById, recById, isCount, UNIT, lineCost, recipeCost, menuOf, menuCost, day, portions, served, needs, balance, msgChef, msgDirector
   };
   g.Core = Core;
   if (typeof module !== 'undefined' && module.exports) module.exports = Core;

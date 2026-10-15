@@ -12,7 +12,8 @@
     ['lechuga', 'Lechuga', 'pza', 18], ['tortilla', 'Tortilla de maíz', 'kg', 26], ['pasta', 'Pasta / fideo', 'kg', 40],
     ['crema', 'Crema', 'l', 60], ['queso', 'Queso fresco', 'kg', 140], ['aceite', 'Aceite', 'l', 45],
     ['limon', 'Limón', 'kg', 35], ['aguacate', 'Aguacate', 'kg', 70], ['huevo', 'Huevo', 'kg', 48],
-    ['fruta', 'Fruta de temporada', 'kg', 30], ['azucar', 'Azúcar', 'kg', 28]
+    ['fruta', 'Fruta de temporada', 'kg', 30], ['azucar', 'Azúcar', 'kg', 28],
+    ['sal', 'Sal', 'porcion', 0.3], ['pimienta', 'Pimienta', 'porcion', 0.25], ['perejil', 'Perejil', 'kg', 60], ['cilantro', 'Cilantro', 'kg', 55]
   ].map(([id, name, unit, cost]) => ({ id, name, unit, cost }));
 
   const R = (id, name, cat, items) => ({ id, name, cat, items: items.map(([ing, qty]) => ({ ing, qty })) });
@@ -20,10 +21,10 @@
     R('fideo', 'Sopa de fideo', 'Sopa', [['pasta', 40], ['jitomate', 60], ['cebolla', 15], ['ajo', 3], ['aceite', 8]]),
     R('crema-cal', 'Crema de calabaza', 'Sopa', [['calabacita', 150], ['crema', 40], ['cebolla', 20], ['aceite', 5]]),
     R('consome', 'Consomé de verduras', 'Sopa', [['zanahoria', 50], ['papa', 50], ['calabacita', 50], ['cebolla', 15], ['ajo', 3]]),
-    R('pollo-verde', 'Pollo en salsa verde', 'Plato fuerte', [['pollo', 180], ['serrano', 8], ['cebolla', 20], ['ajo', 3], ['aceite', 8]]),
+    R('pollo-verde', 'Pollo en salsa verde', 'Plato fuerte', [['pollo', 180], ['serrano', 8], ['cebolla', 20], ['ajo', 3], ['aceite', 8], ['cilantro', 5], ['sal', 1]]),
     R('bistec', 'Bistec a la mexicana', 'Plato fuerte', [['res', 170], ['jitomate', 60], ['cebolla', 30], ['serrano', 6], ['aceite', 8]]),
     R('albondigas', 'Albóndigas al guajillo', 'Plato fuerte', [['molida', 160], ['huevo', 15], ['jitomate', 70], ['guajillo', 4], ['arroz', 10]]),
-    R('pescado', 'Filete de pescado al ajillo', 'Plato fuerte', [['pescado', 180], ['ajo', 10], ['aceite', 12], ['limon', 15]]),
+    R('pescado', 'Filete de pescado al ajillo', 'Plato fuerte', [['pescado', 180], ['ajo', 10], ['aceite', 12], ['limon', 15], ['perejil', 5], ['sal', 1], ['pimienta', 1]]),
     R('enchiladas', 'Enchiladas verdes', 'Plato fuerte', [['pollo', 100], ['tortilla', 90], ['crema', 30], ['queso', 30], ['serrano', 6]]),
     R('nopales', 'Nopales con huevo (veg.)', 'Plato fuerte', [['nopal', 150], ['huevo', 100], ['jitomate', 40], ['cebolla', 20]]),
     R('arroz', 'Arroz rojo', 'Guarnición', [['arroz', 70], ['jitomate', 30], ['cebolla', 10], ['aceite', 8], ['zanahoria', 15]]),
@@ -92,7 +93,7 @@
       const days = C.weekDays(mon).filter(d => d <= today || mon === C.monday(today));
       C.needs(S, days).forEach(x => {
         const f = 1.03 + r() * 0.09;
-        const qty = x.unit === 'pza' ? Math.ceil(x.qty * f) : Math.round(x.qty * f * 10) / 10;
+        const qty = C.isCount(x.unit) ? Math.ceil(x.qty * f) : Math.round(x.qty * f * 10) / 10;
         const ing = C.ingById(S, x.id);
         kv['purchase:p' + (++n)] = { date: mon, ing: x.id, qty, unit: x.unit, total: Math.round(qty * ing.cost), note: 'Central de Abasto' };
       });
