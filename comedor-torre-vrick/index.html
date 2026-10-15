@@ -6,8 +6,13 @@
 <title>Comedor Torre Vrick · N3 Labs</title>
 <meta name="description" content="Sistema de comedor corporativo de Torre Vrick: confirmación de comensales, menú, porciones, costos de insumos y rentabilidad. Desarrollado por N3 Labs (Thinktech IA Laboratory).">
 <meta name="theme-color" content="#F4F3F1">
-<link rel="icon" href="assets/icon.png">
-<link rel="apple-touch-icon" href="assets/icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Comedor TV">
+<meta name="application-name" content="Comedor TV">
+<link rel="icon" href="assets/icon-192.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta property="og:title" content="Comedor Torre Vrick">
 <meta property="og:description" content="Confirma si comes en el roof. Sistema desarrollado por N3 Labs.">
@@ -158,6 +163,18 @@ details{margin-top:14px}details summary{cursor:pointer}
 .n3 img{height:62px;border-radius:6px}
 .n3 p{font-size:12.5px;margin-top:8px}.n3 b{color:#fff}.n3 span{opacity:.6}
 .n3 .guide{display:inline-block;margin-top:10px;color:#FF7B62;font-weight:600}
+.inst{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#fff;background:var(--acc);padding:6px 10px;border-radius:99px}
+.installcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:12px;background:var(--dark);color:#fff;border-radius:var(--r);padding:14px 16px}
+.installcard img{width:44px;height:44px;border-radius:11px;flex:none}
+.installcard div{flex:1}.installcard b{display:block;font:600 15px "Space Grotesk",Inter,system-ui,sans-serif}.installcard span{font-size:12.5px;color:#B9B9BD}
+.installcard u{text-decoration:none;font-size:13px;font-weight:700;background:var(--acc);border-radius:99px;padding:7px 12px}
+.sheet-bg{position:fixed;inset:0;background:rgba(14,14,16,.5);z-index:60}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;background:#fff;border-radius:20px 20px 0 0;padding:20px 18px max(20px,env(safe-area-inset-bottom));max-width:560px;margin:0 auto;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet-h{display:flex;gap:12px;align-items:center;margin-bottom:12px}.sheet-h img{width:52px;height:52px;border-radius:12px}
+.sheet-h b{display:block;font:600 17px "Space Grotesk",Inter,system-ui,sans-serif}.sheet-h span{font-size:13px;color:var(--mute)}
+.sheet ol{padding-left:20px;display:grid;gap:8px;font-size:15px}
+.sheet .ico{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:0 5px}
 .pb~.n3{padding-bottom:110px}
 #toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--ink);color:#fff;font-size:14px;padding:10px 16px;border-radius:12px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:90vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}

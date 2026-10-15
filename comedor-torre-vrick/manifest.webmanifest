@@ -1,1 +1,24 @@
-{"name":"Comedor Torre Vrick","short_name":"Comedor TV","start_url":"./#/comensal","display":"standalone","background_color":"#F4F3F1","theme_color":"#17171A","icons":[{"src":"assets/icon.png","sizes":"512x512","type":"image/png"}]}
+{
+  "id": "./",
+  "name": "Comedor Torre Vrick",
+  "short_name": "Comedor TV",
+  "description": "Confirma si comes en el roof, menú, porciones, costos y balance del comedor. Desarrollado por N3 Labs.",
+  "lang": "es-MX",
+  "start_url": "./?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F3F1",
+  "theme_color": "#17171A",
+  "categories": ["food", "business", "productivity"],
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Confirmar mi comida", "short_name": "Comensal", "url": "./#/comensal", "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Chef Jorge", "short_name": "Chef", "url": "./#/chef", "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Lic. Villarreal", "short_name": "Dirección", "url": "./#/director", "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

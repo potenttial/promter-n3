@@ -63,10 +63,35 @@
   const curMon = () => { const t = today(); return C.isWeekday(t) ? C.monday(t) : C.monday(C.nextWeekday(t)); };
   const user = () => { try { return JSON.parse(localStorage.getItem(LS_USER) || 'null'); } catch (e) { return null; } };
 
+  /* ---------------- Web app instalable (PWA) ---------------- */
+  let deferredPrompt = null;
+  const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const inAppBrowser = () => /FBAN|FBAV|Instagram|WhatsApp|Line\/|wv\)/i.test(navigator.userAgent);
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; render(); });
+  window.addEventListener('appinstalled', () => { deferredPrompt = null; UI.showInstall = false; toast('App instalada en tu pantalla de inicio'); render(); });
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  const installBtn = () => isStandalone() ? '' : `<button class="inst" data-a="install" aria-label="Instalar la app"><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Instalar</button>`;
+  function installSheet() {
+    if (!UI.showInstall) return '';
+    const ios = isIOS();
+    const steps = inAppBrowser()
+      ? `<li>Estás dentro de WhatsApp u otra app. Toca <b>⋯</b> o <b>⋮</b> y elige <b>Abrir en el navegador</b> (${ios ? 'Safari' : 'Chrome'}).</li><li>Después toca otra vez <b>Instalar</b>.</li>`
+      : ios
+        ? `<li>Toca el botón <b>Compartir</b> <span class="ico">⬆︎</span> en la barra de ${/CriOS/.test(navigator.userAgent) ? 'Chrome' : 'Safari'}.</li><li>Desliza y elige <b>Agregar a pantalla de inicio</b>.</li><li>Toca <b>Agregar</b>. El ícono «Comedor TV» aparecerá con tus apps.</li>`
+        : `<li>Toca el menú <b>⋮</b> del navegador (arriba a la derecha).</li><li>Elige <b>Instalar app</b> o <b>Agregar a pantalla principal</b>.</li><li>Confirma con <b>Instalar</b>.</li>`;
+    return `<div class="sheet-bg" data-a="closeInstall"></div>
+      <section class="sheet" role="dialog" aria-modal="true" aria-label="Instalar la app">
+        <div class="sheet-h"><img src="assets/icon-192.png" alt=""><div><b>Comedor Torre Vrick</b><span>Ábrela como app, sin buscar el enlace</span></div></div>
+        <ol>${steps}</ol>
+        <button class="btn full" data-a="closeInstall">Entendido</button>
+      </section>`;
+  }
+
   const header = (role, extra = '') => `
     <header class="top">
       <a href="#/" class="brand" aria-label="Inicio"><img src="assets/torre-vrick.png" alt="Torre Vrick"></a>
-      <div class="top-r">${role ? `<span class="pill">${role}</span>` : ''}${extra}</div>
+      <div class="top-r">${installBtn()}${role ? `<span class="pill">${role}</span>` : ''}${extra}</div>
     </header>
     ${REMOTE ? '' : `<div class="demo">Modo demostración · datos de ejemplo guardados en este dispositivo</div>`}`;
   const footer = () => `
@@ -92,6 +117,7 @@
         <a href="#/chef" class="role r2"><i>02</i><div><b>Chef Jorge</b><span>Comensales, menú, porciones, compras y costos</span></div><u>→</u></a>
         <a href="#/director" class="role r3"><i>03</i><div><b>Lic. Villarreal</b><span>Inversión, consumo, rentabilidad y recurrencia</span></div><u>→</u></a>
       </nav>
+      ${isStandalone() ? '' : `<button class="installcard" data-a="install"><img src="assets/icon-192.png" alt=""><div><b>Instala el comedor en tu celular</b><span>Un toque desde tu pantalla de inicio, como cualquier app</span></div><u>Instalar</u></button>`}
     </main>${footer()}`;
   }
 
@@ -344,12 +370,17 @@
   function render() {
     const r = (location.hash || '#/').slice(2);
     const view = r.startsWith('comensal') ? vComensal : r.startsWith('chef') ? vChef : r.startsWith('director') ? vDirector : vHome;
-    const y = window.scrollY; $app.innerHTML = view(); window.scrollTo(0, y);
+    const y = window.scrollY; $app.innerHTML = view() + installSheet(); window.scrollTo(0, y);
   }
   window.addEventListener('hashchange', () => { window.scrollTo(0, 0); render(); });
 
   /* ---------------- Acciones ---------------- */
   const ACT = {
+    async install() {
+      if (deferredPrompt) { deferredPrompt.prompt(); const r = await deferredPrompt.userChoice; deferredPrompt = null; if (r.outcome !== 'accepted') toast('Puedes instalarla cuando quieras'); render(); return; }
+      UI.showInstall = true; render();
+    },
+    closeInstall() { UI.showInstall = false; render(); },
     async register() {
       const n = document.getElementById('fName').value.trim(); if (n.length < 3) return toast('Escribe tu nombre completo');
       const area = document.getElementById('fArea').value.trim();
