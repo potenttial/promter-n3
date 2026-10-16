@@ -647,7 +647,7 @@ const STATS_API='https://n3.potenttial.com/mapa-sph/api/', STATS_LOCALE='pt-BR';
 const statsShown={};
 function showStats(s){ const box=document.getElementById('sphStats'); if(!box||!s) return; const fmt=new Intl.NumberFormat(STATS_LOCALE);
   box.querySelectorAll('b[data-k]').forEach(b=>{ const k=b.dataset.k, to=Number(s[k])||0, from=statsShown[k]??Math.max(0,Math.round(to*.9)); statsShown[k]=to;
-    if(reduceMotion||from===to){ b.textContent=fmt.format(to); return; } const t0=performance.now(), d=1200; const step=now=>{ const p=Math.min(1,(now-t0)/d), e=1-Math.pow(1-p,3); b.textContent=fmt.format(Math.round(from+(to-from)*e)); if(p<1) requestAnimationFrame(step); }; requestAnimationFrame(step); });
+    if(reduceMotion||from===to){ b.textContent=fmt.format(to); return; } const t0=performance.now(), d=1200; const step=now=>{ const p=Math.min(1,(now-t0)/d), e=1-Math.pow(1-p,3); b.textContent=fmt.format(Math.round(from+(to-from)*e)); if(p<1) requestAnimationFrame(step); }; requestAnimationFrame(step); setTimeout(()=>{ if(statsShown[k]===to) b.textContent=fmt.format(to); },d+150); });
   box.hidden=false; }
 async function statHit(t){ try{ const r=await fetch(STATS_API+(t?'hit':'stats'),t?{method:'POST',headers:{'content-type':'text/plain'},body:JSON.stringify({t})}:{}); if(r.ok) showStats(await r.json()); }catch(e){} }
 (function(){ let seen=false; try{ seen=sessionStorage.getItem('sph.visit')==='1'; sessionStorage.setItem('sph.visit','1'); }catch(e){} statHit(seen?null:'visit'); })();
