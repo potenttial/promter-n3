@@ -1,0 +1,1108 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
+<link rel="canonical" href="https://n3.potenttial.com/desmiedo/">
+<meta property="og:url" content="https://n3.potenttial.com/desmiedo/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<title>Desmiedo · ThinkIA</title>
+<meta name="description" content="Desmiedo: ThinkIA de Engel Fonseca, hecha por N3 Labs, para conversar con tu miedo, identificar lo que ignoras, transformar la ansiedad en curiosidad y domesticar el miedo: herramienta de sobrevivencia, no estilo de vida. Desmiedo: a guided conversation to put fear back in its place.">
+<meta name="author" content="Engel Fonseca">
+<meta property="og:title" content="Desmiedo · Una conversación con tu miedo">
+<meta property="og:description" content="Tu miedo es la brújula de lo que ignoras. Pasa de un semáforo siempre en rojo a uno que solo se pone en rojo cuando toca.">
+<meta property="og:image" content="https://n3.potenttial.com/assets/n3-logo.png">
+<meta name="theme-color" content="#1B1F3B">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","@id":"https://n3.potenttial.com/desmiedo/#app","name":"Desmiedo","alternateName":["Desmiedo","Desmiedo: una conversación con tu miedo","Desmiedo: a conversation with your fear"],"url":"https://n3.potenttial.com/desmiedo/","applicationCategory":"EducationalApplication","operatingSystem":"Web","inLanguage":["es","en"],"description":"ThinkIA conversacional del marco Desmiedo de Engel Fonseca: el miedo es la brújula de lo que ignoramos. Guía a la persona a reconocer su miedo, identificar lo que ignora, transformar la ansiedad en curiosidad y evolucionar el miedo a respeto, para que sea herramienta de sobrevivencia y no estilo de vida. Entrega el Índice Desmiedo (1 a 100), un semáforo animado y un pacto con su miedo. Conversational ThinkIA that helps people turn fear from a lifestyle back into a survival tool.","creator":{"@id":"https://n3.potenttial.com/engel-fonseca/#person"},"publisher":{"@id":"https://n3labs.potenttial.site/#org"},"isAccessibleForFree":true},
+{"@type":"Person","@id":"https://n3.potenttial.com/engel-fonseca/#person","name":"Engel Fonseca","url":"https://n3.potenttial.com/engel-fonseca/","jobTitle":"Experto en IA desde la neurociencia cognitiva · Fundador de N3 Labs","knowsAbout":["Desmiedo","Curioxoma","Thinktech","neurociencia cognitiva","inteligencia artificial","metacognición"],"affiliation":{"@type":"Organization","name":"Centro de Neurociencias Avanzadas, Hospital Ángeles del Pedregal","url":"https://www.centroneurociencias.org/"}},
+{"@type":"Organization","@id":"https://n3labs.potenttial.site/#org","name":"N3 Thinktech IA Laboratory","alternateName":["N3 Labs"],"url":"https://n3labs.potenttial.site/"},
+{"@type":"DefinedTerm","name":"Desmiedo","inDefinedTermSet":"https://n3.potenttial.com/glosario/","url":"https://n3.potenttial.com/glosario/#desmiedo","description":"Marco de Engel Fonseca para configurar el miedo en lugar de reaccionar a él: observarlo como un dato, reconocer lo que ignoramos a través de él, transformarlo en curiosidad y evolucionarlo a respeto."},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"¿Qué es Desmiedo?","acceptedAnswer":{"@type":"Answer","text":"Desmiedo es el marco de Engel Fonseca para poner el miedo en su lugar: como herramienta de sobrevivencia y no como estilo de vida. Sostiene que el miedo no es un obstáculo que deba paralizarnos, sino una brújula de lo que ignoramos."}},
+{"@type":"Question","name":"¿Cómo se pasa del miedo al respeto?","acceptedAnswer":{"@type":"Answer","text":"En cuatro pasos: reconocer a qué le temes y la ansiedad que te provoca; identificar la ignorancia que ese miedo señala; transformar la ansiedad en curiosidad; y evolucionar el miedo a respeto, para que solo se encienda cuando hay un peligro real."}},
+{"@type":"Question","name":"¿Qué significa pasar de un semáforo siempre en rojo a uno que a veces se pone en rojo?","acceptedAnswer":{"@type":"Answer","text":"Un semáforo siempre en rojo es el miedo como estilo de vida: frena todas las decisiones. Un semáforo vivo se pone en rojo solo ante un peligro real, en ámbar cuando no sabes (y entonces investigas) y en verde cuando ya sabes y puedes avanzar con respeto."}},
+{"@type":"Question","name":"¿Por qué el miedo es síntoma de ignorancia?","acceptedAnswer":{"@type":"Answer","text":"Según Desmiedo, la mente sabe cuándo ignora algo y lo manifiesta como miedo. El miedo impide aprender, lleva a reaccionar, baja las defensas, impide pensar, es contagioso y hace lenta a la persona; bloquea la configurabilidad y la densidad de pensamiento. Los miedos son síntomas de un Sistema de Pensamiento Humano (SPH) que requiere reconfigurarse o resignificarse, porque los significados se desgastan y la mente anhela significado."}},
+{"@type":"Question","name":"¿Por qué el miedo es un ancla y cómo se convierte en brújula?","acceptedAnswer":{"@type":"Answer","text":"En Desmiedo, el miedo es el síntoma de una red del Sistema de Pensamiento Humano (SPH) formada por lo que ignoras, tabúes, paradigmas, sesgos cognitivos, trauma, idealizaciones, pensamiento mágico y prompts mentales; esa red funciona como un ancla. Convertido en brújula, el miedo apunta a lo que desconoces, permite crecer en autoconocimiento y expandir la mente como una telaraña cognitiva."}},
+{"@type":"Question","name":"¿Por qué el miedo no se enfrenta, sino que se persigue?","acceptedAnswer":{"@type":"Answer","text":"Según Desmiedo de Engel Fonseca, el miedo no se enfrenta, se persigue, porque guarda lo que ignoramos. Perseguirlo es seguirlo hasta lo que no sabemos, convertirlo en pregunta y aprender. Los miedos útiles de sentido común, como quitarse cuando viene un auto, no se cuestionan: se usan."}},
+{"@type":"Question","name":"¿La ThinkIA Desmiedo guarda mis respuestas?","acceptedAnswer":{"@type":"Answer","text":"No. Por respeto a la privacidad, nada de la conversación se guarda ni se envía a un servidor o a una IA. Al final la persona puede guardar su resultado en PDF en su propio dispositivo."}},
+{"@type":"Question","name":"What is Desmiedo?","acceptedAnswer":{"@type":"Answer","text":"Desmiedo is Engel Fonseca's framework to put fear back in its place: a survival tool, not a lifestyle. Fear is a compass pointing to what we don't know; recognizing it lets us turn anxiety into curiosity and fear into respect."}}
+]}]}
+</script>
+<style>
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* Layout: the ¿Xoma! / Curioxoma system (paper + ink, Helvetica Light, teal/plum/magenta); dark "stage" plates hold the N3 tesseract with a traffic light at its core. Semáforo red/amber/green are semantic colors, not accents. */
+:root{
+  --bg:#F5F8FA; --paper:#FFFFFF; --ink:#1B1C31; --muted:#5A6075; --line:#D9E2E8;
+  --teal:#3E97B6; --teal-soft:#DCEFF5; --plum:#56356A; --magenta:#E7000B; --plate:#FFFFFF;
+  --stage:#0B0C1A; --stage-ink:#F1F3F8; --stage-dim:#8F94AC;
+  --red:#E5383B; --amber:#F2A541; --green:#2E9B6A; --wa:#1F8F57;
+  --font:"Helvetica Neue",Helvetica,Arial,ui-sans-serif,system-ui,sans-serif;
+  --mono:"Helvetica Neue",Helvetica,Arial,ui-sans-serif,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13142A; --paper:#1B1C36; --ink:#EEF1F6; --muted:#A5ABC0; --line:#2E3150;
+  --teal:#6CC0DB; --teal-soft:#1E3A4C; --plum:#B795CF; --magenta:#FF4D55; --green:#5BD69A; --red:#FF6B6E; --amber:#FFC36B; color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#13142A; --paper:#1B1C36; --ink:#EEF1F6; --muted:#A5ABC0; --line:#2E3150;
+  --teal:#6CC0DB; --teal-soft:#1E3A4C; --plum:#B795CF; --magenta:#FF4D55; --green:#5BD69A; --red:#FF6B6E; --amber:#FFC36B; color-scheme:dark}
+*{box-sizing:border-box}
+button,input,textarea,kbd,code,output{font-family:var(--font);font-weight:300}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-weight:300;font-size:1.0625rem;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+b,strong{font-weight:300;color:var(--ink)}
+a{color:var(--teal)}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--magenta);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-weight:300;line-height:1.08;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-size:clamp(1.8rem,3.6vw,2.6rem)}
+h3{font-size:1.2rem;font-weight:300}
+p{margin:0}
+.eyebrow{font-size:.78rem;font-weight:300;letter-spacing:.16em;text-transform:uppercase;color:var(--magenta)}
+.lead{color:var(--muted);max-width:60ch;margin-top:14px}
+section{padding-block:clamp(48px,7vw,80px)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:300;font-size:.98rem;padding:13px 22px;border-radius:999px;border:0;cursor:pointer;text-decoration:none;transition:transform .15s,background .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn-main{background:var(--plum);color:#fff}
+.btn-main:hover{background:var(--magenta)}
+:root[data-theme="dark"] .btn-main{color:#13142A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn-main{color:#13142A}}
+.btn-ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn-ghost:hover{box-shadow:inset 0 0 0 1.5px var(--teal)}
+.btn-wa{background:var(--wa);color:#fff}
+.btn-wa:hover{background:#17724A}
+.btn svg{width:18px;height:18px;flex:none}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-block:10px}
+.mark{font-size:1.35rem;font-weight:300;letter-spacing:-.02em;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;gap:10px}
+.mark .anc{width:28px;height:28px;color:var(--magenta)}
+.mark .dots{display:inline-flex;flex-direction:column;gap:3px;background:var(--stage);border-radius:7px;padding:4px 5px}
+.mark .dots i{width:7px;height:7px;border-radius:50%;background:#3a3d55}
+.mark .dots i:nth-child(1){background:var(--red)}
+.nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.nav a{color:var(--muted);text-decoration:none;font-size:.9rem;padding:8px 10px;border-radius:8px}
+.nav a:hover{color:var(--ink);background:var(--teal-soft)}
+.nav a.by{color:var(--ink);box-shadow:inset 0 0 0 1px var(--line);margin-left:4px}
+@media (max-width:820px){.nav a:not(.by){display:none}}
+
+.hero{padding-block:clamp(28px,5vw,56px) clamp(40px,6vw,64px)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:clamp(24px,5vw,64px);align-items:center}
+@media (max-width:860px){.hero-grid{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(3rem,7.4vw,5.6rem);line-height:.95;letter-spacing:-.04em;margin-top:14px}
+.hero h1 .h-anc{display:inline-block;width:.62em;height:.62em;color:var(--magenta);margin-right:.14em;vertical-align:-.02em}
+.hero h1 .h-anc svg{width:100%;height:100%;stroke-width:1.3}
+.hero .kicker{display:block;font-size:clamp(1.3rem,2.6vw,1.9rem);color:var(--muted);letter-spacing:-.02em;margin-top:10px}
+.hero .lede{font-size:clamp(1.15rem,2vw,1.4rem);line-height:1.4;margin-top:22px;max-width:34ch}
+.hero .sub{color:var(--muted);margin-top:12px;max-width:52ch}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.byline{display:flex;align-items:center;gap:12px;margin-top:26px;font-size:.88rem;color:var(--muted);text-decoration:none}
+.byline img{height:40px;width:auto;border-radius:8px}
+.stage{position:relative;background:var(--stage);border-radius:22px;overflow:hidden;box-shadow:0 24px 60px rgba(11,12,26,.28)}
+.stage::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+.stage canvas{position:relative;display:block;width:100%;height:100%;cursor:grab;touch-action:pan-y}
+.stage canvas:active{cursor:grabbing}
+.stage .cap{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--stage-dim);pointer-events:none}
+.hero .stage{aspect-ratio:1/1;max-width:500px;width:100%;justify-self:center}
+
+.band{background:var(--paper);border-block:1px solid var(--line)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+@media (max-width:760px){.two{grid-template-columns:1fr}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:22px;min-width:0}
+.band .card{background:var(--bg)}
+.card p{color:var(--muted);margin-top:8px;font-size:.98rem}
+.tag{font-size:.72rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase}
+.card.life{box-shadow:inset 0 0 0 1px var(--red);border-color:var(--red)}
+.card.life .tag{color:var(--red)}
+.card.tool .tag{color:var(--green)}
+.mini-light{display:inline-flex;gap:5px;margin-top:12px;background:var(--stage);padding:6px 8px;border-radius:999px}
+.mini-light i{width:12px;height:12px;border-radius:50%;background:#33364d}
+.mini-light.always i:nth-child(1){background:var(--red);box-shadow:0 0 10px var(--red)}
+.mini-light.alive i{animation:cyc 6s infinite}
+.mini-light.alive i:nth-child(1){animation-name:cr}.mini-light.alive i:nth-child(2){animation-name:ca}.mini-light.alive i:nth-child(3){animation-name:cg}
+@keyframes cr{0%,22%{background:var(--red);box-shadow:0 0 10px var(--red)}23%,100%{background:#33364d;box-shadow:none}}
+@keyframes ca{0%,22%{background:#33364d}23%,38%{background:var(--amber);box-shadow:0 0 10px var(--amber)}39%,100%{background:#33364d;box-shadow:none}}
+@keyframes cg{0%,38%{background:#33364d}39%,100%{background:var(--green);box-shadow:0 0 10px var(--green)}}
+.steps{list-style:none;padding:0;margin:26px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;counter-reset:s}
+@media (max-width:900px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}}
+.steps li{border-top:2px solid var(--plum);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.steps li::before{counter-increment:s;content:"Paso " counter(s);font-size:.72rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--plum)}
+.steps li b{font-size:1.08rem;font-weight:300}
+.steps li small{color:var(--muted);font-size:.94rem;line-height:1.5}
+.legend{margin-top:40px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.legend{grid-template-columns:1fr}}
+.legend .card{display:grid;grid-template-columns:28px minmax(0,1fr);gap:4px 12px;align-items:start}
+.legend .dot{width:22px;height:22px;border-radius:50%;margin-top:2px;grid-row:span 2}
+.legend h3{font-size:1.05rem}
+.legend p{margin-top:0}
+.quote{margin-top:44px;font-size:clamp(1.4rem,3vw,2.1rem);line-height:1.25;max-width:30ch;letter-spacing:-.02em}
+.quote b{color:var(--magenta);font-weight:300}
+
+.brain-block{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(24px,4vw,48px);align-items:center;margin-top:64px}
+@media (max-width:860px){.brain-block{grid-template-columns:1fr}}
+.brain-block .stage{aspect-ratio:5/4;width:100%}
+.brain-block .stage canvas,.brain-res canvas{cursor:crosshair}
+.brain-status{margin-top:14px;min-height:3em;font-size:.98rem;border-left:3px solid var(--red);padding-left:12px;transition:border-color .4s}
+.brain-status.ok{border-color:var(--teal)}
+.terms{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+@media (max-width:520px){.terms{grid-template-columns:1fr}}
+.terms div{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.terms b{display:block;font-weight:300}
+.terms small{color:var(--muted);font-size:.9rem}
+.sph-block{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(24px,4vw,48px);align-items:center;margin-top:64px}
+@media (max-width:860px){.sph-block{grid-template-columns:1fr}.sph-block .stage{order:-1}}
+.sph-block .stage,.sph-res{aspect-ratio:1/1;width:100%}
+.sph-block .stage canvas,.sph-res canvas{cursor:pointer}
+.sph-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.sph-list span{font-size:.82rem;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--muted)}
+.sph-txt{margin-top:14px;font-size:.98rem;border-left:3px solid var(--magenta);padding-left:12px;min-height:3em}
+.inspire{margin-top:64px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.inspire{grid-template-columns:1fr}}
+.inspire article{background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:20px}
+.inspire .ic{font-size:.72rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase}
+.inspire h3{margin-top:6px}
+.inspire p{color:var(--muted);margin-top:8px;font-size:.96rem}
+.paraliza{margin-top:64px;background:linear-gradient(120deg,#1c1d4a,#2a1f5c 60%,#3a1530);color:#fff;border-radius:22px;padding:clamp(24px,4vw,40px);position:relative;overflow:hidden}
+.paraliza::after{content:"";position:absolute;right:-10%;top:-30%;width:55%;height:160%;background:radial-gradient(circle,rgba(231,0,11,.35),transparent 65%);pointer-events:none}
+.paraliza h2{color:#fff;position:relative}
+.paraliza .eyebrow{color:#FF5A62}
+.paraliza ul{list-style:none;padding:0;margin:24px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;position:relative}
+.paraliza li{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px}
+.paraliza li b{display:block;font-weight:300;font-size:1.15rem;color:#fff}
+.paraliza li small{display:block;color:#C9CCE6;font-size:.9rem;margin-top:4px;line-height:1.45}
+.paraliza li.big b{font-size:1.6rem;font-weight:200;letter-spacing:-.02em}
+.paraliza .src{position:relative;margin-top:18px;font-size:.78rem;color:#A9ADCB}
+.paraliza .src a{color:#C9CCE6}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.chips span{border:1px solid var(--red);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:.92rem}
+.chips span.main{background:var(--red);color:#fff;border-color:var(--red)}
+.sph-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:center;margin-top:18px;background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:22px}
+@media (max-width:820px){.sph-grid{grid-template-columns:1fr}}
+.brain-res{aspect-ratio:5/4;width:100%}
+.privacy{display:flex;gap:12px;align-items:flex-start;background:var(--paper);border:1.5px solid var(--green);border-radius:16px;padding:14px 16px;margin-top:20px}
+.privacy svg{width:22px;height:22px;flex:none;color:var(--green);margin-top:1px}
+.privacy b{display:block}
+.privacy span{color:var(--muted);font-size:.94rem}
+.lock{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:300;letter-spacing:.08em;text-transform:uppercase;color:var(--green);border:1px solid var(--green);border-radius:999px;padding:4px 10px;margin-left:auto}
+.lock svg{width:12px;height:12px}
+.save-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-top:18px;background:var(--paper);border:1.5px solid var(--plum);border-radius:18px;padding:18px 20px}
+.save-cta p{max-width:58ch;color:var(--muted);font-size:.95rem}
+.save-cta b{color:var(--ink)}
+.plan{margin-top:18px;background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:clamp(22px,4vw,34px)}
+.plan h3{font-size:clamp(1.6rem,3.4vw,2.3rem);margin-top:6px}
+.plan h3 b{color:var(--magenta);font-weight:300}
+.plan .lead{margin-top:10px}
+.plan ol{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:12px;counter-reset:pl}
+.plan li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start}
+.plan li::before{counter-increment:pl;content:counter(pl);width:34px;height:34px;border-radius:50%;background:var(--magenta);color:#fff;display:grid;place-items:center;font-weight:300}
+.plan li b{display:block;font-weight:300}
+.plan li span{color:var(--muted);font-size:.96rem;overflow-wrap:anywhere}
+.plan li q{color:var(--ink)}
+.useful{margin-top:20px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:start;background:var(--bg);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:14px;padding:14px 16px}
+.useful .ic{font-size:1.6rem;line-height:1}
+.useful p{color:var(--muted);font-size:.95rem}
+.useful b{color:var(--ink)}
+.test-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:16px}
+.chat{margin-top:24px;background:var(--paper);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.chat-top{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--stage);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex:none}
+.avatar i{width:7px;height:7px;border-radius:50%;background:#33364d}
+.avatar[data-s="r"] i:nth-child(1){background:var(--red)}
+.avatar[data-s="a"] i:nth-child(2){background:var(--amber)}
+.avatar[data-s="g"] i:nth-child(3){background:var(--green)}
+.chat-top b{display:block;font-size:.98rem}
+.chat-top small{color:var(--green);font-size:.8rem}
+.progress{margin-left:auto;text-align:right}
+.progress span{font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+.progress .pbar{width:110px;height:4px;background:var(--line);border-radius:4px;margin-top:6px;overflow:hidden}
+.progress .pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--amber),var(--green));transition:width .5s}
+.log{padding:20px 18px;display:flex;flex-direction:column;gap:12px;min-height:320px;max-height:580px;overflow-y:auto}
+.msg{max-width:min(84%,640px);padding:12px 16px;border-radius:18px;font-size:1rem;line-height:1.5;animation:pop .25s ease-out}
+.msg.bot{background:var(--teal-soft);border-top-left-radius:4px;align-self:flex-start}
+.msg.bot .k{display:block;font-size:.68rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);margin-bottom:4px}
+.msg.note{background:transparent;border:1px dashed var(--magenta);color:var(--muted);font-size:.94rem}
+.msg.alert{background:transparent;border:1.5px solid var(--red);color:var(--ink);font-size:.95rem}
+.msg.user{background:var(--plum);color:#fff;align-self:flex-end;border-top-right-radius:4px;white-space:pre-wrap;overflow-wrap:anywhere}
+:root[data-theme="dark"] .msg.user{color:#13142A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .msg.user{color:#13142A}}
+.typing{display:inline-flex;gap:5px;padding:14px 16px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:blink 1.1s infinite}
+.typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@keyframes pop{from{transform:translateY(6px);opacity:.4}to{transform:none;opacity:1}}
+.opts{padding:0 18px 18px;display:flex;flex-direction:column;gap:8px}
+.opt{text-align:left;font:inherit;font-weight:300;font-size:1rem;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;gap:12px;align-items:flex-start;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--teal);background:var(--teal-soft)}
+.opt kbd{font-family:var(--mono);font-size:.72rem;color:var(--teal);border:1px solid var(--teal);border-radius:6px;padding:1px 7px;flex:none;margin-top:2px}
+.txt-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.txt-row textarea,.txt-row input{flex:1;min-width:200px;font:inherit;font-weight:300;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:12px 16px;resize:none;min-height:48px}
+.txt-hint{font-size:.82rem;color:var(--muted)}
+.skip{background:none;border:none;color:var(--muted);font:inherit;font-size:.88rem;cursor:pointer;text-decoration:underline;align-self:flex-start;padding:4px 0}
+
+.result{margin-top:28px}
+.res-top{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:28px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:22px}
+@media (max-width:820px){.res-top{grid-template-columns:1fr}}
+.res-top .stage{aspect-ratio:1/1;width:100%;max-width:420px;justify-self:center}
+.idx-num{font-weight:200;font-size:clamp(4.5rem,12vw,7rem);line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,var(--amber),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
+.idx-num.r{background-image:linear-gradient(180deg,var(--red),var(--magenta))}
+.idx-num.a{background-image:linear-gradient(180deg,var(--amber),var(--red))}
+.idx-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.idx-row small{font-size:.8rem;color:var(--muted);letter-spacing:.06em}
+.level{font-size:1.5rem;margin-top:6px}
+.level-desc{color:var(--muted);margin-top:8px;max-width:56ch}
+.scale{margin-top:22px}
+.scale-track{position:relative;height:12px;border-radius:8px;background:linear-gradient(90deg,var(--red) 0%,var(--red) 22%,var(--amber) 50%,var(--green) 80%,var(--green) 100%)}
+.scale-mark{position:absolute;top:-6px;width:4px;height:24px;background:var(--ink);border-radius:2px;transform:translateX(-50%);transition:left 1.6s cubic-bezier(.2,.8,.2,1);left:0}
+.scale-labels{display:grid;grid-template-columns:repeat(4,1fr);margin-top:8px;font-size:.7rem;color:var(--muted);text-align:center}
+.distance{margin-top:14px;color:var(--muted)}
+.distance b{color:var(--ink)}
+.safety{margin-top:18px;border:1.5px solid var(--red);border-radius:16px;padding:14px 16px;font-size:.95rem}
+.res-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}
+@media (max-width:760px){.res-grid{grid-template-columns:1fr}}
+.bars{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.barrow{display:grid;grid-template-columns:minmax(0,1fr) 48px;gap:4px 10px;align-items:center}
+.barrow label{font-size:.94rem}
+.barrow output{font-family:var(--mono);font-size:.8rem;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.barrow .track{grid-column:1/-1;height:8px;background:var(--line);border-radius:6px;overflow:hidden}
+.barrow .track i{display:block;height:100%;width:0;border-radius:6px;transition:width 1.2s cubic-bezier(.2,.8,.2,1);background:linear-gradient(90deg,var(--red),var(--amber) 55%,var(--green))}
+.stage-h{font-size:.72rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--plum);margin-top:6px}
+.hint{font-size:.84rem;color:var(--muted);margin-top:8px}
+.pact{background:var(--stage);color:var(--stage-ink);border-radius:22px;padding:clamp(22px,4vw,36px);margin-top:18px;position:relative;overflow:hidden}
+.pact .eyebrow{color:#FF5A62}
+.pact h3{font-size:clamp(1.5rem,3vw,2.1rem);margin-top:6px;color:#fff}
+.pact dl{margin:20px 0 0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 28px}
+@media (max-width:700px){.pact dl{grid-template-columns:1fr}}
+.pact dt{font-size:.72rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--stage-dim)}
+.pact dd ul{margin:4px 0 0;padding-left:18px}
+.pact dd{margin:4px 0 0;font-size:1.05rem;color:#fff;overflow-wrap:anywhere}
+.pact .rule{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;align-items:start}
+.pact .rule i{width:14px;height:14px;border-radius:50%;margin-top:5px}
+.pact .sign{margin-top:22px;font-size:.9rem;color:var(--stage-dim)}
+.recs{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:12px;counter-reset:r}
+.recs li{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;font-size:.98rem;color:var(--muted)}
+.recs li::before{counter-increment:r;content:counter(r);font-family:var(--mono);font-size:.78rem;color:#fff;background:var(--teal);border-radius:50%;width:26px;height:26px;display:grid;place-items:center}
+.recs li b{color:var(--ink)}
+.res-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:.92rem;z-index:50;opacity:0;pointer-events:none;transition:opacity .25s}
+.toast.on{opacity:1}
+
+.ch-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:28px;align-items:center}
+@media (max-width:760px){.ch-grid{grid-template-columns:1fr}}
+.ch-actions{display:flex;flex-wrap:wrap;gap:10px}
+.linkbox{display:flex;margin-top:12px}
+.linkbox code{flex:1;min-width:0;font-family:var(--mono);font-size:.8rem;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--muted);overflow-wrap:anywhere;user-select:all}
+.explore-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:26px}
+@media (max-width:860px){.explore-grid{grid-template-columns:1fr}}
+.ex{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px;transition:border-color .2s,transform .2s}
+.ex:hover{border-color:var(--teal);transform:translateY(-2px)}
+.ex .tag{color:var(--magenta)}
+.ex p{color:var(--muted);font-size:.95rem}
+.ex .go{margin-top:auto;font-weight:300;color:var(--teal);font-size:.94rem}
+.ex.feat{background:linear-gradient(150deg,var(--teal-soft),var(--paper) 70%);border-color:var(--teal)}
+.faq details{border-bottom:1px solid var(--line);padding-block:16px}
+.faq summary{cursor:pointer;font-size:1.08rem;font-weight:300;list-style:none;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--magenta)}
+.faq details[open] summary::after{content:"–"}
+.faq details p{color:var(--muted);margin-top:10px;max-width:70ch}
+.faq .en{font-size:.94rem;color:var(--muted);margin-top:24px;max-width:72ch}
+footer{border-top:1px solid var(--line);padding-block:36px 48px;font-size:.9rem;color:var(--muted)}
+footer .wrap{display:flex;flex-direction:column;gap:14px}
+footer a{color:var(--muted)}
+.foot-n3{display:flex;align-items:center;gap:14px;text-decoration:none;color:var(--ink)}
+.foot-n3 img{height:56px;width:auto;border-radius:10px}
+.foot-row{display:flex;flex-wrap:wrap;gap:8px 18px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#inicio" aria-label="Desmiedo, inicio"><svg class="anc" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(180 12 12)"><circle cx="12" cy="4.2" r="1.9"/><path d="M12 6.1V21"/><path d="M8.2 9.2h7.6"/><path d="M4.4 13.6c0 4.2 3.4 7.4 7.6 7.4s7.6-3.2 7.6-7.4"/><path d="M4.4 13.6l-1.6 2.1M4.4 13.6l2.3.9M19.6 13.6l1.6 2.1M19.6 13.6l-2.3.9"/></g></svg><span>Desmiedo</span></a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#marco">Marco</a>
+      <a href="#mente">Tu mente</a>
+      <a href="#sph">Ancla y brújula</a>
+      <a href="#conversacion">Conversación</a>
+      <a href="#thinkias">ThinkIAs</a>
+      <a class="by" href="https://n3labs.potenttial.site/" target="_blank" rel="noopener">Hecho por N3 Labs</a>
+    </nav>
+  </div>
+</header>
+
+<main id="inicio">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">ThinkIA · Marco Desmiedo</p>
+        <h1><span class="h-anc"><svg class="anc" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g transform="rotate(180 12 12)"><circle cx="12" cy="4.2" r="1.9"/><path d="M12 6.1V21"/><path d="M8.2 9.2h7.6"/><path d="M4.4 13.6c0 4.2 3.4 7.4 7.6 7.4s7.6-3.2 7.6-7.4"/><path d="M4.4 13.6l-1.6 2.1M4.4 13.6l2.3.9M19.6 13.6l1.6 2.1M19.6 13.6l-2.3.9"/></g></svg></span>Desmiedo<span class="kicker">Una conversación con tu miedo</span></h1>
+        <p class="lede">El miedo no es un obstáculo que deba paralizarte. Es la brújula de lo que ignoras.</p>
+        <p class="sub">Conversa con esta ThinkIA durante 5 minutos: nombra a qué le temes, descubre qué ignoras detrás de ese miedo y transfórmalo en curiosidad. Sal con tu <b>Índice Desmiedo</b> y un pacto para que tu miedo vuelva a ser herramienta de sobrevivencia y deje de ser estilo de vida.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-main" href="#conversacion">Empezar conversación</a>
+          <a class="btn btn-ghost" href="#marco">Conocer el marco</a>
+        </div>
+        <a class="byline" href="https://n3labs.potenttial.site/" target="_blank" rel="noopener"><img src="data:image/png;base64,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" alt="N3 Thinktech IA Laboratory" width="346" height="180"><span>ThinkIA creada por <b>Engel Fonseca</b><br>Hecha por N3 Thinktech IA Laboratory</span></a>
+      </div>
+      <figure class="stage" style="margin:0">
+        <canvas id="heroLight" role="img" aria-label="Teseracto en rotación con un semáforo en su centro que pasa de rojo a ámbar y a verde: el miedo domesticado"></canvas>
+        <figcaption class="cap">SPH · teseracto 4D · un semáforo que ya no se queda en rojo</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band" id="marco">
+    <div class="wrap">
+      <p class="eyebrow">Marco teórico</p>
+      <h2>Herramienta de sobrevivencia, no estilo de vida</h2>
+      <p class="lead">El miedo existe para protegerte de un peligro real. El problema empieza cuando se queda encendido aunque no haya peligro: entonces deja de cuidarte y empieza a decidir por ti.</p>
+      <div class="two">
+        <article class="card life"><span class="tag">Miedo como estilo de vida</span><h3 style="margin-top:8px">Semáforo siempre en rojo</h3><p>Ocupa tu atención todo el día, frena tus decisiones, se extiende a otras áreas y no se va aunque el peligro haya pasado.</p><span class="mini-light always" aria-hidden="true"><i></i><i></i><i></i></span></article>
+        <article class="card tool"><span class="tag">Miedo como herramienta</span><h3 style="margin-top:8px">Semáforo que a veces se pone en rojo</h3><p>Se enciende cuando hay un peligro real, te protege, cumple su función y te deja avanzar. Eso es Desmiedo.</p><span class="mini-light alive" aria-hidden="true"><i></i><i></i><i></i></span></article>
+      </div>
+
+      <div class="brain-block" id="mente">
+        <figure class="stage" style="margin:0">
+          <canvas id="brainNet" tabindex="0" role="img" aria-label="Cerebro interactivo con vacíos de ignorancia que laten como miedo; al tocarlos se llenan de conocimiento"></canvas>
+          <figcaption class="cap">Toca los vacíos · llénalos de conocimiento</figcaption>
+        </figure>
+        <div>
+          <p class="eyebrow">El miedo es síntoma de ignorancia</p>
+          <h2>Tu mente sabe que ignora, y anhela conocimiento</h2>
+          <p class="lead">Cada vacío en tu mente es algo que todavía ignoras, y la mente lo manifiesta como miedo. Mientras el miedo manda, no puedes acceder a tu configurabilidad ni a la densidad de tu pensamiento.</p>
+          <div class="terms">
+            <div><b>Configurabilidad</b><small>Tu capacidad de reconfigurar cómo piensas, como un director frente a su orquesta.</small></div>
+            <div><b>Densidad de pensamiento</b><small>La profundidad y el peso de tus ideas. El miedo la vacía; el conocimiento la llena.</small></div>
+          </div>
+          <p class="brain-status" id="brainStatus" aria-live="polite">Toca un vacío: cada uno es algo que tu mente ignora.</p>
+          <p class="lead" style="font-size:.92rem;margin-top:10px">Los significados se desgastan: aunque llenes un vacío, con el tiempo vuelve a abrirse. Por eso la mente anhela significado todo el tiempo.</p>
+        </div>
+      </div>
+
+      <div class="paraliza">
+        <p class="eyebrow">Neurociencia del miedo</p>
+        <h2>El miedo paraliza la mente</h2>
+        <ul>
+          <li><b>Impide aprender</b><small>Una mente en alerta no registra lo nuevo.</small></li>
+          <li><b>Te lleva a reaccionar</b><small>Respondes en automático en lugar de decidir.</small></li>
+          <li><b>Te baja las defensas</b><small>El miedo sostenido desgasta tu cuerpo y tu energía.</small></li>
+          <li><b>Te impide pensar</b><small>La alarma ocupa la atención que necesitas para razonar.</small></li>
+          <li><b>Es contagioso</b><small>El miedo de otros se vuelve tuyo sin que lo notes.</small></li>
+          <li><b>Te hace lent@</b><small>Dudas, postergas y dejas pasar oportunidades.</small></li>
+          <li class="big"><b>95% / 5%</b><small>Gran parte de lo que procesa tu cerebro ocurre de forma inconsciente. El miedo opera en ese 95% automático; Desmiedo lo trae al 5% consciente.</small></li>
+        </ul>
+        <p class="src">Fuentes: Fonseca, E. (2020). <a href="https://neuronamagazine.com/20160415la-neurociencia-del-miedo/" target="_blank" rel="noopener">La neurociencia del miedo</a>. Neurona Magazine · <a href="https://www.investigacionyciencia.es/revistas/mente-y-cerebro/la-fuerza-curativa-de-la-naturaleza-789/procesa-el-cerebro-el-95-por-ciento-de-la-informacin-de-manera-inconsciente-18184" target="_blank" rel="noopener">¿Procesa el cerebro el 95 por ciento de la información de manera inconsciente?</a> Investigación y Ciencia (2020).</p>
+      </div>
+
+      <div class="sph-block" id="sph">
+        <div>
+          <p class="eyebrow">El miedo es un síntoma de tu SPH</p>
+          <h2>Tu miedo es un ancla. Conviértelo en brújula.</h2>
+          <p class="lead">El miedo no aparece solo: es el síntoma de una red de tu Sistema de Pensamiento Humano (SPH). Esa red te ancla a lo conocido y no te deja avanzar.</p>
+          <div class="sph-list" aria-label="Lo que sostiene al miedo"><span>Lo que ignoras</span><span>Tabúes</span><span>Paradigmas</span><span>Sesgos cognitivos</span><span>Trauma</span><span>Idealizaciones</span><span>Pensamiento mágico</span><span>Prompts mentales</span></div>
+          <p class="sph-txt" id="sphTxt" aria-live="polite">Tu miedo es un ancla: lo sostiene una red de lo que ignoras, tabúes, paradigmas, sesgos, trauma, idealizaciones, pensamiento mágico y prompts mentales.</p>
+          <button class="btn btn-main" id="sphBtn" type="button" aria-pressed="false" style="margin-top:18px">Convertir mi ancla en brújula</button>
+        </div>
+        <figure class="stage" style="margin:0">
+          <canvas id="sphNet" role="img" aria-label="Red neuronal del SPH: el miedo como ancla al centro, unido a lo que ignoras, tabúes, paradigmas, sesgos, trauma, idealizaciones, pensamiento mágico y prompts mentales; al tocarla se convierte en brújula y la red se ramifica como telaraña cognitiva"></canvas>
+          <figcaption class="cap">Toca la red · ancla ↔ brújula</figcaption>
+        </figure>
+      </div>
+
+      <div class="inspire">
+        <article><span class="ic" style="color:var(--magenta)">El ancla</span><h3>Te sujeta a lo conocido</h3><p>Mientras el miedo sea ancla, tu mente se queda quieta en el mismo puerto: no aprende, no explora, no se conoce.</p></article>
+        <article><span class="ic" style="color:var(--teal)">La brújula</span><h3>Apunta a lo que desconoces</h3><p>El mismo miedo, leído como brújula, te dice hacia dónde crecer: justo ahí está lo que todavía no sabes de ti y del mundo.</p></article>
+        <article><span class="ic" style="color:var(--green)">La telaraña cognitiva</span><h3>Tu mente se expande</h3><p>Cada cosa que aprendes abre ramas nuevas que se conectan entre sí. Así crece tu autoconocimiento y tu mente se teje como una telaraña cognitiva.</p></article>
+      </div>
+
+      <p class="quote">Tus miedos son síntomas de un Sistema de Pensamiento Humano (SPH) que pide <b>reconfigurarse o resignificarse</b>. Al reconocer a qué le temes, descubres <b>lo que ignoras</b>. Lo que ignoras se puede convertir en <b>curiosidad</b>. Y la curiosidad convierte el miedo en <b>respeto</b>.</p>
+
+      <p class="quote" style="margin-top:22px">El miedo no se enfrenta: <b>se persigue</b>, porque guarda lo que ignoras.</p>
+      <p class="lead" style="margin-top:10px">Sin ir contra el sentido común: si un auto viene hacia ti, te quitas. Los miedos útiles no se cuestionan, se usan.</p>
+
+      <ol class="steps">
+        <li><b>Reconoce a qué le temes</b><small>Nombra tu miedo y escucha la ansiedad que te provoca: en tu cuerpo, en tu atención y en tus decisiones.</small></li>
+        <li><b>Identifica la ignorancia</b><small>Tu miedo es una brújula: apunta a lo que todavía no sabes. Pregúntate qué ignoras de aquello que temes.</small></li>
+        <li><b>Transforma la ansiedad en curiosidad</b><small>Cambia «¿y si sale mal?» por una pregunta que quieras responder. La curiosidad le da dirección a esa energía.</small></li>
+        <li><b>Resignifica y evoluciona a respeto</b><small>Dale un significado nuevo a tu miedo: los significados se desgastan. Respeta la parte que te protege; domestica la que solo te limita.</small></li>
+      </ol>
+
+      <div class="legend">
+        <article class="card"><span class="dot" style="background:var(--red)"></span><h3>Rojo · peligro real</h3><p>Protégete. Aquí el miedo hace su trabajo de sobrevivencia.</p></article>
+        <article class="card"><span class="dot" style="background:var(--amber)"></span><h3>Ámbar · no sé</h3><p>Investiga. Lo que ignoras se vuelve curiosidad, no ansiedad.</p></article>
+        <article class="card"><span class="dot" style="background:var(--green)"></span><h3>Verde · ya sé</h3><p>Avanza con respeto. El miedo cumplió y te deja pasar.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="conversacion">
+    <div class="wrap">
+      <div class="test-head">
+        <div><p class="eyebrow">Conversación guiada · 16 mensajes · 6 minutos</p><h2>Habla con tu miedo</h2></div>
+        <p class="lead" style="max-width:44ch;margin:0">Escribe con tus palabras cuando la ThinkIA te lo pida.</p>
+      </div>
+      <div class="privacy" role="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>Tu privacidad es un derecho: nada de esta conversación se guarda.</b><span>Lo que escribes no se envía a ningún servidor ni a una IA, no lo ve nadie y desaparece al cerrar la página. Si quieres conservar tu resultado, al final puedes guardarlo en PDF en tu dispositivo.</span></div></div>
+      <div class="chat">
+        <div class="chat-top">
+          <div class="avatar" id="avatar" data-s="r" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div><b>ThinkIA Desmiedo</b><small>● en línea</small></div>
+          <span class="lock" title="Nada se guarda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Privado</span>
+          <div class="progress" style="margin-left:12px"><span id="progTxt">Inicio</span><div class="pbar"><i id="progBar"></i></div></div>
+        </div>
+        <div class="log" id="log" aria-live="polite">
+          <div class="msg bot"><span class="k">ThinkIA</span>Hola. Soy la ThinkIA Desmiedo. Vamos a tener una conversación con tu miedo, no contra él. No queremos eliminarlo: queremos ponerlo en su lugar. <b>Nada de lo que escribas se guarda.</b></div>
+          <div class="msg bot">Para empezar: ¿cómo te llamas?</div>
+        </div>
+        <div class="opts" id="opts">
+          <form class="txt-row" id="nameForm">
+            <input id="nameIn" type="text" maxlength="40" placeholder="Escribe tu nombre" autocomplete="given-name" aria-label="Tu nombre">
+            <button class="btn btn-main" type="submit">Empezar conversación</button>
+          </form>
+          <button class="skip" id="skipName" type="button">Prefiero no decirlo</button>
+        </div>
+      </div>
+
+      <div class="result" id="result" hidden>
+        <div class="res-top">
+          <figure class="stage" style="margin:0"><canvas id="resLight" role="img" aria-label="Animación de tu semáforo del miedo"></canvas><figcaption class="cap" id="resCap">Tu semáforo</figcaption></figure>
+          <div>
+            <p class="eyebrow" id="resWho">Tu resultado</p>
+            <div class="idx-row"><span class="idx-num" id="idxNum">0</span><small>Índice Desmiedo<br>escala 1–100</small></div>
+            <p class="level" id="lvlName">—</p>
+            <p class="level-desc" id="lvlDesc"></p>
+            <div class="scale">
+              <div class="scale-track"><span class="scale-mark" id="scaleMark"></span></div>
+              <div class="scale-labels"><span>Siempre en rojo</span><span>Rojo frecuente</span><span>Ámbar consciente</span><span>Semáforo vivo</span></div>
+            </div>
+            <p class="distance" id="distance"></p>
+            <div class="safety" id="safety" hidden></div>
+          </div>
+        </div>
+
+        <div class="sph-grid">
+          <div>
+            <span class="tag" style="color:var(--magenta)">Tus miedos, síntomas de tu SPH</span>
+            <h3 style="margin-top:8px">De ancla a brújula</h3>
+            <div class="chips" id="fearChips"></div>
+            <p class="lead" style="font-size:.95rem">No son verdades: son síntomas de una red de tu Sistema de Pensamiento Humano (lo que ignoras, tabúes, paradigmas, sesgos, trauma, idealizaciones, pensamiento mágico y prompts mentales) que pide <b>reconfigurarse</b> (cambiar cómo procesas) o <b>resignificarse</b> (cambiar qué significa para ti). Tu miedo es un ancla; conviértelo en la brújula hacia lo que desconoces.</p>
+            <button class="btn btn-main" id="sphResBtn" type="button" aria-pressed="false" style="margin-top:14px">Convertir mi ancla en brújula</button>
+          </div>
+          <figure class="stage sph-res" style="margin:0"><canvas id="sphRes" role="img" aria-label="Tus miedos dentro de la red de tu SPH: ancla que puedes convertir en brújula"></canvas><figcaption class="cap">Tu red · toca para convertir el ancla en brújula</figcaption></figure>
+        </div>
+
+        <div class="pact" id="pact">
+          <p class="eyebrow">Mi pacto Desmiedo</p>
+          <h3>Domestico a mi miedo para que cumpla su rol</h3>
+          <dl>
+            <div><dt>Mis miedos (síntomas de mi SPH)</dt><dd><ul id="pFears"></ul></dd></div>
+            <div><dt>El que hoy pongo en su lugar</dt><dd id="pFear"></dd></div>
+            <div><dt>Le temo porque todavía no sé</dt><dd id="pIgn"></dd></div>
+            <div><dt>Mi pregunta de curiosidad</dt><dd id="pQ"></dd></div>
+            <div><dt>Su nuevo significado</dt><dd id="pSig"></dd></div>
+            <div><dt>Mi semáforo, desde hoy</dt><dd>
+              <div class="rule"><i style="background:var(--red)"></i><span>Rojo solo cuando: <span id="pRed"></span></span></div>
+              <div class="rule" style="margin-top:6px"><i style="background:var(--amber)"></i><span>Ámbar cuando no sé: investigo mi pregunta.</span></div>
+              <div class="rule" style="margin-top:6px"><i style="background:var(--green)"></i><span>Verde cuando ya sé: avanzo con respeto.</span></div>
+            </dd></div>
+          </dl>
+          <p class="sign" id="pSign"></p>
+        </div>
+
+        <div class="plan" id="plan">
+          <p class="eyebrow">Tu plan de acción</p>
+          <h3>El miedo no se enfrenta: <b>se persigue</b></h3>
+          <p class="lead">Enfrentar al miedo es pelear contra él. Perseguirlo es seguirlo hasta donde se esconde, porque el miedo guarda lo que ignoras. Este es tu camino para perseguir el tuyo:</p>
+          <ol id="planSteps"></ol>
+          <div class="useful"><svg class="ic" aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v3H3z"/><circle cx="7.5" cy="19" r="1.5"/><circle cx="16.5" cy="19" r="1.5"/><path d="M5 11h14"/></svg><p><b>Sin ir contra el sentido común.</b> Hay miedos muy útiles: si un auto viene hacia ti, te quitas. Ese miedo no se cuestiona ni se persigue, se usa. Desmiedo es para los miedos que se volvieron estilo de vida, no para los que te salvan la vida.</p></div>
+        </div>
+
+        <div class="save-cta">
+          <p><b>Guarda tu resultado en PDF.</b> Como nada de esta conversación se guarda, el PDF es la única forma de conservar tu pacto y tu plan de acción. Se descarga solo en tu dispositivo.</p>
+          <button class="btn btn-main" id="pdfBtn2" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>Guardar en PDF</button>
+        </div>
+
+        <div class="res-grid">
+          <article class="card"><span class="tag" style="color:var(--plum)">Tu recorrido del miedo al respeto</span><div class="bars" id="stageBars"></div><p class="hint">Más alto = ese paso está más trabajado.</p></article>
+          <article class="card"><span class="tag" style="color:var(--plum)">Las 8 señales de tu semáforo</span><div class="bars" id="sigBars"></div><p class="hint">Más alto = tu miedo se comporta más como herramienta que como estilo de vida.</p></article>
+        </div>
+        <article class="card" style="margin-top:18px"><span class="tag" style="color:var(--green)">Además, para domesticar a tu miedo esta semana</span><ol class="recs" id="recs"></ol></article>
+        <div class="res-actions">
+          <button class="btn btn-main" id="pdfBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>Descargar mi pacto en PDF</button>
+          <a class="btn btn-wa" id="waRes" href="#" target="_blank" rel="noopener">Retar por WhatsApp</a>
+          <button class="btn btn-ghost" id="againBtn" type="button">Conversar con otro miedo</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="retar">
+    <div class="wrap ch-grid">
+      <div>
+        <p class="eyebrow">El miedo se contagia. El Desmiedo también.</p>
+        <h2>Reta a alguien a poner su miedo en su lugar</h2>
+        <p class="lead">Manda esta ThinkIA por WhatsApp a quien veas con el semáforo en rojo. Nadie más ve lo que escribe: solo comparten su Índice Desmiedo si quieren.</p>
+      </div>
+      <div>
+        <div class="ch-actions">
+          <a class="btn btn-wa" id="waGen" href="#" target="_blank" rel="noopener">Retar por WhatsApp</a>
+          <button class="btn btn-ghost" id="copyBtn" type="button">Copiar liga</button>
+        </div>
+        <div class="linkbox"><code id="shareUrl"></code></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="thinkias">
+    <div class="wrap">
+      <p class="eyebrow">ThinkIAs de N3 Labs</p>
+      <h2>Convierte tu miedo en curiosidad con otras ThinkIAs</h2>
+      <p class="lead">Las ThinkIAs son herramientas creadas por Engel Fonseca para poner a prueba tu Sistema de Pensamiento Humano (SPH) frente a otro SPH o frente a un Sistema de Pensamiento Artificial (SPA).</p>
+      <div class="explore-grid">
+        <a class="ex feat" href="https://n3.potenttial.com/curioxoma/"><span class="tag">ThinkIA · Curioxoma</span><h3>Test Curioxoma VS la indiferencia cognitiva</h3><p>El siguiente paso del Desmiedo: mide tu curiosidad con el Curioxoma Index (CXI) del 1 al 100.</p><span class="go">Empezar evaluación →</span></a>
+        <a class="ex" href="https://n3.potenttial.com/xoma/"><span class="tag">ThinkIA · Curioxoma</span><h3>¿Xoma!</h3><p>Una pregunta que solo se contesta con otra pregunta que ya trae la respuesta.</p><span class="go">Jugar ¿Xoma! →</span></a>
+        <a class="ex" href="https://n3.potenttial.com/#t-thinkias"><span class="tag">n3.potenttial.com</span><h3>Todas las ThinkIAs</h3><p>Mapa SPH, IA Ready, los Prompters de N3 y el glosario de Thinktech, SPH, SPA, Curioxoma y Desmiedo.</p><span class="go">Ver todas →</span></a>
+      </div>
+      <p class="lead" style="margin-top:22px">También: <a href="https://n3.potenttial.com/mapa-sph/">Mapa SPH</a> · <a href="https://n3labs.potenttial.site/iaready.html" target="_blank" rel="noopener">IA Ready</a> · <a href="https://n3.potenttial.com/glosario/#desmiedo">Glosario: Desmiedo</a> · <a href="https://n3.potenttial.com/glosario/#decisiones-singulares">Decisiones singulares</a> · <a href="https://n3.potenttial.com/engel-fonseca/">Engel Fonseca</a></p>
+    </div>
+  </section>
+
+  <section class="faq band">
+    <div class="wrap">
+      <p class="eyebrow">Preguntas frecuentes</p>
+      <h2 style="margin-bottom:12px">Sobre Desmiedo</h2>
+      <details><summary>¿Qué es Desmiedo?</summary><p>Es el marco de Engel Fonseca para poner el miedo en su lugar: como herramienta de sobrevivencia y no como estilo de vida. Sostiene que el miedo no es un obstáculo que deba paralizarnos, sino una brújula de lo que ignoramos.</p></details>
+      <details><summary>¿Por qué el miedo es una brújula de lo que ignoramos?</summary><p>Porque casi siempre tememos lo que no conocemos bien. Al reconocer a qué le tememos y qué ansiedad nos provoca, aparece lo que todavía no sabemos. Eso que ignoramos se puede investigar: el miedo se transforma en curiosidad y, después, en respeto.</p></details>
+      <details><summary>¿Por qué el miedo es síntoma de ignorancia?</summary><p>Porque la mente sabe cuándo ignora algo y lo manifiesta como miedo. Mientras el miedo manda, bloquea tu configurabilidad (la capacidad de reconfigurar cómo piensas) y la densidad de tu pensamiento. Tus miedos son síntomas de un Sistema de Pensamiento Humano (SPH) que pide reconfigurarse o resignificarse.</p></details>
+      <details><summary>¿Por qué el miedo es un ancla y cómo se convierte en brújula?</summary><p>El miedo es el síntoma de una red de tu SPH formada por lo que ignoras, tabúes, paradigmas, sesgos cognitivos, trauma, idealizaciones, pensamiento mágico y prompts mentales. Esa red te ancla a lo conocido. Leído como brújula, el mismo miedo apunta a lo que desconoces: ahí creces en autoconocimiento y tu mente se expande como una telaraña cognitiva.</p></details>
+      <details><summary>¿Por qué hay que resignificar los miedos?</summary><p>Porque los significados se desgastan y la mente anhela significado. Un miedo suele venir de un significado viejo; darle uno nuevo, basado en conocimiento, lo convierte en respeto.</p></details>
+      <details><summary>¿Qué significa pasar de un semáforo siempre en rojo a uno que a veces se pone en rojo?</summary><p>Un semáforo siempre en rojo es el miedo como estilo de vida: frena todas tus decisiones. Un semáforo vivo se pone en rojo solo ante un peligro real, en ámbar cuando no sabes (y entonces investigas) y en verde cuando ya sabes y puedes avanzar con respeto.</p></details>
+      <details><summary>¿Qué mide el Índice Desmiedo?</summary><p>Un puntaje del 1 al 100 que indica qué tanto tu miedo se comporta como herramienta de sobrevivencia y no como estilo de vida. Considera ocho señales: el espacio que ocupa en tu mente, la ansiedad, las decisiones que frena, lo que sabes de lo que temes, tu curiosidad, tu respeto, si se extiende a otras áreas y si se va cuando pasa el peligro.</p></details>
+      <details><summary>¿Por qué el miedo no se enfrenta, sino que se persigue?</summary><p>Porque el miedo guarda lo que ignoras. Enfrentarlo es pelear contra él; perseguirlo es seguirlo hasta lo que no sabes, convertirlo en pregunta y aprender. Sin ir contra el sentido común: los miedos útiles, como quitarte cuando viene un auto, no se cuestionan, se usan.</p></details>
+      <details><summary>¿Se guarda lo que escribo?</summary><p>No. Por respeto a tu derecho a la privacidad, nada de la conversación se guarda: todo ocurre en tu navegador, nada se envía a un servidor ni a una IA y desaparece al cerrar la página. Al terminar puedes guardar tu resultado en PDF, que se descarga solo en tu dispositivo.</p></details>
+      <details><summary>¿Sustituye a una terapia?</summary><p>No. Es una ThinkIA de autoconocimiento con fines educativos. Si la ansiedad o el miedo no te dejan dormir, trabajar o convivir, habla con un profesional de la salud mental. Pedir ayuda también es Desmiedo.</p></details>
+      <p class="en"><b>In English.</b> Desmiedo is Engel Fonseca's framework to put fear back in its place: a survival tool, not a lifestyle. Fear is a compass that points to what we don't know. Fear is the symptom of ignorance in the mind: it paralyzes learning and thinking and blocks your configurability and density of thought. This conversational ThinkIA, built by N3 Labs, shows fear as an anchor held by a network of ignorance, taboos, paradigms, cognitive biases, trauma, idealizations, magical thinking and mental prompts, turns it into a compass pointing to the unknown so your mind expands like a cognitive spiderweb, and guides you to list your fears as symptoms of a Human Thinking System (SPH) that needs reconfiguring or new meaning, name your main fear, find the ignorance behind it, turn anxiety into curiosity and evolve fear into respect. Fear is not faced, it is pursued, because it holds what we ignore (useful common-sense fears, like stepping away from a car, are simply used). Nothing in the conversation is stored. You get a Desmiedo Index from 1 to 100, an action plan, an animated traffic light and a personal pact with your fear: red only for real danger, amber when you don't know yet, green when you know and can move forward.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="foot-n3" href="https://n3labs.potenttial.site/" target="_blank" rel="noopener"><img src="data:image/png;base64,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" alt="N3 Thinktech IA Laboratory" width="346" height="180"><span><b>Hecho por N3 Labs</b><br><span style="color:var(--muted)">n3labs.potenttial.site</span></span></a>
+    <p>Desmiedo es una ThinkIA creada por Engel Fonseca, socio del Centro de Neurociencias Avanzadas, a partir de su marco Desmiedo.</p>
+    <div class="foot-row">
+      <a href="https://n3.potenttial.com/">ThinkIAs</a>
+      <a href="https://n3.potenttial.com/engel-fonseca/">Engel Fonseca</a>
+      <a href="https://www.centroneurociencias.org/" target="_blank" rel="noopener">Centro de Neurociencias Avanzadas</a>
+      <a href="https://neuronamagazine.com/" target="_blank" rel="noopener">Neurona Magazine</a>
+      <a href="https://wa.me/525529050452?text=Quiero%20cotizar%20una%20conferencia" target="_blank" rel="noopener">Cotizar conferencia</a>
+    </div>
+    <p>© 2026 Engel Fonseca · N3 Thinktech IA Laboratory · Potenttial Group. Herramienta educativa de autoconocimiento; no sustituye la atención de un profesional de la salud mental.</p>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const HOSTED=/potenttial\.com$|github\.io$/i.test(location.hostname);
+
+/* ===== Teseracto N3 con semáforo en el centro ===== */
+const COL={r:[229,56,59],a:[242,165,65],g:[46,190,120]};
+function LightTess(cv,cycle){
+  const ctx=cv.getContext('2d');const self={cycle};
+  const V=[],E=[],adj=[];
+  for(let i=0;i<16;i++){V.push([(i&1)?1:-1,(i&2)?1:-1,(i&4)?1:-1,(i&8)?1:-1]);adj.push([]);}
+  for(let a=0;a<16;a++)for(let b=a+1;b<16;b++){const d=a^b;if(d&&!(d&(d-1))){E.push([a,b]);adj[a].push(b);adj[b].push(a);}}
+  const thoughts=[];for(let t=0;t<7;t++){const s=(Math.random()*16)|0;thoughts.push({from:s,to:adj[s][(Math.random()*4)|0],p:Math.random(),v:.004+Math.random()*.006});}
+  let W=0,H=0,DPR=1,aXW=0,aYW=0,aZW=0,rx=-.45,ry=.6,drag=null,last=performance.now(),visible=true,scale=0,tc=0,glow=[229,56,59];
+  function size(){DPR=Math.min(window.devicePixelRatio||1,2);const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);ctx.setTransform(DPR,0,0,DPR,0,0);}
+  function project(v){let x=v[0],y=v[1],z=v[2],w=v[3],c,s,tmp;
+    c=Math.cos(aXW);s=Math.sin(aXW);tmp=x*c-w*s;w=x*s+w*c;x=tmp;
+    c=Math.cos(aYW);s=Math.sin(aYW);tmp=y*c-w*s;w=y*s+w*c;y=tmp;
+    c=Math.cos(aZW);s=Math.sin(aZW);tmp=z*c-w*s;w=z*s+w*c;z=tmp;
+    const k4=3.2/(3.2-w*.75);x*=k4;y*=k4;z*=k4;
+    c=Math.cos(ry);s=Math.sin(ry);tmp=x*c+z*s;z=-x*s+z*c;x=tmp;
+    c=Math.cos(rx);s=Math.sin(rx);tmp=y*c-z*s;z=y*s+z*c;y=tmp;
+    const k3=9/(9-z);return [x*k3,y*k3,z,w];}
+  function state(){const c=self.cycle,T=c.r+c.a+c.g;let t=tc%T;if(t<c.r)return 'r';t-=c.r;if(t<c.a)return 'a';return 'g';}
+  function light(st){
+    const S=Math.min(W,H),cx=W/2,cy=H/2,w=S*.13,h=S*.33,r=w*.32;
+    const tgt=COL[st];for(let i=0;i<3;i++)glow[i]+=(tgt[i]-glow[i])*.08;
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,S*.42);g.addColorStop(0,`rgba(${glow.map(Math.round).join(',')},.28)`);g.addColorStop(1,'rgba(11,12,26,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#14152a';ctx.strokeStyle='rgba(241,243,248,.35)';ctx.lineWidth=1.2;
+    const x=cx-w/2,y=cy-h/2,rr=w*.35;ctx.beginPath();ctx.moveTo(x+rr,y);ctx.arcTo(x+w,y,x+w,y+h,rr);ctx.arcTo(x+w,y+h,x,y+h,rr);ctx.arcTo(x,y+h,x,y,rr);ctx.arcTo(x,y,x+w,y,rr);ctx.closePath();ctx.fill();ctx.stroke();
+    ['r','a','g'].forEach((k,i)=>{const ly=y+h*(.19+.31*i),on=k===st,c=COL[k];
+      if(on){const gg=ctx.createRadialGradient(cx,ly,0,cx,ly,r*3.2);gg.addColorStop(0,`rgba(${c.join(',')},.75)`);gg.addColorStop(1,`rgba(${c.join(',')},0)`);ctx.fillStyle=gg;ctx.beginPath();ctx.arc(cx,ly,r*3.2,0,6.283);ctx.fill();}
+      ctx.fillStyle=on?`rgb(${c.join(',')})`:`rgba(${c.join(',')},.16)`;ctx.beginPath();ctx.arc(cx,ly,r,0,6.283);ctx.fill();});
+  }
+  function draw(now){
+    ctx.clearRect(0,0,W,H);
+    const P=V.map(project);let R=0;for(let q=0;q<16;q++)R=Math.max(R,Math.hypot(P[q][0],P[q][1]));
+    const tg=Math.min(W,H)*.42/(R||1);scale=scale?scale+(tg-scale)*.08:tg;
+    for(let q=0;q<16;q++){P[q][0]=W/2+P[q][0]*scale;P[q][1]=H/2+P[q][1]*scale;}
+    const order=E.map(e=>[e,(P[e[0]][2]+P[e[1]][2])/2]).sort((p,q)=>p[1]-q[1]);
+    const st=state();
+    const edges=(from,to)=>{for(let i=from;i<to;i++){const e=order[i][0],A=P[e[0]],B=P[e[1]],depth=(order[i][1]+3.5)/7;
+      const al=.22+.7*Math.max(0,Math.min(1,depth));ctx.strokeStyle='rgba(241,243,248,'+al.toFixed(3)+')';ctx.lineWidth=1+1.6*depth;
+      ctx.shadowColor=`rgba(${glow.map(Math.round).join(',')},.6)`;ctx.shadowBlur=7*(1-depth*.5);
+      ctx.beginPath();ctx.moveTo(A[0],A[1]);ctx.lineTo(B[0],B[1]);ctx.stroke();}ctx.shadowBlur=0;};
+    ctx.lineCap='round';
+    edges(0,16);light(st);edges(16,order.length);
+    for(let j=0;j<16;j++){const p=P[j],r=1.4+1.4*((p[2]+3.5)/7);ctx.fillStyle='rgba(241,243,248,.85)';ctx.beginPath();ctx.arc(p[0],p[1],r,0,6.283);ctx.fill();}
+    for(let k=0;k<thoughts.length;k++){const th=thoughts[k],A2=P[th.from],B2=P[th.to],x=A2[0]+(B2[0]-A2[0])*th.p,y=A2[1]+(B2[1]-A2[1])*th.p;
+      const pulse=.6+.4*Math.sin(now/380+k*1.7);const g=ctx.createRadialGradient(x,y,0,x,y,16);
+      g.addColorStop(0,'rgba(231,0,11,'+(.5*pulse).toFixed(3)+')');g.addColorStop(1,'rgba(231,0,11,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,16,0,6.283);ctx.fill();
+      ctx.fillStyle='#ff1a24';ctx.beginPath();ctx.arc(x,y,3.4+1.1*pulse,0,6.283);ctx.fill();}
+    self.state=st;
+  }
+  function step(now){const dt=Math.min(50,now-last);last=now;
+    if(visible&&!document.hidden){
+      tc+=dt/1000;
+      if(!reduceMotion){aXW+=dt*.00042;aZW+=dt*.00027;aYW=Math.sin(now*.00013)*.6;if(!drag)ry+=dt*.00012;
+        for(const th of thoughts){th.p+=th.v*dt/16;if(th.p>=1){th.from=th.to;const n=adj[th.from];th.to=n[(Math.random()*n.length)|0];th.p=0;}}}
+      draw(now);if(self.onState)self.onState(self.state);}
+    requestAnimationFrame(step);}
+  cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,rx,ry};cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener('pointermove',e=>{if(!drag)return;ry=drag.ry+(e.clientX-drag.x)*.01;rx=Math.max(-1.4,Math.min(1.4,drag.rx+(e.clientY-drag.y)*.01));});
+  const end=()=>{drag=null;};cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+  size();new ResizeObserver(size).observe(cv);
+  if('IntersectionObserver' in window)new IntersectionObserver(en=>{visible=en[0].isIntersecting;}).observe(cv);
+  if(reduceMotion){aXW=.6;aZW=.3;}
+  self.reset=()=>{tc=0;};
+  requestAnimationFrame(step);
+  return self;
+}
+const hero=LightTess(document.getElementById('heroLight'),{r:2.6,a:1,g:2.6});
+let resLight=null;
+
+/* ===== Cerebro táctil: nube neuronal con vacíos de ignorancia ===== */
+function Brain(cv,opt){
+  const ctx=cv.getContext('2d');const status=opt.status?document.getElementById(opt.status):null;
+  const DEF=['no sé','¿y si…?','incertidumbre','el cambio','el juicio','fracasar'];
+  let W=0,H=0,DPR=1,nodes=[],edges=[],adj=[],voids=[],ptr=null,last=performance.now(),visible=true,labels=opt.labels||DEF,baseFill=opt.fill||0,lastMsg='',paths=[],nextAuto=0,S=0;
+  function rnd(seed){return()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646;};}
+  function inBrain(x,y){return ((x)**2)/.9+((y+.05)**2)/.56<1 || ((x-.5)**2)/.16+((y-.18)**2)/.12<1 || ((x+.42)**2)/.12+((y-.34)**2)/.06<1;}
+  function layout(){
+    const r=rnd(23);S=Math.min(W*.44,H*.5);const cx=W/2,cy=H*.43;
+    const vpos=[[.2,-.22],[-.4,-.12],[.5,.08],[-.05,.15],[.05,-.42],[-.6,.12],[.32,.3]];
+    voids=labels.slice(0,7).map((l,i)=>({x:cx+vpos[i][0]*S,y:cy+vpos[i][1]*S,r:S*(labels.length>5?.075:.09),fill:Math.min(.95,baseFill),label:l,ph:r()*6}));
+    nodes=[];let tries=0;const N=W<520?170:280;
+    while(nodes.length<N&&tries<30000){tries++;const x=r()*2-1,y=r()*2-1;if(!inBrain(x,y))continue;const px=cx+x*S,py=cy+y*S;
+      if(voids.some(v=>Math.hypot(px-v.x,py-v.y)<v.r*1.1))continue;nodes.push({x:px,y:py,ph:r()*6.28,f:.5+r(),s:.6+r()*1.4});}
+    // tallo que converge en un punto
+    const tip={x:cx+S*.02,y:cy+S*1.02,ph:0,f:1,s:1.6,tip:1};const stemTop=nodes.length;
+    for(let i=0;i<6;i++){const k=(i+1)/7;nodes.push({x:cx+S*(.02+(r()-.5)*.12*(1-k)),y:cy+S*(.45+.5*k),ph:r()*6,f:1,s:.8});}
+    nodes.push(tip);
+    nodes.forEach(n=>{let best=null,bd=1e9;voids.forEach(v=>{const d=Math.hypot(n.x-v.x,n.y-v.y);if(d<bd){bd=d;best=v;}});n.v=bd<S*.32?best:null;n.vd=bd;});
+    edges=[];adj=nodes.map(()=>[]);const seen=new Set();
+    const add=(a,b)=>{if(a===b)return;const k=a<b?a+'-'+b:b+'-'+a;if(seen.has(k))return;seen.add(k);edges.push([a,b]);adj[a].push(b);adj[b].push(a);};
+    nodes.forEach((n,i)=>{const ds=nodes.map((m,j)=>[(m.x-n.x)**2+(m.y-n.y)**2,j]).sort((a,b)=>a[0]-b[0]);for(let k=1;k<=5;k++)add(i,ds[k][1]);
+      if(r()<.35){const j=ds[6+((r()*14)|0)][1];add(i,j);}});
+    // líneas largas hacia el tallo, como en la referencia
+    const tipI=nodes.length-1;nodes.forEach((n,i)=>{if(i<stemTop&&n.y>cy+S*.25&&r()<.35)add(i,stemTop+((r()*6)|0));});
+    for(let i=stemTop;i<tipI;i++)add(i,tipI);
+  }
+  function size(){DPR=Math.min(window.devicePixelRatio||1,2);const r=cv.getBoundingClientRect();if(!r.width)return;const ch=Math.abs(r.width-W)>30||!nodes.length;W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);ctx.setTransform(DPR,0,0,DPR,0,0);if(ch)layout();}
+  function nearest(x,y){let b=0,bd=1e18;nodes.forEach((n,i)=>{const d=(n.x-x)**2+(n.y-y)**2;if(d<bd){bd=d;b=i;}});return b;}
+  function bfs(a,b){const prev=new Array(nodes.length).fill(-1);prev[a]=a;const q=[a];while(q.length){const u=q.shift();if(u===b)break;for(const v of adj[u])if(prev[v]<0){prev[v]=u;q.push(v);}}if(prev[b]<0)return null;const p=[b];let u=b;while(u!==a){u=prev[u];p.unshift(u);}return p;}
+  function spark(a,b,col){const p=bfs(a,b);if(p&&p.length>1)paths.push({p,t:0,col});if(paths.length>6)paths.shift();}
+  function say(){if(!status)return;const n=voids.length,full=voids.filter(v=>v.fill>.85).length;let m;
+    if(full===n)m='Tu mente se llenó de conocimiento: el miedo se volvió respeto. Espera unos segundos y verás cómo los significados se desgastan.';
+    else if(full===0)m=`${n} vacíos laten como miedo. Tu mente sabe que ignora, y anhela conocimiento.`;
+    else m=`${full} de ${n} vacíos llenos de conocimiento. Donde hay conocimiento, el miedo deja de paralizar.`;
+    if(m!==lastMsg){status.textContent=m;status.classList.toggle('ok',full===n);lastMsg=m;}}
+  function draw(now,dt){
+    ctx.clearRect(0,0,W,H);const t=now*.001;
+    const bg=ctx.createRadialGradient(W*.3,H*.2,0,W*.3,H*.2,W*.8);bg.addColorStop(0,'rgba(255,255,255,.035)');bg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    voids.forEach(v=>{if(ptr){const d=Math.hypot(ptr.x-v.x,ptr.y-v.y);if(d<v.r*1.8)v.fill=Math.min(1,v.fill+dt*.0011);}v.fill=Math.max(baseFill*.9,v.fill-dt*.000035);});
+    const P=nodes.map(n=>{const fear=n.v?(1-n.v.fill)*Math.max(0,1-n.vd/(S*.6)):0;const amp=reduceMotion?0:(n.tip?0:1.1+fear*3);const sp=fear>.2?7:1;
+      return [n.x+Math.sin(t*sp*n.f+n.ph)*amp,n.y+Math.cos(t*sp*.9*n.f+n.ph)*amp,fear];});
+    // malla
+    ctx.lineWidth=.6;ctx.strokeStyle='rgba(200,204,215,.16)';ctx.beginPath();
+    edges.forEach(([a,b])=>{ctx.moveTo(P[a][0],P[a][1]);ctx.lineTo(P[b][0],P[b][1]);});ctx.stroke();
+    if(ptr){ctx.strokeStyle='rgba(255,170,110,.35)';ctx.lineWidth=.9;ctx.beginPath();edges.forEach(([a,b])=>{const mx=(P[a][0]+P[b][0])/2,my=(P[a][1]+P[b][1])/2;if(Math.hypot(mx-ptr.x,my-ptr.y)<70){ctx.moveTo(P[a][0],P[a][1]);ctx.lineTo(P[b][0],P[b][1]);}});ctx.stroke();}
+    // rutas naranjas (conocimiento que viaja)
+    for(let k=paths.length-1;k>=0;k--){const pa=paths[k];pa.t+=dt*.006;const n=Math.min(pa.p.length-1,Math.floor(pa.t));const fade=pa.t>pa.p.length+6?Math.max(0,1-(pa.t-pa.p.length-6)/6):1;
+      if(fade<=0){paths.splice(k,1);continue;}
+      ctx.strokeStyle=`rgba(255,150,80,${(.9*fade).toFixed(3)})`;ctx.lineWidth=1.8;ctx.shadowColor='rgba(255,120,50,.9)';ctx.shadowBlur=10;ctx.beginPath();
+      for(let i=0;i<=n;i++){const q=P[pa.p[i]];i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]);}ctx.stroke();ctx.shadowBlur=0;
+      for(let i=0;i<=n;i+=Math.max(1,Math.floor(pa.p.length/4))){const q=P[pa.p[i]];const g=ctx.createRadialGradient(q[0],q[1],0,q[0],q[1],9);g.addColorStop(0,`rgba(255,90,60,${fade})`);g.addColorStop(1,'rgba(255,90,60,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(q[0],q[1],9,0,6.283);ctx.fill();}}
+    // nodos de luz
+    ctx.globalCompositeOperation='lighter';
+    P.forEach(([x,y,fr],i)=>{const s=nodes[i].s,g=ctx.createRadialGradient(x,y,0,x,y,4+s*3);g.addColorStop(0,fr>.3?'rgba(255,140,120,.95)':'rgba(255,255,255,.95)');g.addColorStop(.35,fr>.3?'rgba(255,90,80,.35)':'rgba(230,235,255,.35)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,4+s*3,0,6.283);ctx.fill();
+      ctx.fillStyle='#fff';ctx.fillRect(x-s*.7,y-s*.7,s*1.4,s*1.4);});
+    ctx.globalCompositeOperation='source-over';
+    // vacíos
+    voids.forEach(v=>{const f=v.fill,pulse=reduceMotion?.5:.5+.5*Math.sin(t*3.2+v.ph),rr=v.r*(1-f*.55);
+      const halo=ctx.createRadialGradient(v.x,v.y,rr*.6,v.x,v.y,rr*2);halo.addColorStop(0,`rgba(231,0,11,${((1-f)*(.3+.35*pulse)).toFixed(3)})`);halo.addColorStop(1,'rgba(231,0,11,0)');ctx.fillStyle=halo;ctx.beginPath();ctx.arc(v.x,v.y,rr*2,0,6.283);ctx.fill();
+      if(f>.05){const kg=ctx.createRadialGradient(v.x,v.y,0,v.x,v.y,v.r*1.5);kg.addColorStop(0,`rgba(255,160,90,${(f*.5).toFixed(3)})`);kg.addColorStop(1,'rgba(255,160,90,0)');ctx.fillStyle=kg;ctx.beginPath();ctx.arc(v.x,v.y,v.r*1.5,0,6.283);ctx.fill();}
+      ctx.fillStyle=`rgba(4,4,8,${(.96-f*.86).toFixed(3)})`;ctx.beginPath();ctx.arc(v.x,v.y,rr,0,6.283);ctx.fill();
+      ctx.strokeStyle=f>.85?'rgba(255,170,110,.9)':`rgba(231,0,11,${(.5+.5*pulse*(1-f)).toFixed(3)})`;ctx.lineWidth=1.3;ctx.setLineDash(f>.85?[]:[3,4]);ctx.beginPath();ctx.arc(v.x,v.y,rr,0,6.283);ctx.stroke();ctx.setLineDash([]);
+      ctx.textAlign='center';ctx.textBaseline='middle';const lab=v.label.length>18?v.label.slice(0,17)+'…':v.label;
+      ctx.font='300 11.5px "Helvetica Neue",Helvetica,Arial,sans-serif';ctx.fillStyle=f>.85?'#FFD2B0':'rgba(255,175,175,.95)';ctx.fillText(f>.85?'conocimiento':lab,v.x,v.y+rr+13);
+      if(f<=.85){ctx.font='300 '+Math.round(rr*.9)+'px "Helvetica Neue",Helvetica,Arial,sans-serif';ctx.fillStyle=`rgba(255,90,90,${(.4+.4*pulse).toFixed(3)})`;ctx.fillText('?',v.x,v.y+1);}});
+    say();
+  }
+  function step(now){const dt=Math.min(50,now-last);last=now;
+    if(visible&&!document.hidden&&W){
+      if(!reduceMotion&&now>nextAuto&&nodes.length){const a=(Math.random()*nodes.length)|0,b=(Math.random()*nodes.length)|0;spark(a,b);nextAuto=now+2200+Math.random()*1500;}
+      draw(now,dt);}
+    requestAnimationFrame(step);}
+  const loc=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
+  cv.addEventListener('pointermove',e=>{ptr=loc(e);});
+  cv.addEventListener('pointerleave',()=>{ptr=null;});
+  cv.addEventListener('pointerdown',e=>{ptr=loc(e);const a=nearest(ptr.x,ptr.y);let hit=false;
+    voids.forEach(v=>{if(Math.hypot(ptr.x-v.x,ptr.y-v.y)<v.r*1.8){v.fill=Math.min(1,v.fill+.34);hit=true;spark(nearest(v.x+(Math.random()-.5)*S*.6,v.y-S*.3),nearest(v.x,v.y+v.r*1.3));}});
+    if(!hit){let best=voids[0],bd=1e9;voids.forEach(v=>{const d=Math.hypot(ptr.x-v.x,ptr.y-v.y);if(d<bd&&v.fill<.85){bd=d;best=v;}});if(best)spark(a,nearest(best.x,best.y+best.r*1.3));}});
+  cv.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')setTimeout(()=>{ptr=null;},300);});
+  cv.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();voids.forEach(v=>v.fill=1);}});
+  size();new ResizeObserver(size).observe(cv);
+  if('IntersectionObserver' in window)new IntersectionObserver(en=>{visible=en[0].isIntersecting;}).observe(cv);
+  requestAnimationFrame(step);
+  return {setLabels(l){labels=(l&&l.length)?l:DEF;layout();},setFill(f){baseFill=f;voids.forEach(v=>v.fill=Math.min(.95,f));}};
+}
+
+/* ===== Red del SPH: el miedo como ancla → brújula y telaraña cognitiva ===== */
+const SPH_F=[['Lo que ignoras','Lo que voy a aprender'],['Tabúes','Preguntas permitidas'],['Paradigmas','Ángulos nuevos'],['Sesgos cognitivos','Datos y evidencia'],['Trauma','Comprensión acompañada'],['Idealizaciones','Realidad posible'],['Pensamiento mágico','Causa y efecto'],['Prompts mentales','Prompts conscientes']];
+function SPHNet(cv,opt){
+  const ctx=cv.getContext('2d');let W=0,H=0,DPR=1,m=0,target=0,last=performance.now(),visible=true,ptr=null,branches=[],fears=opt.fears||[],grow=0;
+  function rnd(seed){return()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646;};}
+  function geo(){const S=Math.min(W,H),cx=W/2,cy=H*.5,R=S*.3;return{S,cx,cy,R};}
+  function build(){const r=rnd(5),{S,R}=geo();branches=SPH_F.map((f,i)=>{const a=-Math.PI/2+i*2*Math.PI/SPH_F.length;const out=[];
+      (function br(x,y,ang,len,d){if(d>3)return;const nx=x+Math.cos(ang)*len,ny=y+Math.sin(ang)*len;out.push({x,y,nx,ny,d});
+        const k=2+(r()<.4?1:0);for(let j=0;j<k;j++)br(nx,ny,ang+(r()-.5)*1.7,len*(.62+r()*.15),d+1);})(0,0,a+Math.PI+(r()-.5)*.5,S*.045,0);
+      return{a,out};});}
+  function size(){DPR=Math.min(window.devicePixelRatio||1,2);const r=cv.getBoundingClientRect();if(!r.width)return;W=r.width;H=r.height;cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);ctx.setTransform(DPR,0,0,DPR,0,0);build();}
+  function anchor(x,y,s,al){ctx.save();ctx.translate(x,y);ctx.globalAlpha=al;ctx.strokeStyle='#E7000B';ctx.fillStyle='#E7000B';ctx.lineCap='round';ctx.lineWidth=s*.11;ctx.shadowColor='rgba(231,0,11,.8)';ctx.shadowBlur=18;
+    ctx.beginPath();ctx.arc(0,-s*.78,s*.14,0,6.283);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,-s*.64);ctx.lineTo(0,s*.72);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-s*.32,-s*.4);ctx.lineTo(s*.32,-s*.4);ctx.stroke();
+    ctx.beginPath();ctx.arc(0,s*.1,s*.62,Math.PI*.18,Math.PI*.82);ctx.stroke();
+    [[1,1],[-1,1]].forEach(([sx])=>{const ex=Math.cos(Math.PI*(sx>0?.18:.82))*s*.62,ey=s*.1+Math.sin(Math.PI*.18)*s*.62;ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex+sx*s*.16,ey-s*.2);ctx.lineTo(ex-sx*s*.04,ey-s*.05);ctx.closePath();ctx.fill();});
+    ctx.restore();}
+  function compass(x,y,s,al,t){ctx.save();ctx.translate(x,y);ctx.globalAlpha=al;ctx.strokeStyle='rgba(108,192,219,.95)';ctx.lineWidth=1.6;ctx.shadowColor='rgba(108,192,219,.8)';ctx.shadowBlur=16;
+    ctx.beginPath();ctx.arc(0,0,s*.72,0,6.283);ctx.stroke();ctx.shadowBlur=0;
+    for(let i=0;i<16;i++){const a=i*Math.PI/8,l=i%4?.08:.16;ctx.beginPath();ctx.moveTo(Math.cos(a)*s*.72,Math.sin(a)*s*.72);ctx.lineTo(Math.cos(a)*s*(.72-l),Math.sin(a)*s*(.72-l));ctx.stroke();}
+    const ang=-Math.PI/3+Math.sin(t*1.3)*.08;ctx.rotate(ang+Math.PI/2);
+    ctx.fillStyle='#E7000B';ctx.beginPath();ctx.moveTo(0,-s*.6);ctx.lineTo(s*.11,0);ctx.lineTo(-s*.11,0);ctx.closePath();ctx.fill();
+    ctx.fillStyle='rgba(241,243,248,.9)';ctx.beginPath();ctx.moveTo(0,s*.6);ctx.lineTo(s*.11,0);ctx.lineTo(-s*.11,0);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#0B0C1A';ctx.beginPath();ctx.arc(0,0,s*.05,0,6.283);ctx.fill();ctx.restore();}
+  function draw(now,dt){
+    const t=now*.001;m+=(target-m)*Math.min(1,dt*.003);grow=target?Math.min(1,grow+dt*.0005):Math.max(0,grow-dt*.0012);
+    const {S,cx,cy,R}=geo();ctx.clearRect(0,0,W,H);
+    const sag=(1-m),sway=reduceMotion?0:Math.sin(t*.7)*.03;
+    // factores
+    const F=SPH_F.map((f,i)=>{const a=-Math.PI/2+i*2*Math.PI/SPH_F.length+sway*sag;const rr=R*(.95+.05*m);
+      let x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr*(.86+.14*m);
+      y+=sag*S*.06*(1+Math.sin(a))+sag*Math.sin(t*1.4+i)*2;x+=(cx-x)*.12*sag;return{x,y,a};});
+    // telaraña: ramas desde cada factor
+    if(grow>0){branches.forEach((b,i)=>{const o=F[i];b.out.forEach(s=>{const lim=grow*4-s.d;if(lim<=0)return;const k=Math.min(1,lim);
+        const x1=o.x+s.x,y1=o.y+s.y,x2=o.x+s.x+(s.nx-s.x)*k,y2=o.y+s.y+(s.ny-s.y)*k;
+        ctx.strokeStyle=`rgba(108,192,219,${(.55-.1*s.d)*grow})`;ctx.lineWidth=2.2-s.d*.45;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+        if(k>=1&&s.d===3){ctx.fillStyle=`rgba(241,243,248,${.8*grow})`;ctx.beginPath();ctx.arc(x2,y2,1.8,0,6.283);ctx.fill();}});});
+      // hilos de telaraña entre ramas vecinas
+      ctx.strokeStyle=`rgba(108,192,219,${.16*Math.max(0,grow*2-1)})`;ctx.lineWidth=.7;
+      for(let ring=1;ring<=3;ring++){ctx.beginPath();F.forEach((o,i)=>{const rr=R*(.95+.05*m)-ring*S*.05;const a=o.a;const x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.closePath();ctx.stroke();}}
+    // conexiones centro-factor
+    F.forEach((o,i)=>{ctx.setLineDash(m<.5?[2,4]:[]);ctx.strokeStyle=m<.5?`rgba(231,0,11,${.65*(1-m)+.1})`:`rgba(108,192,219,${.5*m})`;ctx.lineWidth=m<.5?1.6:1.2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(o.x,o.y);ctx.stroke();ctx.setLineDash([]);
+      for(let j=i+1;j<F.length;j++)if((j-i)%3===1){ctx.strokeStyle='rgba(200,204,215,.08)';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(F[j].x,F[j].y);ctx.stroke();}});
+    // miedos del usuario (anillo interior)
+    fears.slice(0,7).forEach((f,i)=>{const a=-Math.PI/2+.4+i*2*Math.PI/Math.max(3,fears.length);const x=cx+Math.cos(a)*R*.46,y=cy+Math.sin(a)*R*.46+sag*6;
+      ctx.fillStyle=m<.5?'rgba(231,0,11,.9)':'rgba(255,170,110,.9)';ctx.beginPath();ctx.arc(x,y,3.2,0,6.283);ctx.fill();
+      ctx.font='300 10.5px "Helvetica Neue",Helvetica,Arial,sans-serif';ctx.textAlign='center';ctx.fillStyle='rgba(255,200,200,.85)';ctx.fillText(f.length>16?f.slice(0,15)+'…':f,x,y-8);});
+    // nodos y etiquetas de factores
+    F.forEach((o,i)=>{const near=ptr&&Math.hypot(ptr.x-o.x,ptr.y-o.y)<40;const col=m<.5?'231,0,11':'108,192,219';
+      const g=ctx.createRadialGradient(o.x,o.y,0,o.x,o.y,near?22:15);g.addColorStop(0,`rgba(${col},.85)`);g.addColorStop(1,`rgba(${col},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(o.x,o.y,near?22:15,0,6.283);ctx.fill();
+      ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(o.x,o.y,3.2,0,6.283);ctx.fill();
+      const lab=SPH_F[i][m<.5?0:1];ctx.font=(near?'300 ':'300 ')+(S<420?'11px ':'12.5px ')+'"Helvetica Neue",Helvetica,Arial,sans-serif';ctx.textBaseline='middle';
+      const right=o.x>cx+4,left=o.x<cx-4;ctx.textAlign=right?'left':left?'right':'center';const lx=o.x+(right?12:left?-12:0),ly=o.y+(right||left?0:(o.y<cy?-16:16));
+      const tw=ctx.measureText(lab).width;let fx=lx;if(ctx.textAlign==='left'&&fx+tw>W-8)fx=W-8-tw;if(ctx.textAlign==='right'&&fx-tw<8)fx=8+tw;if(ctx.textAlign==='center')fx=Math.max(8+tw/2,Math.min(W-8-tw/2,fx));
+      ctx.fillStyle=m<.5?'rgba(255,205,205,.95)':'rgba(210,240,250,.95)';ctx.fillText(lab,fx,ly);});
+    // centro: ancla ↔ brújula
+    const cs=S*.13;if(m<.98)anchor(cx,cy,cs,1-m);if(m>.02)compass(cx,cy,cs,m,t);
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='300 '+(S<420?'12px ':'13px ')+'"Helvetica Neue",Helvetica,Arial,sans-serif';
+    ctx.fillStyle=m<.5?'rgba(255,120,120,.95)':'rgba(160,220,240,.95)';ctx.fillText(m<.5?'MIEDO = ANCLA':'MIEDO = BRÚJULA',cx,cy+cs*1.05+14);
+    if(m>.5){const a=-Math.PI/3,dx=Math.cos(a),dy=Math.sin(a),x=cx+dx*R*.62,y=cy+dy*R*.62;ctx.globalAlpha=Math.min(1,(m-.5)*2);
+      ctx.setLineDash([2,5]);ctx.strokeStyle='rgba(231,0,11,.7)';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(cx+dx*cs*.8,cy+dy*cs*.8);ctx.lineTo(x-dx*10,y-dy*10);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='#fff';ctx.font='300 12.5px "Helvetica Neue",Helvetica,Arial,sans-serif';ctx.font='300 12px "Helvetica Neue",Helvetica,Arial,sans-serif';ctx.fillText('LO DESCONOCIDO',x+18,y-6);ctx.globalAlpha=1;}
+  }
+  function step(now){const dt=Math.min(50,now-last);last=now;if(visible&&!document.hidden&&W)draw(now,dt);requestAnimationFrame(step);}
+  const loc=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
+  cv.addEventListener('pointermove',e=>{ptr=loc(e);});cv.addEventListener('pointerleave',()=>{ptr=null;});
+  cv.addEventListener('pointerdown',()=>api.toggle());
+  size();new ResizeObserver(size).observe(cv);
+  if('IntersectionObserver' in window)new IntersectionObserver(en=>{visible=en[0].isIntersecting;}).observe(cv);
+  requestAnimationFrame(step);
+  const api={toggle(v){target=(v===undefined?!target:v)?1:0;if(opt.onToggle)opt.onToggle(!!target);},setFears(f){fears=f||[];},get on(){return !!target;}};
+  return api;
+}
+function bindSPH(canvasId,btnId,textId,fears){
+  const btn=document.getElementById(btnId),txt=textId?document.getElementById(textId):null;
+  const net=SPHNet(document.getElementById(canvasId),{fears,onToggle(on){btn.textContent=on?'Ver el ancla':'Convertir mi ancla en brújula';btn.setAttribute('aria-pressed',on);
+    if(txt)txt.textContent=on?'Tu miedo ahora es brújula: apunta a lo que desconoces. Cada factor se resignifica y tu mente se ramifica como una telaraña cognitiva.':'Tu miedo es un ancla: lo sostiene una red de lo que ignoras, tabúes, paradigmas, sesgos, trauma, idealizaciones, pensamiento mágico y prompts mentales.';}});
+  btn.addEventListener('click',()=>net.toggle());return net;
+}
+
+const brain=Brain(document.getElementById('brainNet'),{status:'brainStatus'});
+const sphMain=bindSPH('sphNet','sphBtn','sphTxt');
+
+/* ===== Conversación ===== */
+const SIG={ocupacion:"Espacio que ocupa en tu mente",ansiedad:"Ansiedad que te provoca",decisiones:"Decisiones que te deja tomar",conocimiento:"Lo que sabes de lo que temes",curiosidad:"Curiosidad frente al miedo",respeto:"Distingues protección de límite",frontera:"Se queda en su área",recuperacion:"Se va cuando pasa el peligro"};
+const STAGES=[["Reconocer a qué le temes",["ocupacion","ansiedad"]],["Identificar la ignorancia",["conocimiento"]],["Transformar en curiosidad",["curiosidad"]],["Evolucionar a respeto",["respeto","frontera","recuperacion","decisiones"]]];
+const STEPS=[
+ {type:'list',key:'fears',k:'Paso 1 · Reconoce',q:'Enlista tus miedos: escribe todos los que reconozcas, separados por comas o uno por renglón.',ph:'perder mi trabajo por la IA, hablar en público, el futuro de mis hijos'},
+ {type:'pick',key:'fear',k:'Paso 1 · Reconoce',q:'¿Cuál de ellos pesa más hoy? Con ese vamos a conversar.'},
+ {type:'danger',k:'Paso 1 · Reconoce',q:'Antes de seguir: ¿este miedo responde a un peligro real e inmediato para tu integridad o la de alguien más?',o:[['Sí, ahora mismo','now'],['Es posible, pero no inmediato','maybe'],['No, es más una posibilidad o una idea','no'],['No lo sé','unk']]},
+ {type:'choice',key:'ocupacion',k:'Paso 1 · Reconoce',q:'¿Cuánto espacio ocupa este miedo en tu mente durante el día?',o:[['Casi todo el día',0],['Varias horas',1],['A ratos',2],['Rara vez; aparece y se va',3]]},
+ {type:'choice',key:'ansiedad',k:'Paso 1 · Reconoce',q:'Cuando aparece, ¿qué te provoca la ansiedad?',o:[['Me paraliza: no puedo pensar ni actuar',0],['Una tensión que no se va',1],['Una alerta fuerte pero breve',2],['La noto, la nombro y la dejo pasar',3]],note:'La ansiedad es la emoción que el miedo usa para avisarte. Escucharla es el primer paso; obedecerla siempre no lo es.'},
+ {type:'choice',key:'decisiones',k:'Paso 1 · Reconoce',q:'¿Qué decisiones ha frenado este miedo?',o:[['Muchas, y algunas muy importantes',0],['Algunas',1],['Pocas',2],['Ninguna: lo uso para prepararme mejor',3]]},
+ {type:'choice',key:'conocimiento',k:'Paso 2 · La ignorancia',q:'Sé honesto: ¿qué tanto sabes realmente de aquello a lo que le temes?',o:[['Casi nada: más bien lo imagino',0],['Lo que he oído de otros',1],['He investigado algo',2],['Lo conozco bien y sé qué sí y qué no puede pasar',3]],note:'Aquí está el corazón del Desmiedo: el miedo es una brújula que apunta a lo que todavía ignoras.'},
+ {type:'text',key:'ign',k:'Paso 2 · La ignorancia',q:'Completa la frase: «Le temo porque todavía no sé…»',ph:'…qué habilidades me van a pedir en dos años',reply:t=>`Eso que no sabes («${t}») no es tu enemigo: es tu siguiente aprendizaje.`},
+ {type:'choice',key:'curiosidad',k:'Paso 3 · Curiosidad',q:'Si en lugar de evitarlo, ese miedo te diera curiosidad, ¿qué harías?',o:[['Nada; prefiero no pensar en eso',0],['Lo pensaría un poco más',1],['Buscaría información',2],['Lo exploraría con un plan y con quien ya lo vivió',3]]},
+ {type:'text',key:'q',k:'Paso 3 · Curiosidad',q:'Escribe una pregunta que te gustaría responder sobre tu miedo. Empieza con «¿Qué…», «¿Cómo…» o «¿Quién…».',ph:'¿Qué tareas de mi trabajo puede hacer la IA y cuáles no?',reply:t=>`Esa pregunta convierte la ansiedad en dirección. Ya no es «¿y si sale mal?», es «${t.replace(/^¿?/,'¿').replace(/\??$/,'?')}».`},
+ {type:'choice',key:'respeto',k:'Paso 4 · Respeto',q:'¿Puedes distinguir la parte de tu miedo que te protege de la parte que solo te limita?',o:[['No, para mí son lo mismo',0],['A veces',1],['Casi siempre',2],['Sí, con claridad',3]]},
+ {type:'choice',key:'frontera',k:'Paso 4 · Respeto',q:'¿Este miedo se extiende a otras áreas de tu vida?',o:[['Sí, a casi todas',0],['A varias',1],['A una o dos',2],['No, se queda donde corresponde',3]]},
+ {type:'choice',key:'recuperacion',k:'Paso 4 · Respeto',q:'Cuando el peligro pasa, ¿tu miedo se va?',o:[['No, se queda conmigo',0],['Tarda mucho en irse',1],['Tarda poco',2],['Sí: cumple su función y se va',3]],note:'Un miedo domesticado hace su trabajo de sobrevivencia y después te deja avanzar.'},
+ {type:'text',key:'sig',k:'Paso 4 · Resignifica',q:'Los significados se desgastan y la mente anhela significado. Escribe un significado nuevo para tu miedo, uno que nazca de lo que vas a aprender.',ph:'Mi miedo a la IA es la señal de lo que me toca aprender',reply:t=>`Ese es tu nuevo significado: «${t}». Acabas de resignificar tu SPH.`},
+ {type:'text',key:'red',k:'Tu pacto',q:'Último mensaje: ¿en qué situación SÍ debe ponerse en rojo tu semáforo? Esa es la parte de tu miedo que vas a respetar.',ph:'Cuando una decisión ponga en riesgo mi salud o mi familia',reply:()=>`Perfecto. Esa es la función de sobrevivencia de tu miedo, y la vamos a respetar.`}
+];
+const SCORED=STEPS.filter(s=>s.type==='choice').length;
+const LEVELS=[
+ {max:25,n:'Semáforo siempre en rojo',c:'r',d:'Hoy tu miedo funciona como estilo de vida: ocupa tu atención, decide por ti y se queda aunque el peligro haya pasado. La buena noticia es que ya lo nombraste, y un miedo que se nombra se puede domesticar.'},
+ {max:50,n:'Rojo frecuente',c:'r',d:'Tu miedo cumple su función, pero se enciende de más y tarda en apagarse. Te está señalando algo que todavía ignoras: ahí empieza tu Desmiedo.'},
+ {max:75,n:'Ámbar consciente',c:'a',d:'Ya empiezas a usar tu miedo como brújula: cuando no sabes, investigas. Te falta que el rojo aparezca solo cuando hay un peligro real.'},
+ {max:100,n:'Semáforo vivo · Desmiedo',c:'g',d:'Tu miedo se pone en rojo solo cuando toca y después te deja avanzar. Lo transformaste en respeto: es tu herramienta de sobrevivencia, no tu estilo de vida.'}
+];
+const RECS={
+ ocupacion:['Dale horario a tu miedo.','Regálale 10 minutos al día para escucharlo por escrito. Si aparece fuera de ese horario, anótalo y déjalo para su cita.'],
+ ansiedad:['Nombra la alarma.','Cuando suba la ansiedad, di en voz baja: «esta es mi alarma de sobrevivencia». Exhala más lento de lo que inhalas y decide después, no durante.'],
+ decisiones:['Toma una decisión pequeña.','Elige una decisión que este miedo te ha frenado y tómala esta semana con un plan B. Las decisiones singulares empiezan pequeñas.'],
+ conocimiento:['Sigue a tu brújula.','Tu miedo apunta a lo que ignoras: dedica 30 minutos a investigar aquello que temes, con fuentes confiables o con alguien que ya lo vivió.'],
+ curiosidad:['Cambia la pregunta.','Sustituye «¿y si sale mal?» por «¿qué pasaría exactamente y qué haría?». Esa pregunta convierte la ansiedad en curiosidad.'],
+ respeto:['Haz dos columnas.','Escribe lo que este miedo protege y lo que solo limita. Respeta la primera columna; cuestiona la segunda.'],
+ frontera:['Ponle frontera.','Tu miedo tiene permiso en un área, no en todas. Cuando aparezca en otra, pregúntate si ahí hay un peligro real.'],
+ recuperacion:['Cierra el ciclo.','Cuando pase el peligro, escribe «ya pasó, gracias» y vuelve a tu verde. El miedo domesticado cumple y se va.']
+};
+const log=document.getElementById('log'),opts=document.getElementById('opts'),avatar=document.getElementById('avatar');
+let userName='',idx=0,A={},danger='no';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const scrollLog=()=>{log.scrollTop=log.scrollHeight;};
+function add(html,cls){const m=document.createElement('div');m.className='msg '+cls;m.innerHTML=html;log.appendChild(m);scrollLog();return m;}
+function typing(ms){return new Promise(res=>{const t=document.createElement('div');t.className='msg bot typing';t.innerHTML='<i></i><i></i><i></i>';log.appendChild(t);scrollLog();setTimeout(()=>{t.remove();res();},reduceMotion?60:ms);});}
+function setProg(){document.getElementById('progTxt').textContent=idx<STEPS.length?`Mensaje ${idx+1} de ${STEPS.length}`:'Completo';document.getElementById('progBar').style.width=(idx/STEPS.length*100)+'%';
+  avatar.dataset.s=idx<5?'r':idx<9?'a':'g';}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+async function start(name,again){
+  userName=(name||'').trim().slice(0,40);opts.innerHTML='';
+  if(!again)add(userName?esc(userName):'Prefiero no decirlo','user');
+  await typing(700);
+  add((userName?`Gracias, ${esc(userName)}. `:'Perfecto. ')+'Vamos en cuatro pasos: reconocer tu miedo, descubrir lo que ignoras, transformarlo en curiosidad y llevarlo al respeto. Responde con lo que <b>haces</b>, no con lo que te gustaría hacer.','bot');
+  idx=0;A={};danger='no';ask();
+}
+async function ask(){
+  setProg();if(idx>=STEPS.length)return finish();
+  const S=STEPS[idx];await typing(650+Math.random()*350);
+  add(`<span class="k">${S.k}</span>${S.q}`,'bot');opts.innerHTML='';
+  if(S.type==='pick'){
+    const list=(A.fears||[]);
+    if(list.length<2){A.fear=list[0]||'mi miedo';opts.innerHTML='';add(`Vamos a conversar con «${esc(A.fear)}».`,'bot');idx++;return ask();}
+    list.forEach((f,k)=>{const b=document.createElement('button');b.type='button';b.className='opt';b.innerHTML=`<kbd>${k<4?'ABCD'[k]:k+1}</kbd><span>${esc(f)}</span>`;b.onclick=async()=>{opts.innerHTML='';add(esc(f),'user');A.fear=f;idx++;await typing(600);add(`Gracias por nombrarlo. Un miedo que se nombra ya empieza a perder poder. Vamos a conversar con «${esc(f)}».`,'bot');ask();};opts.appendChild(b);});
+    return;
+  }
+  if(S.type==='text'||S.type==='list'){
+    const f=document.createElement('form');f.className='txt-row';
+    f.innerHTML=`<textarea id="txt${idx}" rows="2" maxlength="180" placeholder="${esc(S.ph)}" aria-label="Tu respuesta"></textarea><button class="btn btn-main" type="submit">Enviar</button>`;
+    const ta=f.querySelector('textarea');
+    ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();f.requestSubmit();}});
+    f.addEventListener('submit',e=>{e.preventDefault();const v=ta.value.trim();if(v.length<2){ta.focus();return;}S.type==='list'?answerList(v):answerText(S,v);});
+    opts.appendChild(f);const h=document.createElement('p');h.className='txt-hint';h.textContent='Enter para enviar · Shift+Enter para salto de línea · Lo que escribes no sale de tu navegador';opts.appendChild(h);
+    if(S.type==='list')ta.rows=3;setTimeout(()=>ta.focus({preventScroll:true}),50);
+  }else{
+    const list=S.type==='danger'?S.o:shuffle(S.o);
+    list.forEach((o,k)=>{const b=document.createElement('button');b.type='button';b.className='opt';b.innerHTML=`<kbd>${'ABCD'[k]}</kbd><span>${o[0]}</span>`;b.onclick=()=>choose(S,o);opts.appendChild(b);});
+  }
+}
+async function answerList(v){
+  opts.innerHTML='';add(esc(v),'user');
+  const list=[...new Set(v.split(/[\n,;]+/).map(s=>s.trim().replace(/^[-•*\d.)\s]+/,'').slice(0,60)).filter(s=>s.length>1))].slice(0,7);
+  A.fears=list.length?list:[v.slice(0,60)];idx++;
+  await typing(700);
+  add(`Tienes <b>${A.fears.length} ${A.fears.length===1?'miedo':'miedos'}</b> en tu lista. Míralos como <b>síntomas, no como verdades</b>: cada uno señala algo que tu Sistema de Pensamiento Humano (SPH) todavía ignora y que pide reconfigurarse o resignificarse.`,'bot');
+  if(brain)brain.setLabels(A.fears);
+  ask();
+}
+async function answerText(S,v){opts.innerHTML='';add(esc(v),'user');A[S.key]=v;idx++;await typing(600);add(esc(S.reply(v)),'bot');ask();}
+async function choose(S,o){opts.innerHTML='';add(esc(o[0]),'user');
+  if(S.type==='danger'){danger=o[1];idx++;
+    if(danger==='now'){await typing(500);add('<b>Si estás en peligro ahora, lo primero es ponerte a salvo.</b> Busca un lugar seguro y pide ayuda: en México marca al <b>911</b>. Esta conversación puede esperar; tu seguridad no.','alert');}
+    else if(danger==='maybe'){await typing(500);add('Tomaremos en serio esa parte: un miedo ante un peligro posible merece respeto y prevención. Sigamos para separar lo que te protege de lo que solo te limita.','note');}
+    ask();return;}
+  A[S.key]=o[1];idx++;if(S.note){await typing(600);add(S.note,'note');}ask();}
+document.getElementById('nameForm').addEventListener('submit',e=>{e.preventDefault();start(document.getElementById('nameIn').value);});
+document.getElementById('skipName').addEventListener('click',()=>start(''));
+document.addEventListener('keydown',e=>{if(!/^[a-dA-D]$/.test(e.key))return;const a=document.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;const b=opts.querySelectorAll('.opt')['abcd'.indexOf(e.key.toLowerCase())];if(b)b.click();});
+
+/* ===== Resultado ===== */
+let R=null,brainRes=null;
+function compute(){
+  const sig={};let sum=0;for(const k in SIG){const v=A[k]??0;sig[k]=Math.round(v/3*100);sum+=v;}
+  const index=Math.max(1,Math.min(100,1+Math.round(99*sum/(SCORED*3))));
+  const stages=STAGES.map(([n,ks])=>({n,v:Math.round(ks.reduce((s,k)=>s+sig[k],0)/ks.length)}));
+  const lvl=LEVELS.find(l=>index<=l.max);
+  const low=Object.keys(SIG).map(k=>({k,v:sig[k]})).sort((a,b)=>a.v-b.v);
+  const recs=low.filter(x=>x.v<=67).slice(0,3).map(x=>RECS[x.k]);
+  if(recs.length<2)recs.push(['Sostén tu semáforo vivo.','Cuando aparezca un miedo nuevo, vuelve a esta conversación: nómbralo, busca lo que ignoras y conviértelo en pregunta.']);
+  recs.push(['Revisa tu lista de miedos.',`Tienes ${(A.fears||[]).length} ${(A.fears||[]).length===1?'síntoma':'síntomas'} de tu SPH. Elige uno por semana y pregúntate: ¿qué ignoro aquí y qué significado nuevo le puedo dar?`]);
+  recs.push(['Convierte tu pregunta en curiosidad.',`Responde esta semana tu pregunta: «${A.q||'¿qué necesito saber?'}». Después mide tu curiosidad con el Test Curioxoma.`]);
+  if((A.ansiedad===0)||(A.ocupacion===0))recs.push(['Pide apoyo si lo necesitas.','Si la ansiedad no te deja dormir, trabajar o convivir, habla con un profesional de la salud mental. Pedir ayuda también es Desmiedo.']);
+  const red=Math.round(100-index*.78);
+  const plan=[
+   ['Síguelo hasta lo que ignoras.',`Tu miedo guarda esto: «${A.ign||'algo que todavía no sabes'}». Ahí está lo que te toca aprender.`],
+   ['Conviértelo en pregunta.',`Persigue esta pregunta durante la semana: «${A.q||'¿qué necesito saber?'}».`],
+   ['Atrápalo con conocimiento.','Dedica 30 minutos, tres veces esta semana, a investigar lo que temes: fuentes confiables, una persona que ya lo vivió o una prueba pequeña y segura.'],
+   ['Dale un significado nuevo.',`Cuando vuelva a aparecer, recuérdalo así: «${A.sig||'esto es lo que me toca aprender'}».`],
+   ['Usa el miedo útil.',`Tu semáforo se pone en rojo solo cuando: «${A.red||'hay un peligro real'}». Ese miedo no se persigue ni se cuestiona: se respeta y se usa.`]
+  ];
+  return {index,lvl,sig,stages,recs,plan,red,date:new Date()};
+}
+const barRow=(label,v)=>`<div class="barrow"><label>${label}</label><output>${v}%</output><div class="track"><i data-w="${v}"></i></div></div>`;
+async function finish(){
+  setProg();opts.innerHTML='';await typing(900);
+  add('Gracias por esta conversación. Estoy armando tu semáforo y tu pacto con tu miedo…','bot');
+  await typing(1300);R=compute();
+  add(`${userName?esc(userName)+', tu':'Tu'} Índice Desmiedo es <b>${R.index}</b>: <b>${R.lvl.n}</b>. Recuerda: el miedo no se enfrenta, <b>se persigue</b>, porque guarda lo que ignoras. Abajo están tu semáforo, tu pacto y tu plan de acción.`,'bot');
+  add('Nada de esta conversación se guarda. Si quieres conservar tu resultado, guárdalo en PDF: <button class="btn btn-main" type="button" id="pdfChat" style="margin-top:10px;padding:9px 16px;font-size:.9rem">Guardar mi resultado en PDF</button>','note');
+  document.getElementById('pdfChat').addEventListener('click',savePDF);
+  showResult();
+}
+function showResult(){
+  const box=document.getElementById('result');box.hidden=false;
+  document.getElementById('resWho').textContent=userName?`Resultado de ${userName}`:'Tu resultado';
+  const num=document.getElementById('idxNum');num.className='idx-num '+(R.lvl.c==='g'?'':R.lvl.c);
+  document.getElementById('lvlName').textContent=R.lvl.n;document.getElementById('lvlDesc').textContent=R.lvl.d;
+  document.getElementById('resCap').textContent=`Tu semáforo · rojo ${R.red}% del ciclo`;
+  const gap=Math.max(0,76-R.index);
+  document.getElementById('distance').innerHTML=gap?`Estás a <b>${gap} puntos</b> de un semáforo vivo (76+).`:'<b>Tu semáforo está vivo.</b> Ahora sostenlo con cada miedo nuevo.';
+  const sf=document.getElementById('safety');
+  if(danger==='now'){sf.hidden=false;sf.innerHTML='<b>Tu seguridad primero.</b> Dijiste que hay un peligro real e inmediato: ponte a salvo y pide ayuda (911 en México). Este resultado puede esperar.';}
+  else if(danger==='maybe'){sf.hidden=false;sf.innerHTML='Hay una parte de este miedo que responde a un peligro posible: esa parte merece <b>respeto y prevención</b>, no que la ignores.';}
+  else sf.hidden=true;
+  document.getElementById('stageBars').innerHTML=R.stages.map(s=>barRow(s.n,s.v)).join('');
+  document.getElementById('sigBars').innerHTML=Object.keys(SIG).map(k=>barRow(SIG[k],R.sig[k])).join('');
+  document.getElementById('planSteps').innerHTML=R.plan.map(r=>`<li><div><b>${esc(r[0])}</b><span>${esc(r[1])}</span></div></li>`).join('');
+  document.getElementById('recs').innerHTML=R.recs.map(r=>`<li><span><b>${esc(r[0])}</b> ${esc(r[1])}</span></li>`).join('');
+  document.getElementById('pFear').textContent=A.fear||'—';
+  document.getElementById('pSig').textContent=A.sig||'—';
+  const ul=document.getElementById('pFears');ul.replaceChildren(...(A.fears||[]).map(f=>{const li=document.createElement('li');li.textContent=f;return li;}));
+  document.getElementById('fearChips').replaceChildren(...(A.fears||[]).map(f=>{const s=document.createElement('span');s.textContent=f;if(f===A.fear)s.className='main';return s;}));
+  if(!brainRes)brainRes=bindSPH('sphRes','sphResBtn',null,A.fears);else{brainRes.setFears(A.fears);brainRes.toggle(false);}
+  document.getElementById('pIgn').textContent=A.ign||'—';
+  document.getElementById('pQ').textContent=A.q||'—';
+  document.getElementById('pRed').textContent=A.red||'hay un peligro real';
+  document.getElementById('pSign').textContent=`${userName||'Firmo yo'} · ${R.date.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})} · Índice Desmiedo ${R.index}`;
+  box.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
+  const redS=.6+5*(R.red/100),gS=.6+5*((100-R.red)/100);
+  const cyc={r:redS,a:1,g:gS};
+  if(!resLight)resLight=LightTess(document.getElementById('resLight'),cyc);else resLight.cycle=cyc;
+  resLight.reset();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{document.getElementById('scaleMark').style.left=R.index+'%';box.querySelectorAll('.track i').forEach(i=>i.style.width=i.dataset.w+'%');}));
+  const t0=performance.now(),D=reduceMotion?1:1600;
+  (function tick(t){const p=Math.min(1,(t-t0)/D);num.textContent=Math.round(R.index*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick);})(t0);
+  updateShare();
+}
+document.getElementById('againBtn').addEventListener('click',()=>{
+  document.getElementById('result').hidden=true;log.innerHTML='';R=null;
+  if(brain)brain.setLabels(null);
+  add('<span class="k">ThinkIA</span>Vamos con otro miedo. Recuerda: no queremos eliminarlo, queremos ponerlo en su lugar.','bot');
+  start(userName,true);document.getElementById('conversacion').scrollIntoView({behavior:reduceMotion?'auto':'smooth'});
+});
+
+/* ===== Compartir ===== */
+const SHARE_URL=HOSTED?location.href.split('#')[0]:'https://n3.potenttial.com/desmiedo/';
+document.getElementById('shareUrl').textContent=SHARE_URL;
+const wa=t=>'https://wa.me/?text='+encodeURIComponent(t);
+function updateShare(){
+  document.getElementById('waGen').href=R?wa(`Mi Índice Desmiedo es ${R.index} (${R.lvl.n.split(' · ')[0]}). ¿Tu semáforo del miedo está siempre en rojo? Conversa con tu miedo y ponlo en su lugar: ${SHARE_URL}`):wa('Te reto a conversar con tu miedo y ponerlo en su lugar: herramienta de sobrevivencia, no estilo de vida. Haz la ThinkIA Desmiedo: '+SHARE_URL);
+  document.getElementById('waRes').href=R?wa(`${userName?userName+' te reta: ':''}mi Índice Desmiedo es ${R.index}. Pasé de un semáforo siempre en rojo a uno que solo se pone en rojo cuando toca. ¿Y el tuyo? ${SHARE_URL}`):'#';
+}
+updateShare();
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),2600);}
+function selectUrl(){const r=document.createRange();r.selectNodeContents(document.getElementById('shareUrl'));const s=getSelection();s.removeAllRanges();s.addRange(r);}
+document.getElementById('copyBtn').addEventListener('click',()=>{try{navigator.clipboard.writeText(SHARE_URL).then(()=>toast('Liga copiada'),()=>{selectUrl();toast('Selecciona y copia la liga');});}catch(e){selectUrl();toast('Selecciona y copia la liga');}});
+
+/* ===== PDF ===== */
+const hex=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+function buildPDF(){
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});const W=210,M=16;let y;
+  const C={ink:'#1B1C31',muted:'#5A6075',teal:'#3E97B6',plum:'#56356A',mag:'#E7000B',line:'#D9E2E8',red:'#E5383B',amb:'#F2A541',grn:'#2E9B6A'};
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(22);doc.setTextColor(...hex(C.ink));doc.text('Desmiedo',M,22);
+  doc.setFontSize(8);doc.setTextColor(...hex(C.mag));doc.text('THINKIA · HECHA POR N3 LABS',W-M,16,{align:'right'});
+  doc.setTextColor(...hex(C.muted));doc.text(`${userName?userName+' · ':''}${R.date.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})}`,W-M,21,{align:'right'});
+  doc.setFontSize(11);doc.setTextColor(...hex(C.muted));doc.text('Una conversación con tu miedo',M,30);
+  doc.setDrawColor(...hex(C.line));doc.line(M,35,W-M,35);
+  y=46;
+  try{doc.setFillColor(11,12,26);doc.roundedRect(W-M-58,40,58,58,4,4,'F');doc.addImage(document.getElementById('resLight').toDataURL('image/png'),'PNG',W-M-58,40,58,58);}catch(e){}
+  doc.setFontSize(8);doc.setTextColor(...hex(C.mag));doc.text('ÍNDICE #DESMIEDO · ESCALA 1-100',M,y);
+  doc.setFontSize(54);doc.setTextColor(...hex(R.lvl.c==='g'?C.grn:R.lvl.c==='a'?C.amb:C.red));doc.text(String(R.index),M-1,y+21);
+  doc.setFontSize(14);doc.setTextColor(...hex(C.ink));doc.text(R.lvl.n,M,y+30);
+  doc.setFontSize(9.5);doc.setTextColor(...hex(C.muted));const dl=doc.splitTextToSize(R.lvl.d,W-2*M-66);doc.text(dl,M,y+37);
+  y=Math.max(y+37+dl.length*4.6+6,104);
+  // pacto
+  doc.setFillColor(11,12,26);const pTop=y;const lines=[];
+  const field=(lab,val)=>{lines.push([lab,doc.splitTextToSize(String(val||'—'),W-2*M-16)]);};
+  field('MIS MIEDOS (SÍNTOMAS DE MI SPH)',(A.fears||[]).join(' · '));field('EL QUE HOY PONGO EN SU LUGAR',A.fear);field('LE TEMO PORQUE TODAVÍA NO SÉ',A.ign);field('MI PREGUNTA DE CURIOSIDAD',A.q);field('SU NUEVO SIGNIFICADO',A.sig);
+  let hgt=18;lines.forEach(l=>hgt+=6+l[1].length*5);hgt+=26;
+  doc.roundedRect(M,pTop,W-2*M,hgt,4,4,'F');
+  y=pTop+9;doc.setFontSize(8);doc.setTextColor(255,90,98);doc.text('MI PACTO #DESMIEDO',M+8,y);y+=6;
+  doc.setFontSize(13);doc.setTextColor(255,255,255);doc.text('Domestico a mi miedo para que cumpla su rol',M+8,y);y+=8;
+  lines.forEach(([lab,val])=>{doc.setFontSize(7.5);doc.setTextColor(143,148,172);doc.text(lab,M+8,y);y+=4.5;doc.setFontSize(10.5);doc.setTextColor(255,255,255);doc.text(val,M+8,y);y+=val.length*5+1.5;});
+  const rule=(col,txt)=>{doc.setFillColor(...hex(col));doc.circle(M+10,y-1.2,1.8,'F');doc.setFontSize(9.5);doc.setTextColor(255,255,255);const t=doc.splitTextToSize(txt,W-2*M-22);doc.text(t,M+15,y);y+=t.length*4.6+1.5;};
+  rule(C.red,'Rojo solo cuando: '+(A.red||'hay un peligro real'));rule(C.amb,'Ámbar cuando no sé: investigo mi pregunta.');rule(C.grn,'Verde cuando ya sé: avanzo con respeto.');
+  y=pTop+hgt+10;
+  const head=(t,x)=>{doc.setFontSize(8);doc.setTextColor(...hex(C.mag));doc.text(t.toUpperCase(),x,y);};
+  const bar=(label,v,x0,wid)=>{doc.setFontSize(8.5);doc.setTextColor(...hex(C.ink));doc.text(label,x0,y);doc.setTextColor(...hex(C.muted));doc.text(v+'%',x0+wid,y,{align:'right'});
+    doc.setFillColor(...hex(C.line));doc.roundedRect(x0,y+1.6,wid,2.4,1.2,1.2,'F');const col=v<34?C.red:v<67?C.amb:C.grn;doc.setFillColor(...hex(col));if(v>0)doc.roundedRect(x0,y+1.6,Math.max(2.4,wid*v/100),2.4,1.2,1.2,'F');y+=8;};
+  if(y>210){doc.addPage();y=20;}
+  const colW=(W-2*M-10)/2,x2=M+colW+10,yTop=y;
+  head('Tu recorrido del miedo al respeto',M);y+=5;R.stages.forEach(s=>bar(s.n,s.v,M,colW));
+  const yL=y;y=yTop;head('Las 8 señales de tu semáforo',x2);y+=5;Object.keys(SIG).forEach(k=>bar(SIG[k],R.sig[k],x2,colW));
+  y=Math.max(y,yL)+4;if(y>240){doc.addPage();y=20;}
+  head('Tu plan de acción: el miedo no se enfrenta, se persigue',M);y+=6;
+  R.plan.forEach((r,i)=>{const tt=doc.splitTextToSize(`${r[0]} ${r[1]}`,W-2*M-8);if(y+tt.length*4.4>282){doc.addPage();y=20;}
+    doc.setFillColor(...hex(C.mag));doc.circle(M+2.2,y-1.1,2.2,'F');doc.setTextColor(255,255,255);doc.setFontSize(7.5);doc.text(String(i+1),M+2.2,y+.2,{align:'center'});
+    doc.setFontSize(9);doc.setTextColor(...hex(C.ink));doc.text(tt,M+8,y);y+=tt.length*4.4+2.5;});
+  {const u=doc.splitTextToSize('Sin ir contra el sentido común: hay miedos muy útiles. Si un auto viene hacia ti, te quitas; ese miedo no se cuestiona, se usa.',W-2*M);if(y+u.length*4.4>282){doc.addPage();y=20;}doc.setFontSize(8.5);doc.setTextColor(...hex(C.grn));doc.text(u,M,y);y+=u.length*4.4+6;}
+  if(y>250){doc.addPage();y=20;}
+  head('Además, para domesticar a tu miedo esta semana',M);y+=6;
+  R.recs.forEach((r,i)=>{const t=doc.splitTextToSize(`${r[0]} ${r[1]}`,W-2*M-8);if(y+t.length*4.4>282){doc.addPage();y=20;}
+    doc.setFillColor(...hex(C.teal));doc.circle(M+2.2,y-1.1,2.2,'F');doc.setTextColor(255,255,255);doc.setFontSize(7.5);doc.text(String(i+1),M+2.2,y+.2,{align:'center'});
+    doc.setFontSize(9);doc.setTextColor(...hex(C.ink));doc.text(t,M+8,y);y+=t.length*4.4+2.5;});
+  if(y>262){doc.addPage();y=20;}
+  y+=3;doc.setDrawColor(...hex(C.line));doc.line(M,y,W-M,y);y+=6;doc.setFontSize(8);doc.setTextColor(...hex(C.muted));
+  doc.text(doc.splitTextToSize('Nada de esta conversación se guardó: este PDF existe solo en tu dispositivo. Desmiedo: el miedo es síntoma de ignorancia y la brújula de lo que ignoras; los significados se desgastan y la mente anhela significado. ThinkIA creada por Engel Fonseca, hecha por N3 Thinktech IA Laboratory (n3labs.potenttial.site). Sigue con el Test Curioxoma: n3.potenttial.com/curioxoma · Herramienta educativa de autoconocimiento; no sustituye la atención de un profesional de la salud mental.',W-2*M),M,y);
+  return doc;
+}
+let DL=null,DLp=null;
+if(window.claude&&typeof window.claude.use==='function'){DLp=window.claude.use('downloads').then(d=>DL=d).catch(()=>null);}
+async function savePDF(){
+  if(!R)return;if(!window.jspdf){toast('No se pudo cargar el generador de PDF');return;}
+  const doc=buildPDF();const fn=`Pacto-Desmiedo-${(userName||'resultado').replace(/[^\wáéíóúñÁÉÍÓÚÑ-]+/g,'-')}.pdf`;
+  if(window.claude&&typeof window.claude.use==='function'){
+    if(!DL&&DLp)await DLp;if(!DL){toast('La descarga no está disponible en esta vista');return;}
+    try{await DL.save({filename:fn,data:doc.output('blob')});toast('PDF guardado');}catch(e){toast(e&&e.code==='declined'?'Descarga cancelada':'No se pudo guardar el PDF');}
+  }else{doc.save(fn);}
+}
+['pdfBtn','pdfBtn2'].forEach(id=>document.getElementById(id).addEventListener('click',savePDF));
+</script>
+
+</body>
+</html>
