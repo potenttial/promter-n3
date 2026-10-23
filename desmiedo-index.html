@@ -338,6 +338,7 @@ footer a{color:var(--muted)}
 .foot-row{display:flex;flex-wrap:wrap;gap:8px 18px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 .nav a.lang{box-shadow:inset 0 0 0 1px var(--line);font-size:.8rem;letter-spacing:.06em}@media (max-width:820px){.nav a.lang{display:inline-block}}
+.msg .qnote{display:block;margin-top:8px;font-size:.86rem;color:var(--muted)}
 </style>
 
 </head>
@@ -465,7 +466,7 @@ footer a{color:var(--muted)}
   <section id="conversacion">
     <div class="wrap">
       <div class="test-head">
-        <div><p class="eyebrow">Conversación guiada · 16 mensajes · 6 minutos</p><h2>Habla con tu miedo</h2></div>
+        <div><p class="eyebrow">Conversación guiada · 17 mensajes · 7 minutos</p><h2>Habla con tu miedo</h2></div>
         <p class="lead" style="max-width:44ch;margin:0">Escribe con tus palabras cuando la ThinkIA te lo pida.</p>
       </div>
       <div class="privacy" role="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><div><b>Tu privacidad es un derecho: nada de esta conversación se guarda.</b><span>Lo que escribes no se envía a ningún servidor ni a una IA, no lo ve nadie y desaparece al cerrar la página. Si quieres conservar tu resultado, al final puedes guardarlo en PDF en tu dispositivo.</span></div></div>
@@ -525,6 +526,7 @@ footer a{color:var(--muted)}
             <div><dt>Mis miedos (síntomas de mi SPH)</dt><dd><ul id="pFears"></ul></dd></div>
             <div><dt>El que hoy pongo en su lugar</dt><dd id="pFear"></dd></div>
             <div><dt>Le temo porque todavía no sé</dt><dd id="pIgn"></dd></div>
+            <div id="pOrigRow" hidden><dt>Dónde aprendió mi mente a temer</dt><dd id="pOrig"></dd></div>
             <div><dt>Mi pregunta de curiosidad</dt><dd id="pQ"></dd></div>
             <div><dt>Su nuevo significado</dt><dd id="pSig"></dd></div>
             <div><dt>Mi semáforo, desde hoy</dt><dd>
@@ -895,6 +897,7 @@ const STEPS=[
  {type:'choice',key:'decisiones',k:'Paso 1 · Reconoce',q:'¿Qué decisiones ha frenado este miedo?',o:[['Muchas, y algunas muy importantes',0],['Algunas',1],['Pocas',2],['Ninguna: lo uso para prepararme mejor',3]]},
  {type:'choice',key:'conocimiento',k:'Paso 2 · La ignorancia',q:'Sé honesto: ¿qué tanto sabes realmente de aquello a lo que le temes?',o:[['Casi nada: más bien lo imagino',0],['Lo que he oído de otros',1],['He investigado algo',2],['Lo conozco bien y sé qué sí y qué no puede pasar',3]],note:'Aquí está el corazón del Desmiedo: el miedo es una brújula que apunta a lo que todavía ignoras.'},
  {type:'text',key:'ign',k:'Paso 2 · La ignorancia',q:'Completa la frase: «Le temo porque todavía no sé…»',ph:'…qué habilidades me van a pedir en dos años',reply:t=>`Eso que no sabes («${t}») no es tu enemigo: es tu siguiente aprendizaje.`},
+ {type:'text',key:'orig',skip:'Prefiero no responder',k:'Paso 2 · El origen',q:'¿Puedes identificar algún suceso o acontecimiento en la historia de tu vida, o en la de un ser querido, que haya alimentado el sistema de pensamiento que hoy sostiene tu miedo?<small class="qnote">Es opcional. Basta con nombrarlo en pocas palabras; no hace falta revivirlo. Si recordarlo te duele, puedes saltar esta pregunta.</small>',ph:'Cuando mi papá perdió su trabajo y la familia lo resintió',reply:t=>`Gracias por compartirlo. Nombrar ese suceso no es revivirlo: es ver dónde aprendió tu mente a temer. Lo que se aprendió se puede reconfigurar y resignificar.`,skipReply:'Está bien. No hace falta nombrarlo para avanzar; tu mente sabe de dónde viene y podrás volver a esto cuando quieras.',care:'Si ese recuerdo sigue siendo una herida abierta, vale la pena trabajarlo con un profesional de la salud mental. Pedir ayuda también es Desmiedo.'},
  {type:'choice',key:'curiosidad',k:'Paso 3 · Curiosidad',q:'Si en lugar de evitarlo, ese miedo te diera curiosidad, ¿qué harías?',o:[['Nada; prefiero no pensar en eso',0],['Lo pensaría un poco más',1],['Buscaría información',2],['Lo exploraría con un plan y con quien ya lo vivió',3]]},
  {type:'text',key:'q',k:'Paso 3 · Curiosidad',q:'Escribe una pregunta que te gustaría responder sobre tu miedo. Empieza con «¿Qué…», «¿Cómo…» o «¿Quién…».',ph:'¿Qué tareas de mi trabajo puede hacer la IA y cuáles no?',reply:t=>`Esa pregunta convierte la ansiedad en dirección. Ya no es «¿y si sale mal?», es «${t.replace(/^¿?/,'¿').replace(/\??$/,'?')}».`},
  {type:'choice',key:'respeto',k:'Paso 4 · Respeto',q:'¿Puedes distinguir la parte de tu miedo que te protege de la parte que solo te limita?',o:[['No, para mí son lo mismo',0],['A veces',1],['Casi siempre',2],['Sí, con claridad',3]]},
@@ -954,6 +957,7 @@ async function ask(){
     ta.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();f.requestSubmit();}});
     f.addEventListener('submit',e=>{e.preventDefault();const v=ta.value.trim();if(v.length<2){ta.focus();return;}S.type==='list'?answerList(v):answerText(S,v);});
     opts.appendChild(f);const h=document.createElement('p');h.className='txt-hint';h.textContent='Enter para enviar · Shift+Enter para salto de línea · Lo que escribes no sale de tu navegador';opts.appendChild(h);
+    if(S.skip){const sk=document.createElement('button');sk.type='button';sk.className='skip';sk.textContent=S.skip;sk.onclick=()=>skipText(S);opts.appendChild(sk);}
     if(S.type==='list')ta.rows=3;setTimeout(()=>ta.focus({preventScroll:true}),50);
   }else{
     const list=S.type==='danger'?S.o:shuffle(S.o);
@@ -969,7 +973,8 @@ async function answerList(v){
   if(brain)brain.setLabels(A.fears);
   ask();
 }
-async function answerText(S,v){opts.innerHTML='';add(esc(v),'user');A[S.key]=v;idx++;await typing(600);add(esc(S.reply(v)),'bot');ask();}
+async function answerText(S,v){opts.innerHTML='';add(esc(v),'user');A[S.key]=v;idx++;await typing(600);add(esc(S.reply(v)),'bot');if(S.care){await typing(500);add(S.care,'note');}ask();}
+async function skipText(S){opts.innerHTML='';add(esc(S.skip),'user');A[S.key]='';idx++;await typing(500);add(esc(S.skipReply),'bot');ask();}
 async function choose(S,o){opts.innerHTML='';add(esc(o[0]),'user');
   if(S.type==='danger'){danger=o[1];idx++;
     if(danger==='now'){await typing(500);add('<b>Si estás en peligro ahora, lo primero es ponerte a salvo.</b> Busca un lugar seguro y pide ayuda: en México marca al <b>911</b>. Esta conversación puede esperar; tu seguridad no.','alert');}
@@ -1046,6 +1051,7 @@ function showResult(){
   document.getElementById('fearChips').replaceChildren(...(A.fears||[]).map(f=>{const s=document.createElement('span');s.textContent=f;if(f===A.fear)s.className='main';return s;}));
   if(!brainRes)brainRes=bindSPH('sphRes','sphResBtn',null,A.fears);else{brainRes.setFears(A.fears);brainRes.toggle(false);}
   document.getElementById('pIgn').textContent=A.ign||'—';
+  document.getElementById('pOrigRow').hidden=!A.orig;document.getElementById('pOrig').textContent=A.orig||'';
   document.getElementById('pQ').textContent=A.q||'—';
   document.getElementById('pRed').textContent=A.red||'hay un peligro real';
   document.getElementById('pSign').textContent=`${userName||'Firmo yo'} · ${R.date.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})} · Índice Desmiedo ${R.index}`;
@@ -1100,7 +1106,7 @@ function buildPDF(){
   // pacto
   doc.setFillColor(11,12,26);const pTop=y;const lines=[];
   const field=(lab,val)=>{lines.push([lab,doc.splitTextToSize(String(val||'—'),W-2*M-16)]);};
-  field('MIS MIEDOS (SÍNTOMAS DE MI SPH)',(A.fears||[]).join(' · '));field('EL QUE HOY PONGO EN SU LUGAR',A.fear);field('LE TEMO PORQUE TODAVÍA NO SÉ',A.ign);field('MI PREGUNTA DE CURIOSIDAD',A.q);field('SU NUEVO SIGNIFICADO',A.sig);
+  field('MIS MIEDOS (SÍNTOMAS DE MI SPH)',(A.fears||[]).join(' · '));field('EL QUE HOY PONGO EN SU LUGAR',A.fear);field('LE TEMO PORQUE TODAVÍA NO SÉ',A.ign);if(A.orig)field('DÓNDE APRENDIÓ MI MENTE A TEMER',A.orig);field('MI PREGUNTA DE CURIOSIDAD',A.q);field('SU NUEVO SIGNIFICADO',A.sig);
   let hgt=18;lines.forEach(l=>hgt+=6+l[1].length*5);hgt+=26;
   doc.roundedRect(M,pTop,W-2*M,hgt,4,4,'F');
   y=pTop+9;doc.setFontSize(8);doc.setTextColor(255,90,98);doc.text('MI PACTO DESMIEDO',M+8,y);y+=6;
