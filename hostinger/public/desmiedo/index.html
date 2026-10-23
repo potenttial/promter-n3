@@ -190,6 +190,9 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .privacy svg{width:22px;height:22px;flex:none;color:var(--green);margin-top:1px}
 .privacy b{display:block}
 .privacy span{color:var(--muted);font-size:.94rem}
+.restart{background:none;border:1px solid var(--line);color:var(--ink);font:inherit;font-weight:300;font-size:.82rem;border-radius:999px;padding:5px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;margin-left:8px}
+.restart:hover{border-color:var(--magenta);color:var(--magenta)}
+.restart svg{width:13px;height:13px}
 .lock{display:inline-flex;align-items:center;gap:6px;font-size:.74rem;font-weight:300;letter-spacing:.08em;text-transform:uppercase;color:var(--green);border:1px solid var(--green);border-radius:999px;padding:4px 10px;margin-left:auto}
 .lock svg{width:12px;height:12px}
 .save-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-top:18px;background:var(--paper);border:1.5px solid var(--plum);border-radius:18px;padding:18px 20px}
@@ -455,6 +458,7 @@ footer a{color:var(--muted)}
           <div class="avatar" id="avatar" data-s="r" aria-hidden="true"><i></i><i></i><i></i></div>
           <div><b>ThinkIA Desmiedo</b><small>● en línea</small></div>
           <span class="lock" title="Nada se guarda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Privado</span>
+          <button class="restart" id="restartBtn" type="button" title="Borra la conversación y empieza de nuevo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Volver a empezar</button>
           <div class="progress" style="margin-left:12px"><span id="progTxt">Inicio</span><div class="pbar"><i id="progBar"></i></div></div>
         </div>
         <div class="log" id="log" aria-live="polite">
@@ -538,6 +542,7 @@ footer a{color:var(--muted)}
           <button class="btn btn-main" id="pdfBtn" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></svg>Descargar mi pacto en PDF</button>
           <a class="btn btn-wa" id="waRes" href="#" target="_blank" rel="noopener">Retar por WhatsApp</a>
           <button class="btn btn-ghost" id="againBtn" type="button">Conversar con otro miedo</button>
+          <button class="btn btn-ghost" id="restartBtn2" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>Volver a empezar</button>
         </div>
       </div>
     </div>
@@ -892,11 +897,12 @@ const RECS={
  recuperacion:['Cierra el ciclo.','Cuando pase el peligro, escribe «ya pasó, gracias» y vuelve a tu verde. El miedo domesticado cumple y se va.']
 };
 const log=document.getElementById('log'),opts=document.getElementById('opts'),avatar=document.getElementById('avatar');
-let userName='',idx=0,A={},danger='no';
+let userName='',idx=0,A={},danger='no',gen=0;
+const LOG0=log.innerHTML,OPTS0=opts.innerHTML;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const scrollLog=()=>{log.scrollTop=log.scrollHeight;};
 function add(html,cls){const m=document.createElement('div');m.className='msg '+cls;m.innerHTML=html;log.appendChild(m);scrollLog();return m;}
-function typing(ms){return new Promise(res=>{const t=document.createElement('div');t.className='msg bot typing';t.innerHTML='<i></i><i></i><i></i>';log.appendChild(t);scrollLog();setTimeout(()=>{t.remove();res();},reduceMotion?60:ms);});}
+function typing(ms){const g=gen;return new Promise(res=>{const t=document.createElement('div');t.className='msg bot typing';t.innerHTML='<i></i><i></i><i></i>';log.appendChild(t);scrollLog();setTimeout(()=>{t.remove();if(g===gen)res();},reduceMotion?60:ms);});}
 function setProg(){document.getElementById('progTxt').textContent=idx<STEPS.length?`Mensaje ${idx+1} de ${STEPS.length}`:'Completo';document.getElementById('progBar').style.width=(idx/STEPS.length*100)+'%';
   avatar.dataset.s=idx<5?'r':idx<9?'a':'g';}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
@@ -946,8 +952,19 @@ async function choose(S,o){opts.innerHTML='';add(esc(o[0]),'user');
     else if(danger==='maybe'){await typing(500);add('Tomaremos en serio esa parte: un miedo ante un peligro posible merece respeto y prevención. Sigamos para separar lo que te protege de lo que solo te limita.','note');}
     ask();return;}
   A[S.key]=o[1];idx++;if(S.note){await typing(600);add(S.note,'note');}ask();}
-document.getElementById('nameForm').addEventListener('submit',e=>{e.preventDefault();start(document.getElementById('nameIn').value);});
-document.getElementById('skipName').addEventListener('click',()=>start(''));
+function bindName(){document.getElementById('nameForm').addEventListener('submit',e=>{e.preventDefault();start(document.getElementById('nameIn').value);});
+document.getElementById('skipName').addEventListener('click',()=>start(''));}
+bindName();
+function restart(){
+  gen++;R=null;idx=0;A={};danger='no';userName='';
+  document.getElementById('result').hidden=true;
+  log.innerHTML=LOG0;opts.innerHTML=OPTS0;bindName();setProg();document.getElementById('progTxt').textContent='Inicio';
+  if(brain)brain.setLabels(null);updateShare();
+  document.getElementById('conversacion').scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
+  toast('Conversación borrada. Empieza de nuevo cuando quieras.');
+}
+document.getElementById('restartBtn').addEventListener('click',restart);
+document.getElementById('restartBtn2').addEventListener('click',restart);
 document.addEventListener('keydown',e=>{if(!/^[a-dA-D]$/.test(e.key))return;const a=document.activeElement;if(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))return;const b=opts.querySelectorAll('.opt')['abcd'.indexOf(e.key.toLowerCase())];if(b)b.click();});
 
 /* ===== Resultado ===== */
