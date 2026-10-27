@@ -61,6 +61,17 @@ h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:clamp(30px,4.4
 #map{height:640px;background:#CFE4EC}
 .leaflet-tooltip.geo{background:none;border:0;box-shadow:none;font:500 11px Montserrat;letter-spacing:.14em;text-transform:uppercase;color:#6d8794;padding:0}
 .leaflet-tooltip.geo.land{color:#8a7a68}.leaflet-tooltip.geo::before{display:none}
+.leaflet-tooltip.reg{border:0;box-shadow:0 1px 4px rgba(0,0,0,.2);font:700 11px Montserrat;letter-spacing:.08em;text-transform:uppercase;color:#fff;padding:4px 9px;border-radius:12px}.leaflet-tooltip.reg::before{display:none}
+.leaflet-tooltip.reg.gmx{background:#2E9650}.leaflet-tooltip.reg.grd{background:#CD3232}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 16px}
+.vs div{border-radius:12px;padding:14px 16px;color:#fff}
+.vs .g{background:linear-gradient(135deg,#2E9650,#1F7A3E)}.vs .r{background:linear-gradient(135deg,#CD3232,#A82626)}
+.vs small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+.vs b{display:block;font-family:'DM Serif Display',serif;font-weight:400;font-size:26px;line-height:1.15;margin:4px 0}
+.vs p{margin:0;font-size:12.5px;opacity:.92}
+tr.gh td{background:#FAF5EE;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:7px 16px}
+td .rg{display:block;font-size:10.5px;font-weight:500;color:var(--muted)}
+@media (max-width:980px){.vs{grid-template-columns:1fr}}
 .leaflet-tooltip.geo.mx{color:var(--terra);font-weight:700}
 .legend{display:flex;flex-wrap:wrap;gap:14px;padding:10px 16px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
@@ -139,6 +150,8 @@ footer img{height:30px}
     <div class="kpi e"><b id="k-e">0</b><small data-es="lo evaden" data-en="avoid it">lo evaden</small></div>
   </section>
 
+  <section class="vs" id="vs"></section>
+
   <section class="grid">
     <div class="panel">
       <h2 data-es="Mapa en vivo" data-en="Live map">Mapa en vivo</h2>
@@ -201,19 +214,23 @@ const SAYS = {
   e:{es:'Su sitio oficial y sus redes no lo mencionan esta semana.', en:'Its official site and social channels have not mentioned it this week.'},
   n:{es:'No hay sargazo relevante; no requiere aviso.', en:'No relevant sargassum; no notice needed.'}};
 const TIP = {es:'Recomendación al viajero: ', en:'Traveler tip: '};
+const GR = {mx:{es:'Caribe Mexicano',en:'Mexican Caribbean',col:'#2E9650'}, rd:{es:'República Dominicana',en:'Dominican Republic',col:'#CD3232'}, ot:{es:'Otros destinos del Caribe',en:'Other Caribbean destinations',col:'#8A8A8A'}};
 const D = [
-  {id:'T', n:'Destino Target', lat:21.10, lon:-86.76, lv:3, cm:'c', tg:true, alt:{es:'Playas del lado de la bahía y cenotes cercanos.', en:'Bay-side beaches and nearby cenotes.'}},
-  {id:'A', n:'Destino A', lat:18.55, lon:-87.70, lv:3, cm:'m', alt:{es:'Prefiere playas de laguna o costa oeste.', en:'Prefer lagoon or west-coast beaches.'}},
-  {id:'B', n:'Destino B', lat:18.60, lon:-68.37, lv:4, cm:'e', dir:'left', alt:{es:'Verifica con tu hotel antes de reservar.', en:'Check with your hotel before booking.'}},
-  {id:'C', n:'Destino C', lat:16.25, lon:-61.55, lv:4, cm:'c', alt:{es:'Costa de sotavento con mejor condición.', en:'Leeward coast in better condition.'}},
-  {id:'D', n:'Destino D', lat:13.15, lon:-59.55, lv:3, cm:'e', dir:'left', alt:{es:'Costa oeste, más protegida.', en:'West coast, more sheltered.'}},
-  {id:'E', n:'Destino E', lat:24.70, lon:-81.05, lv:2, cm:'c', alt:{es:'Condición aceptable en la mayoría de playas.', en:'Acceptable in most beaches.'}},
-  {id:'F', n:'Destino F', lat:12.55, lon:-81.70, lv:2, cm:'m', alt:{es:'Playas del norte con menos arribo.', en:'Northern beaches with fewer arrivals.'}},
-  {id:'G', n:'Destino G', lat:10.42, lon:-75.55, lv:1, cm:'n', alt:{es:'Sin restricciones.', en:'No restrictions.'}},
-  {id:'H', n:'Destino H', lat:16.32, lon:-86.55, lv:2, cm:'m', alt:{es:'Lado sur de la isla.', en:'South side of the island.'}},
-  {id:'I', n:'Destino I', lat:18.45, lon:-66.10, lv:3, cm:'c', dir:'top', alt:{es:'Playas de la costa norte.', en:'North-coast beaches.'}},
-  {id:'J', n:'Destino J', lat:18.05, lon:-63.05, lv:4, cm:'e', alt:{es:'Consulta reportes ciudadanos recientes.', en:'Check recent citizen reports.'}},
-  {id:'K', n:'Destino K', lat:12.50, lon:-69.97, lv:1, cm:'n', alt:{es:'Sin restricciones.', en:'No restrictions.'}},
+  {id:'T', g:'mx', n:'Destino Target', s:'Destino Target', lat:21.10, lon:-86.76, lv:3, cm:'c', tg:true, alt:{es:'Playas del lado de la bahía y cenotes cercanos.', en:'Bay-side beaches and nearby cenotes.'}},
+  {id:'M1', g:'mx', n:'Sub-destino CM 1', s:'CM 1', lat:20.50, lon:-86.95, lv:2, cm:'c', dir:'left', alt:{es:'Costa oeste de la isla, con menos arribo.', en:'Island west coast, fewer arrivals.'}},
+  {id:'M2', g:'mx', n:'Sub-destino CM 2', s:'CM 2', lat:19.95, lon:-87.45, lv:3, cm:'c', alt:{es:'Cenotes y zona arqueológica mientras se limpia la playa.', en:'Cenotes and ruins while beaches are cleaned.'}},
+  {id:'M3', g:'mx', n:'Sub-destino CM 3', s:'CM 3', lat:18.55, lon:-87.70, lv:3, cm:'c', dir:'left', alt:{es:'Laguna de agua dulce como alternativa.', en:'Freshwater lagoon as an alternative.'}},
+  {id:'R1', g:'rd', n:'RD · Destino 1', s:'RD 1', lat:18.58, lon:-68.37, lv:4, cm:'e', dir:'bottom', alt:{es:'Verifica con tu hotel antes de reservar.', en:'Check with your hotel before booking.'}},
+  {id:'R2', g:'rd', n:'RD · Destino 2', s:'RD 2', lat:18.42, lon:-68.97, lv:3, cm:'e', dir:'left', alt:{es:'Consulta reportes ciudadanos recientes.', en:'Check recent citizen reports.'}},
+  {id:'R3', g:'rd', n:'RD · Destino 3', s:'RD 3', lat:19.20, lon:-69.33, lv:3, cm:'e', dir:'top', alt:{es:'Prefiere playas de bahía protegida.', en:'Prefer sheltered bay beaches.'}},
+  {id:'R4', g:'rd', n:'RD · Destino 4', s:'RD 4', lat:19.80, lon:-70.69, lv:2, cm:'e', dir:'left', alt:{es:'Revisa fotos recientes de la playa.', en:'Look for recent beach photos.'}},
+  {id:'C', g:'ot', n:'Destino C', s:'Destino C', lat:16.25, lon:-61.55, lv:4, cm:'m', alt:{es:'Costa de sotavento con mejor condición.', en:'Leeward coast in better condition.'}},
+  {id:'D', g:'ot', n:'Destino D', s:'Destino D', lat:13.15, lon:-59.55, lv:3, cm:'m', dir:'left', alt:{es:'Costa oeste, más protegida.', en:'West coast, more sheltered.'}},
+  {id:'E', g:'ot', n:'Destino E', s:'Destino E', lat:24.70, lon:-81.05, lv:2, cm:'m', alt:{es:'Condición aceptable en la mayoría de playas.', en:'Acceptable in most beaches.'}},
+  {id:'F', g:'ot', n:'Destino F', s:'Destino F', lat:12.55, lon:-81.70, lv:2, cm:'m', alt:{es:'Playas del norte con menos arribo.', en:'Northern beaches with fewer arrivals.'}},
+  {id:'G', g:'ot', n:'Destino G', s:'Destino G', lat:10.42, lon:-75.55, lv:1, cm:'n', alt:{es:'Sin restricciones.', en:'No restrictions.'}},
+  {id:'I', g:'ot', n:'Destino I', s:'Destino I', lat:18.45, lon:-66.10, lv:3, cm:'m', alt:{es:'Playas de la costa norte.', en:'North-coast beaches.'}},
+  {id:'K', g:'ot', n:'Destino K', s:'Destino K', lat:12.50, lon:-69.97, lv:1, cm:'n', alt:{es:'Sin restricciones.', en:'No restrictions.'}},
 ];
 D.forEach((d,i)=>{ d.hist = Array.from({length:14},(_,k)=>Math.max(0.3,Math.min(4,d.lv + Math.sin(k*0.7+i)*0.8 + (k-13)*-0.04))); d.hist[13]=d.lv; });
 
@@ -228,12 +245,17 @@ map.attributionControl.addAttribution('Mapa: Natural Earth');
 L.polygon(window.CARIBE_LAND.map(r=>r.map(([x,y])=>[y,x])),{pane:'land',renderer:landR,color:'#C9BBA8',weight:.8,fillColor:'#F1E9DD',fillOpacity:1,interactive:false}).addTo(map);
 const GEO=[
   [28.3,-81.6,{es:'Florida',en:'Florida'},'land'],[24.0,-90.5,{es:'Golfo de México',en:'Gulf of Mexico'},''],
-  [20.0,-83.9,{es:'Caribe Mexicano',en:'Mexican Caribbean'},'mx'],
+  
   [22.0,-79.6,{es:'Cuba',en:'Cuba'},'land'],[25.9,-76.2,{es:'Bahamas',en:'Bahamas'},''],
   [15.0,-74.5,{es:'Mar Caribe',en:'Caribbean Sea'},''],[22.5,-64.5,{es:'Océano Atlántico',en:'Atlantic Ocean'},''],
   [14.4,-87.5,{es:'Centroamérica',en:'Central America'},'land'],[8.6,-67,{es:'Sudamérica',en:'South America'},'land'],
-  [17.6,-77.3,{es:'Jamaica',en:'Jamaica'},'land'],[19.3,-70.6,{es:'La Española',en:'Hispaniola'},'land'],[20.4,-61.2,{es:'Antillas Menores',en:'Lesser Antilles'},'']];
+  [17.6,-77.3,{es:'Jamaica',en:'Jamaica'},'land'],[20.4,-61.2,{es:'Antillas Menores',en:'Lesser Antilles'},'']];
 const geoTips = GEO.map(([la,lo,txt,cls])=>{ const m=L.circleMarker([la,lo],{radius:0,opacity:0,fillOpacity:0,interactive:false,pane:'geo'}).addTo(map); m.bindTooltip(txt.es,{permanent:true,direction:'center',className:'geo '+cls}); return [m,txt]; });
+const REG=[
+  [[19.9,-87.15],260000,'#2E9650',[22.35,-85.2],{es:'Caribe Mexicano · lo comunica',en:'Mexican Caribbean · communicates'},'gmx'],
+  [[19.0,-69.6],250000,'#CD3232',[21.0,-69.8],{es:'Rep. Dominicana · lo evade',en:'Dominican Rep. · avoids it'},'grd']];
+const regTips = REG.map(([c,r,col,lp,txt,cls])=>{ L.circle(c,{radius:r,color:col,weight:2,dashArray:'6 6',fillColor:col,fillOpacity:.07,interactive:false,pane:'geo'}).addTo(map);
+  const m=L.circleMarker(lp,{radius:0,opacity:0,fillOpacity:0,interactive:false,pane:'geo'}).addTo(map); m.bindTooltip(txt.es,{permanent:true,direction:'center',className:'reg '+cls}); return [m,txt]; });
 map.fitBounds([[9.5,-92],[30.8,-58]]);
 
 // sargassum mats drifting west, kept off land with a coarse sea mask
@@ -272,7 +294,7 @@ D.forEach(d=>{
   const g = L.layerGroup().addTo(map);
   const ring = L.circleMarker([d.lat,d.lon],{renderer:dotR,radius:10,color:COL[d.lv],weight:2,fill:false,opacity:.8}).addTo(g);
   const dot = L.circleMarker([d.lat,d.lon],{renderer:dotR,radius:d.tg?9:7,color:'#fff',weight:2,fillColor:COL[d.lv],fillOpacity:1}).addTo(g);
-  dot.bindTooltip(d.n,{permanent:true,direction:d.dir||'right',offset:d.dir==='left'?[-10,0]:d.dir==='top'?[0,-10]:d.dir==='bottom'?[0,10]:[10,0],className:'lbl'+(d.tg?' tg':'')});
+  dot.bindTooltip(d.s,{permanent:true,direction:d.dir||'right',offset:d.dir==='left'?[-10,0]:d.dir==='top'?[0,-10]:d.dir==='bottom'?[0,10]:[10,0],className:'lbl'+(d.tg?' tg':'')});
   dot.on('click',()=>select(d.id,true));
   marks[d.id]={ring,dot};
 });
@@ -289,12 +311,27 @@ function renderFilters(){
   document.querySelectorAll('#filters button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderFilters();renderTable();});
 }
 function renderTable(){
-  const rows = D.filter(d=>filter==='all'||d.cm===filter).sort((a,b)=>(!!b.tg-!!a.tg)||(b.lv-a.lv));
-  document.getElementById('tbody').innerHTML = rows.map(d=>`<tr class="row ${d.tg?'tg':''} ${d.id===sel?'sel':''}" data-id="${d.id}"><td class="n">${d.n}</td><td>${bars(d.lv)}</td><td>${pill(d.cm)}</td></tr>`).join('');
+  const rows = D.filter(d=>filter==='all'||d.cm===filter);
+  let html='';
+  ['mx','rd','ot'].forEach(g=>{
+    const rr = rows.filter(d=>d.g===g).sort((a,b)=>(!!b.tg-!!a.tg)||(b.lv-a.lv)); if(!rr.length) return;
+    html += `<tr class="gh"><td colspan="3" style="color:${GR[g].col}">${GR[g][lang]}</td></tr>`;
+    html += rr.map(d=>`<tr class="row ${d.tg?'tg':''} ${d.id===sel?'sel':''}" data-id="${d.id}"><td class="n">${d.n}</td><td>${bars(d.lv)}</td><td>${pill(d.cm)}</td></tr>`).join('');
+  });
+  document.getElementById('tbody').innerHTML = html;
   document.querySelectorAll('tr.row').forEach(r=>r.onclick=()=>select(r.dataset.id,true));
   const c={c:0,m:0,e:0}; D.forEach(d=>{ if(c[d.cm]!==undefined) c[d.cm]++; });
   document.getElementById('k-dest').textContent = 42;
   document.getElementById('k-c').textContent=c.c; document.getElementById('k-m').textContent=c.m; document.getElementById('k-e').textContent=c.e;
+}
+function renderVs(){
+  const mx=D.filter(d=>d.g==='mx'), rd=D.filter(d=>d.g==='rd');
+  const nmx=mx.filter(d=>d.cm==='c').length, nrd=rd.filter(d=>d.cm==='e').length;
+  document.getElementById('vs').innerHTML = lang==='es'
+   ? `<div class="g"><small>Caribe Mexicano · lo comunica</small><b>${nmx} de ${mx.length} sub-destinos informan el sargazo</b><p>Semáforo diario, playas alternativas y opciones de reprogramación en su sitio oficial y redes.</p></div>
+      <div class="r"><small>República Dominicana · lo evade</small><b>${nrd} de ${rd.length} destinos no lo mencionan</b><p>Con sargazo alto o muy alto, su sitio oficial y redes no lo comunican esta semana.</p></div>`
+   : `<div class="g"><small>Mexican Caribbean · communicates</small><b>${nmx} of ${mx.length} sub-destinations report sargassum</b><p>Daily alert level, alternative beaches and rebooking options on official site and social media.</p></div>
+      <div class="r"><small>Dominican Republic · avoids it</small><b>${nrd} of ${rd.length} destinations don't mention it</b><p>Despite high or very high sargassum, their official site and social media are silent this week.</p></div>`;
 }
 function spark(h,lv){
   const W=300,H=46,max=4; const pts=h.map((v,i)=>[i*(W/(h.length-1)), H-4-(v/max)*(H-8)]);
@@ -304,7 +341,7 @@ function renderDetail(){
   const d=D.find(x=>x.id===sel);
   const L14 = lang==='es'?'Últimos 14 días':'Last 14 days';
   document.getElementById('detail').innerHTML = `
-    <h3>${d.n}</h3>${pill(d.cm)} <span style="font-size:12px;color:var(--muted);margin-left:6px">${lang==='es'?'Sargazo':'Sargassum'}: <b style="color:${COL[d.lv]}">${LV[lang][d.lv]}</b></span>
+    <h3>${d.n}</h3><div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:${GR[d.g].col};margin-bottom:6px">${GR[d.g][lang]}</div>${pill(d.cm)} <span style="font-size:12px;color:var(--muted);margin-left:6px">${lang==='es'?'Sargazo':'Sargassum'}: <b style="color:${COL[d.lv]}">${LV[lang][d.lv]}</b></span>
     <div class="cmp"><div><b>${lang==='es'?'Lo que mide el observatorio':'What the observatory measures'}</b>${lang==='es'?'Nivel':'Level'} ${LV[lang][d.lv].toLowerCase()} · ${lang==='es'?'satélite + reportes en tierra':'satellite + ground reports'}</div>
     <div><b>${lang==='es'?'Lo que dice el destino':'What the destination says'}</b>${SAYS[d.cm][lang]}</div></div>
     <div style="font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">${L14}</div>${spark(d.hist,d.lv)}
@@ -325,15 +362,16 @@ function tick(){
 }
 setInterval(tick,1000);
 
+const by=id=>D.find(x=>x.id===id);
 const EVENTS = [
-  ()=>{const d=D[2]; return {d, es:`${d.n}: sargazo ${LV.es[d.lv].toLowerCase()}; su sitio oficial no lo menciona.`, en:`${d.n}: ${LV.en[d.lv].toLowerCase()} sargassum; its official site does not mention it.`};},
-  ()=>{const d=D[0]; return {d, es:`${d.n} publicó su semáforo de hoy y 6 playas sin sargazo.`, en:`${d.n} published today's alert level and 6 sargassum-free beaches.`};},
-  ()=>{const d=D[10]; return {d, es:`${d.n} sube a muy alto: 3 reportes ciudadanos con foto.`, en:`${d.n} rises to very high: 3 citizen reports with photos.`};},
-  ()=>{const d=D[1]; return {d, es:`${d.n}: el comunicado de prensa habla de “sargazo temporal” sin datos.`, en:`${d.n}: press release calls it “temporary sargassum” with no data.`};},
-  ()=>{const d=D[3]; return {d, es:`Nueva franja de sargazo detectada a 120 km de ${d.n}.`, en:`New sargassum band detected 120 km from ${d.n}.`};},
-  ()=>{const d=D[5]; return {d, es:`${d.n} baja a medio; condición estable.`, en:`${d.n} drops to moderate; stable conditions.`};},
-  ()=>{const d=D[4]; return {d, es:`${d.n}: redes oficiales sin mención en 9 días.`, en:`${d.n}: no mention on official social media in 9 days.`};},
-  ()=>{const d=D[8]; return {d, es:`${d.n} agrega aviso en su sitio, aún sin playas alternativas.`, en:`${d.n} adds a notice on its site, still no alternative beaches.`};},
+  ()=>{const d=by('R1'); return {d, es:`${d.n}: sargazo ${LV.es[d.lv].toLowerCase()}; su sitio oficial no lo menciona.`, en:`${d.n}: ${LV.en[d.lv].toLowerCase()} sargassum; its official site does not mention it.`};},
+  ()=>{const d=by('T'); return {d, es:`Caribe Mexicano · ${d.n} publicó su semáforo de hoy y 6 playas sin sargazo.`, en:`Mexican Caribbean · ${d.n} published today's alert level and 6 sargassum-free beaches.`};},
+  ()=>{const d=by('R3'); return {d, es:`${d.n}: 3 reportes ciudadanos con foto; redes oficiales sin mención.`, en:`${d.n}: 3 citizen reports with photos; no mention on official social media.`};},
+  ()=>{const d=by('M2'); return {d, es:`Caribe Mexicano · ${d.n} recomienda cenotes mientras limpia la playa.`, en:`Mexican Caribbean · ${d.n} recommends cenotes while beaches are cleaned.`};},
+  ()=>{const d=by('C'); return {d, es:`Nueva franja de sargazo detectada a 120 km de ${d.n}.`, en:`New sargassum band detected 120 km from ${d.n}.`};},
+  ()=>{const d=by('R2'); return {d, es:`${d.n}: el sitio oficial promociona playa sin aviso de sargazo.`, en:`${d.n}: official site promotes beaches with no sargassum notice.`};},
+  ()=>{const d=by('M1'); return {d, es:`Caribe Mexicano · ${d.n} actualiza su mapa de playas limpias.`, en:`Mexican Caribbean · ${d.n} updates its clean-beach map.`};},
+  ()=>{const d=by('R4'); return {d, es:`${d.n}: redes oficiales sin mención en 9 días.`, en:`${d.n}: no mention on official social media in 9 days.`};},
 ];
 let ei=0; const feedItems=[];
 function pushEvent(){
@@ -350,7 +388,8 @@ function applyLang(){
   document.querySelectorAll('[data-es]').forEach(el=>el.textContent=el.dataset[lang]);
   document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===lang));
   document.title = lang==='es'?'Observatorio Latinoamericano de Sargazo · Turisenda':'Latin American Sargassum Observatory · Turisenda';
-  geoTips.forEach(([m,txt])=>m.setTooltipContent(txt[lang]));
+  geoTips.concat(regTips).forEach(([m,txt])=>m.setTooltipContent(txt[lang]));
+  renderVs();
   renderFilters(); renderTable(); renderDetail(); renderFeed(); tick();
 }
 document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;applyLang();});
