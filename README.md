@@ -13,3 +13,7 @@ Funciona en el navegador y no consume tokens.
 
 - `promterAD/index.html`: live demo — a 300×600 Prompter Ad running on a sample (fictional) publisher page.
 - `promterAD/banner/`: the HTML5 creative (DV360/CM360-ready); `prompter-ad-300x600-en.zip` is the upload package.
+
+## Turisenda · Observatorio Latinoamericano de Sargazo (`turisenda/observatorio-sargazo/`)
+
+- Demo (ES/EN) del observatorio en el sitio Turisenda: mapa en vivo con sargazo en deriva, semáforo por destino e índice de transparencia (lo comunica / lo minimiza / lo evade). Destinos anonimizados y datos de muestra.

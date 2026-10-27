@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Observatorio Latinoamericano de Sargazo · Turisenda</title>
+<meta name="description" content="Monitoreo en tiempo real del sargazo en los destinos de playa de América Latina y el Caribe, con semáforo por destino e índice de transparencia: ¿el destino lo comunica o lo evade?">
+<link rel="alternate" hreflang="es" href="?lang=es">
+<link rel="alternate" hreflang="en" href="?lang=en">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="vendor/leaflet.css">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"Dataset","name":"Observatorio Latinoamericano de Sargazo","alternateName":"Latin American Sargassum Observatory","creator":{"@type":"Organization","name":"Turisenda"},"description":"Nivel diario de sargazo por destino de playa en el Caribe y América Latina, con índice de transparencia de la comunicación de cada destino.","inLanguage":["es","en"],"spatialCoverage":"Caribe y Golfo de México","temporalCoverage":"2026/..","isAccessibleForFree":true,"measurementTechnique":["Detección satelital","Semáforos oficiales","Reportes ciudadanos","Monitoreo de comunicación del destino"]},
+ {"@type":"FAQPage","mainEntity":[
+  {"@type":"Question","name":"¿Hay sargazo hoy en el Caribe?","acceptedAnswer":{"@type":"Answer","text":"El Observatorio Latinoamericano de Sargazo de Turisenda publica cada día el nivel de sargazo por destino (bajo, medio, alto o muy alto) a partir de detección satelital, semáforos oficiales y reportes ciudadanos."}},
+  {"@type":"Question","name":"¿Qué es el índice de transparencia?","acceptedAnswer":{"@type":"Answer","text":"Compara el sargazo medido con lo que comunican el sitio oficial, las redes y los medios de cada destino, y lo clasifica como: lo comunica, lo minimiza o lo evade."}},
+  {"@type":"Question","name":"¿Cuándo es la temporada de sargazo?","acceptedAnswer":{"@type":"Answer","text":"En el Caribe el arribo de sargazo suele concentrarse de abril a septiembre, con variaciones cada año."}}
+ ]}
+]}
+</script>
+<style>
+:root{--terra:#C8553D;--sand:#E9C48C;--ink:#3C281E;--text:#2a211c;--muted:#7a6a60;--paper:#FBF7F1;--card:#fff;--line:#EADFD2;--sea:#DCEBEF;
+ --l1:#5FB878;--l2:#E9B83C;--l3:#E8802A;--l4:#CD3232;--com:#2E9650;--min:#DC8C14;--eva:#CD3232;--na:#8A8A8A}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--text);font:15px/1.5 Montserrat,system-ui,sans-serif}
+a{color:inherit}
+.wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+/* site chrome */
+.top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1000}
+.top .wrap{display:flex;align-items:center;gap:24px;height:68px}
+.top img{height:40px}
+nav{display:flex;gap:20px;font-size:13px;font-weight:600;flex:1}
+nav a{text-decoration:none;color:var(--muted);white-space:nowrap}
+nav a.on{color:var(--terra);border-bottom:2px solid var(--terra);padding-bottom:4px}
+.lang{margin-left:auto;display:flex;border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.lang button{border:0;background:none;padding:6px 12px;font:600 12px Montserrat;cursor:pointer;color:var(--muted)}
+.lang button.on{background:var(--terra);color:#fff}
+.demo{background:var(--ink);color:#F3E3CF;font-size:12px;text-align:center;padding:6px 12px}
+/* hero */
+.hero{padding:34px 0 18px}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.18em;color:var(--terra);text-transform:uppercase}
+h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:clamp(30px,4.4vw,52px);line-height:1.05;margin:8px 0 10px;color:var(--ink)}
+.hero p{max-width:760px;color:var(--muted);margin:0}
+.live{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:13px;margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 14px}
+.dot{width:10px;height:10px;border-radius:50%;background:#e23c3c;animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.live span.t{color:var(--muted);font-weight:500}
+/* kpis */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:18px 0}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.kpi b{display:block;font-size:28px;line-height:1.1;color:var(--ink)}
+.kpi small{color:var(--muted);font-size:12px}
+.kpi.c b{color:var(--com)}.kpi.m b{color:var(--min)}.kpi.e b{color:var(--eva)}
+/* main grid */
+.grid{display:grid;grid-template-columns:1.55fr 1fr;gap:16px;align-items:start}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.panel h2{font-size:15px;margin:0;padding:14px 16px 4px;color:var(--ink);letter-spacing:.02em}
+.panel .sub{font-size:12px;color:var(--muted);padding:0 16px 10px}
+#map{height:640px;background:var(--sea)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:10px 16px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.legend i.s{border-radius:3px;background:#96691E;opacity:.7}
+.filters{display:flex;gap:6px;padding:0 16px 10px;flex-wrap:wrap}
+.filters button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:5px 11px;font:600 11px Montserrat;cursor:pointer;color:var(--muted)}
+.filters button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-align:left;padding:6px 16px;border-bottom:1px solid var(--line)}
+td{padding:9px 16px;border-bottom:1px solid #F3ECE3}
+tr.row{cursor:pointer}
+tr.row:hover,tr.row.sel{background:#FBF2E7}
+td.n{font-weight:600}
+tr.tg td.n{color:var(--terra)}
+.bars{display:flex;gap:3px}.bars span{width:14px;height:10px;border-radius:2px;background:#E2DAD0}
+.pill{display:inline-block;color:#fff;font-size:10px;font-weight:700;letter-spacing:.06em;border-radius:12px;padding:3px 9px;text-transform:uppercase;white-space:nowrap}
+/* detail */
+.detail{padding:16px;border-top:1px solid var(--line);background:#FFFCF8}
+.detail h3{font-family:"DM Serif Display",serif;font-weight:400;font-size:24px;margin:0 0 4px;color:var(--ink)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.cmp div{border-radius:10px;padding:10px 12px;font-size:12.5px;background:#F6EFE6}
+.cmp div b{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.spark{width:100%;height:46px}
+.tip{font-size:12.5px;color:var(--text);background:#EFF6F1;border-left:3px solid var(--com);padding:8px 10px;border-radius:4px}
+/* feed */
+.feed{list-style:none;margin:0;padding:0 16px 12px;max-height:290px;overflow:auto}
+.feed li{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #F3ECE3;font-size:12.5px;animation:in .5s ease}
+@keyframes in{from{opacity:0;transform:translateY(-6px)}}
+.feed time{color:var(--muted);font-size:11px;min-width:42px}
+.feed i{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:none}
+.below{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0}
+/* method */
+.method{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 16px 16px}
+.method div{background:#F6EFE6;border-radius:10px;padding:12px}
+.method b{font-size:11px;letter-spacing:.12em;color:var(--terra);text-transform:uppercase}
+.method p{margin:6px 0 0;font-size:12.5px;color:var(--muted)}
+.faq{padding:0 16px 10px}
+.faq details{border-bottom:1px solid #F3ECE3;padding:10px 0}
+.faq summary{cursor:pointer;font-weight:600;font-size:13.5px}
+.faq p{margin:8px 0 0;font-size:13px;color:var(--muted)}
+footer{background:var(--ink);color:#E9DCCB;margin-top:30px;padding:26px 0;font-size:12px}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+footer img{height:30px}
+.leaflet-tooltip.lbl{background:#fff;border:0;box-shadow:0 1px 4px rgba(0,0,0,.25);font:600 11px Montserrat;color:var(--text);padding:3px 7px}
+.leaflet-tooltip.lbl.tg{background:var(--terra);color:#fff}
+@media (max-width:980px){.grid,.below{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}nav{display:none}#map{height:420px}.method{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a href="#"><img src="turisenda-logo.png" alt="Turisenda"></a>
+  <nav>
+    <a href="#" data-es="Destinos" data-en="Destinations">Destinos</a>
+    <a href="#" data-es="Escapadas" data-en="Getaways">Escapadas</a>
+    <a href="#" data-es="Primera visita" data-en="First visit">Primera visita</a>
+    <a href="#" data-es="Guías" data-en="Guides">Guías</a>
+    <a href="#" class="on" data-es="Observatorio de Sargazo" data-en="Sargassum Observatory">Observatorio de Sargazo</a>
+  </nav>
+  <div class="lang"><button data-l="es" class="on">ES</button><button data-l="en">EN</button></div>
+</div></header>
+<div class="demo" data-es="DEMO · Destinos anonimizados y datos de muestra. Prototipo de N3 Labs para Turisenda." data-en="DEMO · Anonymized destinations and sample data. Prototype by N3 Labs for Turisenda.">DEMO</div>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="kicker" data-es="Turisenda · Observatorio" data-en="Turisenda · Observatory">Turisenda · Observatorio</div>
+    <h1 data-es="Observatorio Latinoamericano de Sargazo" data-en="Latin American Sargassum Observatory">Observatorio Latinoamericano de Sargazo</h1>
+    <p data-es="Dónde hay sargazo hoy, hacia dónde se mueve y si cada destino lo comunica con transparencia o lo evade. Datos con fuente y hora, en español e inglés." data-en="Where sargassum is today, where it is heading, and whether each destination communicates it openly or avoids it. Sourced, time-stamped data in Spanish and English.">…</p>
+    <div class="live"><span class="dot"></span><span data-es="EN VIVO" data-en="LIVE">EN VIVO</span> <span class="t" id="clock"></span></div>
+  </section>
+
+  <section class="kpis">
+    <div class="kpi"><b id="k-dest">0</b><small data-es="destinos monitoreados" data-en="destinations monitored">destinos monitoreados</small></div>
+    <div class="kpi"><b id="k-km">0</b><small data-es="km² de sargazo detectado hoy" data-en="km² of sargassum detected today">km²</small></div>
+    <div class="kpi c"><b id="k-c">0</b><small data-es="lo comunican" data-en="communicate it">lo comunican</small></div>
+    <div class="kpi m"><b id="k-m">0</b><small data-es="lo minimizan" data-en="downplay it">lo minimizan</small></div>
+    <div class="kpi e"><b id="k-e">0</b><small data-es="lo evaden" data-en="avoid it">lo evaden</small></div>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2 data-es="Mapa en vivo" data-en="Live map">Mapa en vivo</h2>
+      <div class="sub" data-es="Sargazo detectado por satélite, en deriva hacia el oeste. Toca un destino para ver su detalle." data-en="Satellite-detected sargassum drifting west. Tap a destination for details.">…</div>
+      <div id="map" role="img" aria-label="Mapa del Caribe con sargazo y destinos"></div>
+      <div class="legend">
+        <span><i class="s"></i><span data-es="Sargazo" data-en="Sargassum">Sargazo</span></span>
+        <span><i style="background:var(--l1)"></i><span data-es="Bajo" data-en="Low">Bajo</span></span>
+        <span><i style="background:var(--l2)"></i><span data-es="Medio" data-en="Moderate">Medio</span></span>
+        <span><i style="background:var(--l3)"></i><span data-es="Alto" data-en="High">Alto</span></span>
+        <span><i style="background:var(--l4)"></i><span data-es="Muy alto" data-en="Very high">Muy alto</span></span>
+      </div>
+    </div>
+    <div class="panel">
+      <h2 data-es="¿Lo comunica o lo evade?" data-en="Communicated or avoided?">¿Lo comunica o lo evade?</h2>
+      <div class="sub" data-es="Sargazo medido vs. lo que dicen el sitio oficial, las redes y los medios del destino." data-en="Measured sargassum vs. what the destination's official site, social media and press say.">…</div>
+      <div class="filters" id="filters"></div>
+      <table><thead><tr><th data-es="Destino" data-en="Destination">Destino</th><th data-es="Sargazo" data-en="Sargassum">Sargazo</th><th data-es="Comunicación" data-en="Communication">Comunicación</th></tr></thead><tbody id="tbody"></tbody></table>
+      <div class="detail" id="detail"></div>
+    </div>
+  </section>
+
+  <section class="below">
+    <div class="panel">
+      <h2 data-es="Alertas en tiempo real" data-en="Real-time alerts">Alertas en tiempo real</h2>
+      <div class="sub" data-es="Cambios de nivel y de comunicación, conforme ocurren." data-en="Level and communication changes as they happen.">…</div>
+      <ul class="feed" id="feed"></ul>
+    </div>
+    <div class="panel">
+      <h2 data-es="Cómo medimos" data-en="How we measure">Cómo medimos</h2>
+      <div class="sub" data-es="Tres fuentes, cruzadas cada hora." data-en="Three sources, cross-checked every hour.">…</div>
+      <div class="method">
+        <div><b data-es="Satélite" data-en="Satellite">Satélite</b><p data-es="Detección diaria de sargazo con datos abiertos (USF Sargassum Watch, NOAA, Copernicus)." data-en="Daily sargassum detection from open data (USF Sargassum Watch, NOAA, Copernicus).">…</p></div>
+        <div><b data-es="En tierra" data-en="On the ground">En tierra</b><p data-es="Semáforos oficiales locales y reportes ciudadanos con foto, hora y ubicación." data-en="Local official alert levels and citizen reports with photo, time and location.">…</p></div>
+        <div><b data-es="Comunicación" data-en="Communication">Comunicación</b><p data-es="Revisión del sitio oficial, redes y medios del destino: ¿lo menciona, con datos y alternativas?" data-en="Review of the destination's official site, social and press: is it mentioned, with data and alternatives?">…</p></div>
+      </div>
+      <div class="faq">
+        <details><summary data-es="¿Qué es el índice de transparencia?" data-en="What is the transparency index?">…</summary><p data-es="Compara el nivel de sargazo medido con lo que comunica el destino. Comunica: lo informa con datos y alternativas. Minimiza: lo menciona sin datos. Evade: no lo menciona aunque hay sargazo." data-en="It compares the measured sargassum level with what the destination communicates. Communicates: reports it with data and alternatives. Downplays: mentions it without data. Avoids: does not mention it despite sargassum.">…</p></details>
+        <details><summary data-es="¿Cuándo es la temporada de sargazo?" data-en="When is sargassum season?">…</summary><p data-es="En el Caribe el arribo suele concentrarse de abril a septiembre, con variaciones cada año." data-en="In the Caribbean, arrivals usually peak from April to September, varying each year.">…</p></details>
+        <details><summary data-es="¿Puedo citar estos datos?" data-en="Can I cite this data?">…</summary><p data-es="Sí. Cada dato lleva fuente, fecha y hora. Cítalo como: Observatorio Latinoamericano de Sargazo, Turisenda." data-en="Yes. Every data point carries source, date and time. Cite as: Latin American Sargassum Observatory, Turisenda.">…</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">
+  <img src="turisenda-logo-white.png" alt="Turisenda">
+  <span data-es="Observatorio Latinoamericano de Sargazo · Demo con datos de muestra · Desarrollado por N3 Labs" data-en="Latin American Sargassum Observatory · Demo with sample data · Built by N3 Labs">…</span>
+</div></footer>
+
+<script src="vendor/leaflet.js"></script>
+<script>
+const COL = {1:'#5FB878',2:'#E9B83C',3:'#E8802A',4:'#CD3232'};
+const LV = {es:['','Bajo','Medio','Alto','Muy alto'], en:['','Low','Moderate','High','Very high']};
+const CM = {c:{es:'Lo comunica',en:'Communicates',col:'#2E9650'}, m:{es:'Lo minimiza',en:'Downplays',col:'#DC8C14'}, e:{es:'Lo evade',en:'Avoids',col:'#CD3232'}, n:{es:'Sin alerta',en:'No alert',col:'#8A8A8A'}};
+const SAYS = {
+  c:{es:'Publica semáforo diario, playas sin sargazo y opciones de reprogramación.', en:'Publishes a daily alert level, sargassum-free beaches and rebooking options.'},
+  m:{es:'Lo menciona como “temporal”, sin datos ni playas alternativas.', en:'Calls it “temporary”, with no data or alternative beaches.'},
+  e:{es:'Su sitio oficial y sus redes no lo mencionan esta semana.', en:'Its official site and social channels have not mentioned it this week.'},
+  n:{es:'No hay sargazo relevante; no requiere aviso.', en:'No relevant sargassum; no notice needed.'}};
+const TIP = {es:'Recomendación al viajero: ', en:'Traveler tip: '};
+const D = [
+  {id:'T', n:'Destino Target', lat:21.10, lon:-86.76, lv:3, cm:'c', tg:true, alt:{es:'Playas del lado de la bahía y cenotes cercanos.', en:'Bay-side beaches and nearby cenotes.'}},
+  {id:'A', n:'Destino A', lat:18.55, lon:-87.70, lv:3, cm:'m', alt:{es:'Prefiere playas de laguna o costa oeste.', en:'Prefer lagoon or west-coast beaches.'}},
+  {id:'B', n:'Destino B', lat:18.60, lon:-68.37, lv:4, cm:'e', dir:'left', alt:{es:'Verifica con tu hotel antes de reservar.', en:'Check with your hotel before booking.'}},
+  {id:'C', n:'Destino C', lat:16.25, lon:-61.55, lv:4, cm:'c', alt:{es:'Costa de sotavento con mejor condición.', en:'Leeward coast in better condition.'}},
+  {id:'D', n:'Destino D', lat:13.15, lon:-59.55, lv:3, cm:'e', dir:'left', alt:{es:'Costa oeste, más protegida.', en:'West coast, more sheltered.'}},
+  {id:'E', n:'Destino E', lat:24.70, lon:-81.05, lv:2, cm:'c', alt:{es:'Condición aceptable en la mayoría de playas.', en:'Acceptable in most beaches.'}},
+  {id:'F', n:'Destino F', lat:12.55, lon:-81.70, lv:2, cm:'m', alt:{es:'Playas del norte con menos arribo.', en:'Northern beaches with fewer arrivals.'}},
+  {id:'G', n:'Destino G', lat:10.42, lon:-75.55, lv:1, cm:'n', alt:{es:'Sin restricciones.', en:'No restrictions.'}},
+  {id:'H', n:'Destino H', lat:16.32, lon:-86.55, lv:2, cm:'m', alt:{es:'Lado sur de la isla.', en:'South side of the island.'}},
+  {id:'I', n:'Destino I', lat:18.45, lon:-66.10, lv:3, cm:'c', dir:'top', alt:{es:'Playas de la costa norte.', en:'North-coast beaches.'}},
+  {id:'J', n:'Destino J', lat:18.05, lon:-63.05, lv:4, cm:'e', alt:{es:'Consulta reportes ciudadanos recientes.', en:'Check recent citizen reports.'}},
+  {id:'K', n:'Destino K', lat:12.50, lon:-69.97, lv:1, cm:'n', alt:{es:'Sin restricciones.', en:'No restrictions.'}},
+];
+D.forEach((d,i)=>{ d.hist = Array.from({length:14},(_,k)=>Math.max(0.3,Math.min(4,d.lv + Math.sin(k*0.7+i)*0.8 + (k-13)*-0.04))); d.hist[13]=d.lv; });
+
+let lang = new URLSearchParams(location.search).get('lang')==='en'?'en':'es';
+let filter='all', sel='T';
+
+// ---------- map
+const map = L.map('map',{zoomControl:true,attributionControl:true,preferCanvas:true,scrollWheelZoom:false,zoomSnap:0.25}).setView([17.2,-75],5);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap · © CARTO',subdomains:'abcd',maxZoom:10}).addTo(map);
+map.fitBounds([[9,-91],[26,-57]]);
+
+// sargassum mats drifting west, kept off land with a coarse sea mask
+function sea(lon,lat){
+  if(lat<9.5||lat>23.5) return false;
+  if(lon<-87.4) return false;                                  // Yucatán / Belize
+  if(lat<15.6 && lon<-83.6) return false;                      // Central America
+  if(lat<11.3 && lon>-76) return false;                        // South America
+  if(lat<12.2 && lon>-72.5 && lon<-63.5) return false;          // Venezuela coast
+  if(lat>19.6 && lon>-85.2 && lon<-74) return false;           // Cuba
+  if(lat>17.5 && lat<20.1 && lon>-74.6 && lon<-68.2) return false; // Hispaniola
+  if(lat>17.6 && lat<18.6 && lon>-78.5 && lon<-76.1) return false; // Jamaica
+  if(lat>17.8 && lat<18.6 && lon>-67.4 && lon<-65.5) return false; // Puerto Rico
+  if(lat>20.6 && lon>-86.7) return false;                      // keep the channel clear
+  return true;
+}
+function spawn(east){
+  for(let k=0;k<50;k++){
+    const t = east ? Math.random()*0.08 : Math.random();
+    const lon = -58.5 - t*29 + (Math.random()-.5)*2;
+    const lat = 13.3 + t*5.6 + (Math.random()-.5)*4.4 - 1.6*Math.sin(t*Math.PI);
+    if(sea(lon,lat)) return {lon,lat,r:1.5+Math.random()*2.5,v:0.006+Math.random()*0.01,o:.3+Math.random()*.35};
+  }
+  return {lon:-59,lat:15,r:3,v:.01,o:.5};
+}
+const mats = Array.from({length:420},()=>spawn(false)).map(m=>{ m.mk=L.circleMarker([m.lat,m.lon],{radius:m.r,stroke:false,fillColor:'#96691E',fillOpacity:m.o,interactive:false}).addTo(map); return m; });
+setInterval(()=>{
+  mats.forEach(m=>{
+    m.lon -= m.v; m.lat += Math.sin((m.lon+m.lat)*3)*0.002 + 0.0012;
+    if(!sea(m.lon,m.lat)){ Object.assign(m, spawn(true)); }
+    m.mk.setLatLng([m.lat,m.lon]);
+  });
+},120);
+
+const marks = {};
+D.forEach(d=>{
+  const g = L.layerGroup().addTo(map);
+  const ring = L.circleMarker([d.lat,d.lon],{radius:10,color:COL[d.lv],weight:2,fill:false,opacity:.8}).addTo(g);
+  const dot = L.circleMarker([d.lat,d.lon],{radius:d.tg?9:7,color:'#fff',weight:2,fillColor:COL[d.lv],fillOpacity:1}).addTo(g);
+  dot.bindTooltip(d.n,{permanent:true,direction:d.dir||'right',offset:d.dir==='left'?[-10,0]:d.dir==='top'?[0,-10]:d.dir==='bottom'?[0,10]:[10,0],className:'lbl'+(d.tg?' tg':'')});
+  dot.on('click',()=>select(d.id,true));
+  marks[d.id]={ring,dot};
+});
+let ph=0;
+setInterval(()=>{ ph=(ph+0.04)%1; D.forEach((d,i)=>{ const p=(ph+i*0.13)%1; marks[d.id].ring.setRadius(9+p*20).setStyle({opacity:1-p}); }); },60);
+
+// ---------- table + detail
+function t(o){ return o[lang]; }
+function bars(lv){ return '<div class="bars">'+[1,2,3,4].map(k=>`<span style="${k<=lv?'background:'+COL[lv]:''}"></span>`).join('')+'</div>'; }
+function pill(cm){ return `<span class="pill" style="background:${CM[cm].col}">${CM[cm][lang]}</span>`; }
+function renderFilters(){
+  const opts=[['all',{es:'Todos',en:'All'}],['c',CM.c],['m',CM.m],['e',CM.e]];
+  document.getElementById('filters').innerHTML = opts.map(([k,o])=>`<button data-f="${k}" class="${filter===k?'on':''}">${o[lang]}</button>`).join('');
+  document.querySelectorAll('#filters button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderFilters();renderTable();});
+}
+function renderTable(){
+  const rows = D.filter(d=>filter==='all'||d.cm===filter).sort((a,b)=>(!!b.tg-!!a.tg)||(b.lv-a.lv));
+  document.getElementById('tbody').innerHTML = rows.map(d=>`<tr class="row ${d.tg?'tg':''} ${d.id===sel?'sel':''}" data-id="${d.id}"><td class="n">${d.n}</td><td>${bars(d.lv)}</td><td>${pill(d.cm)}</td></tr>`).join('');
+  document.querySelectorAll('tr.row').forEach(r=>r.onclick=()=>select(r.dataset.id,true));
+  const c={c:0,m:0,e:0}; D.forEach(d=>{ if(c[d.cm]!==undefined) c[d.cm]++; });
+  document.getElementById('k-dest').textContent = 42;
+  document.getElementById('k-c').textContent=c.c; document.getElementById('k-m').textContent=c.m; document.getElementById('k-e').textContent=c.e;
+}
+function spark(h,lv){
+  const W=300,H=46,max=4; const pts=h.map((v,i)=>[i*(W/(h.length-1)), H-4-(v/max)*(H-8)]);
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><polyline fill="none" stroke="${COL[lv]}" stroke-width="2.5" points="${pts.map(p=>p.join(',')).join(' ')}"/><circle cx="${pts[13][0]-3}" cy="${pts[13][1]}" r="4" fill="${COL[lv]}"/></svg>`;
+}
+function renderDetail(){
+  const d=D.find(x=>x.id===sel);
+  const L14 = lang==='es'?'Últimos 14 días':'Last 14 days';
+  document.getElementById('detail').innerHTML = `
+    <h3>${d.n}</h3>${pill(d.cm)} <span style="font-size:12px;color:var(--muted);margin-left:6px">${lang==='es'?'Sargazo':'Sargassum'}: <b style="color:${COL[d.lv]}">${LV[lang][d.lv]}</b></span>
+    <div class="cmp"><div><b>${lang==='es'?'Lo que mide el observatorio':'What the observatory measures'}</b>${lang==='es'?'Nivel':'Level'} ${LV[lang][d.lv].toLowerCase()} · ${lang==='es'?'satélite + reportes en tierra':'satellite + ground reports'}</div>
+    <div><b>${lang==='es'?'Lo que dice el destino':'What the destination says'}</b>${SAYS[d.cm][lang]}</div></div>
+    <div style="font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">${L14}</div>${spark(d.hist,d.lv)}
+    <div class="tip"><b>${TIP[lang]}</b>${d.alt[lang]}</div>`;
+}
+function select(id,fly){
+  sel=id; renderTable(); renderDetail();
+  const d=D.find(x=>x.id===id); if(fly) map.flyTo([d.lat,d.lon],6,{duration:.8});
+}
+
+// ---------- live data
+let km = 8380;
+function tick(){
+  const now=new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString(lang==='es'?'es-MX':'en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  km += Math.round((Math.random()-.4)*6);
+  document.getElementById('k-km').textContent = km.toLocaleString(lang==='es'?'es-MX':'en-US');
+}
+setInterval(tick,1000);
+
+const EVENTS = [
+  ()=>{const d=D[2]; return {d, es:`${d.n}: sargazo ${LV.es[d.lv].toLowerCase()}; su sitio oficial no lo menciona.`, en:`${d.n}: ${LV.en[d.lv].toLowerCase()} sargassum; its official site does not mention it.`};},
+  ()=>{const d=D[0]; return {d, es:`${d.n} publicó su semáforo de hoy y 6 playas sin sargazo.`, en:`${d.n} published today's alert level and 6 sargassum-free beaches.`};},
+  ()=>{const d=D[10]; return {d, es:`${d.n} sube a muy alto: 3 reportes ciudadanos con foto.`, en:`${d.n} rises to very high: 3 citizen reports with photos.`};},
+  ()=>{const d=D[1]; return {d, es:`${d.n}: el comunicado de prensa habla de “sargazo temporal” sin datos.`, en:`${d.n}: press release calls it “temporary sargassum” with no data.`};},
+  ()=>{const d=D[3]; return {d, es:`Nueva franja de sargazo detectada a 120 km de ${d.n}.`, en:`New sargassum band detected 120 km from ${d.n}.`};},
+  ()=>{const d=D[5]; return {d, es:`${d.n} baja a medio; condición estable.`, en:`${d.n} drops to moderate; stable conditions.`};},
+  ()=>{const d=D[4]; return {d, es:`${d.n}: redes oficiales sin mención en 9 días.`, en:`${d.n}: no mention on official social media in 9 days.`};},
+  ()=>{const d=D[8]; return {d, es:`${d.n} agrega aviso en su sitio, aún sin playas alternativas.`, en:`${d.n} adds a notice on its site, still no alternative beaches.`};},
+];
+let ei=0; const feedItems=[];
+function pushEvent(){
+  const e=EVENTS[ei++%EVENTS.length](); e.time=new Date();
+  feedItems.unshift(e); if(feedItems.length>8) feedItems.pop(); renderFeed();
+}
+function renderFeed(){
+  document.getElementById('feed').innerHTML = feedItems.map(e=>`<li><time>${e.time.toLocaleTimeString(lang==='es'?'es-MX':'en-US',{hour:'2-digit',minute:'2-digit'})}</time><i style="background:${CM[e.d.cm].col}"></i><span>${e[lang]}</span></li>`).join('');
+}
+
+// ---------- language
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-es]').forEach(el=>el.textContent=el.dataset[lang]);
+  document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===lang));
+  document.title = lang==='es'?'Observatorio Latinoamericano de Sargazo · Turisenda':'Latin American Sargassum Observatory · Turisenda';
+  renderFilters(); renderTable(); renderDetail(); renderFeed(); tick();
+}
+document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;applyLang();});
+
+for(let k=0;k<4;k++) pushEvent();
+setInterval(pushEvent,6000);
+applyLang();
+</script>
+</body>
+</html>
