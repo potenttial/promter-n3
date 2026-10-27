@@ -58,7 +58,10 @@ h1{font-family:"DM Serif Display",serif;font-weight:400;font-size:clamp(30px,4.4
 .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .panel h2{font-size:15px;margin:0;padding:14px 16px 4px;color:var(--ink);letter-spacing:.02em}
 .panel .sub{font-size:12px;color:var(--muted);padding:0 16px 10px}
-#map{height:640px;background:var(--sea)}
+#map{height:640px;background:#CFE4EC}
+.leaflet-tooltip.geo{background:none;border:0;box-shadow:none;font:500 11px Montserrat;letter-spacing:.14em;text-transform:uppercase;color:#6d8794;padding:0}
+.leaflet-tooltip.geo.land{color:#8a7a68}.leaflet-tooltip.geo::before{display:none}
+.leaflet-tooltip.geo.mx{color:var(--terra);font-weight:700}
 .legend{display:flex;flex-wrap:wrap;gap:14px;padding:10px 16px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
 .legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
 .legend i.s{border-radius:3px;background:#96691E;opacity:.7}
@@ -187,6 +190,7 @@ footer img{height:30px}
 </div></footer>
 
 <script src="vendor/leaflet.js"></script>
+<script src="vendor/caribe-land.js"></script>
 <script>
 const COL = {1:'#5FB878',2:'#E9B83C',3:'#E8802A',4:'#CD3232'};
 const LV = {es:['','Bajo','Medio','Alto','Muy alto'], en:['','Low','Moderate','High','Very high']};
@@ -217,9 +221,20 @@ let lang = new URLSearchParams(location.search).get('lang')==='en'?'en':'es';
 let filter='all', sel='T';
 
 // ---------- map
-const map = L.map('map',{zoomControl:true,attributionControl:true,preferCanvas:true,scrollWheelZoom:false,zoomSnap:0.25}).setView([17.2,-75],5);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap · © CARTO',subdomains:'abcd',maxZoom:10}).addTo(map);
-map.fitBounds([[9,-91],[26,-57]]);
+const map = L.map('map',{zoomControl:true,attributionControl:true,scrollWheelZoom:false,zoomSnap:0.25,minZoom:4,maxZoom:9});
+map.createPane('mats').style.zIndex=350; map.createPane('land').style.zIndex=380; map.createPane('geo').style.zIndex=390;
+const matsR=L.canvas({pane:'mats'}), landR=L.canvas({pane:'land'}), dotR=L.canvas();
+map.attributionControl.addAttribution('Mapa: Natural Earth');
+L.polygon(window.CARIBE_LAND.map(r=>r.map(([x,y])=>[y,x])),{pane:'land',renderer:landR,color:'#C9BBA8',weight:.8,fillColor:'#F1E9DD',fillOpacity:1,interactive:false}).addTo(map);
+const GEO=[
+  [28.3,-81.6,{es:'Florida',en:'Florida'},'land'],[24.0,-90.5,{es:'Golfo de México',en:'Gulf of Mexico'},''],
+  [20.0,-83.9,{es:'Caribe Mexicano',en:'Mexican Caribbean'},'mx'],
+  [22.0,-79.6,{es:'Cuba',en:'Cuba'},'land'],[25.9,-76.2,{es:'Bahamas',en:'Bahamas'},''],
+  [15.0,-74.5,{es:'Mar Caribe',en:'Caribbean Sea'},''],[22.5,-64.5,{es:'Océano Atlántico',en:'Atlantic Ocean'},''],
+  [14.4,-87.5,{es:'Centroamérica',en:'Central America'},'land'],[8.6,-67,{es:'Sudamérica',en:'South America'},'land'],
+  [17.6,-77.3,{es:'Jamaica',en:'Jamaica'},'land'],[19.3,-70.6,{es:'La Española',en:'Hispaniola'},'land'],[20.4,-61.2,{es:'Antillas Menores',en:'Lesser Antilles'},'']];
+const geoTips = GEO.map(([la,lo,txt,cls])=>{ const m=L.circleMarker([la,lo],{radius:0,opacity:0,fillOpacity:0,interactive:false,pane:'geo'}).addTo(map); m.bindTooltip(txt.es,{permanent:true,direction:'center',className:'geo '+cls}); return [m,txt]; });
+map.fitBounds([[9.5,-92],[30.8,-58]]);
 
 // sargassum mats drifting west, kept off land with a coarse sea mask
 function sea(lon,lat){
@@ -232,7 +247,6 @@ function sea(lon,lat){
   if(lat>17.5 && lat<20.1 && lon>-74.6 && lon<-68.2) return false; // Hispaniola
   if(lat>17.6 && lat<18.6 && lon>-78.5 && lon<-76.1) return false; // Jamaica
   if(lat>17.8 && lat<18.6 && lon>-67.4 && lon<-65.5) return false; // Puerto Rico
-  if(lat>20.6 && lon>-86.7) return false;                      // keep the channel clear
   return true;
 }
 function spawn(east){
@@ -244,7 +258,7 @@ function spawn(east){
   }
   return {lon:-59,lat:15,r:3,v:.01,o:.5};
 }
-const mats = Array.from({length:420},()=>spawn(false)).map(m=>{ m.mk=L.circleMarker([m.lat,m.lon],{radius:m.r,stroke:false,fillColor:'#96691E',fillOpacity:m.o,interactive:false}).addTo(map); return m; });
+const mats = Array.from({length:420},()=>spawn(false)).map(m=>{ m.mk=L.circleMarker([m.lat,m.lon],{pane:'mats',renderer:matsR,radius:m.r,stroke:false,fillColor:'#8C6418',fillOpacity:m.o,interactive:false}).addTo(map); return m; });
 setInterval(()=>{
   mats.forEach(m=>{
     m.lon -= m.v; m.lat += Math.sin((m.lon+m.lat)*3)*0.002 + 0.0012;
@@ -256,8 +270,8 @@ setInterval(()=>{
 const marks = {};
 D.forEach(d=>{
   const g = L.layerGroup().addTo(map);
-  const ring = L.circleMarker([d.lat,d.lon],{radius:10,color:COL[d.lv],weight:2,fill:false,opacity:.8}).addTo(g);
-  const dot = L.circleMarker([d.lat,d.lon],{radius:d.tg?9:7,color:'#fff',weight:2,fillColor:COL[d.lv],fillOpacity:1}).addTo(g);
+  const ring = L.circleMarker([d.lat,d.lon],{renderer:dotR,radius:10,color:COL[d.lv],weight:2,fill:false,opacity:.8}).addTo(g);
+  const dot = L.circleMarker([d.lat,d.lon],{renderer:dotR,radius:d.tg?9:7,color:'#fff',weight:2,fillColor:COL[d.lv],fillOpacity:1}).addTo(g);
   dot.bindTooltip(d.n,{permanent:true,direction:d.dir||'right',offset:d.dir==='left'?[-10,0]:d.dir==='top'?[0,-10]:d.dir==='bottom'?[0,10]:[10,0],className:'lbl'+(d.tg?' tg':'')});
   dot.on('click',()=>select(d.id,true));
   marks[d.id]={ring,dot};
@@ -336,6 +350,7 @@ function applyLang(){
   document.querySelectorAll('[data-es]').forEach(el=>el.textContent=el.dataset[lang]);
   document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===lang));
   document.title = lang==='es'?'Observatorio Latinoamericano de Sargazo · Turisenda':'Latin American Sargassum Observatory · Turisenda';
+  geoTips.forEach(([m,txt])=>m.setTooltipContent(txt[lang]));
   renderFilters(); renderTable(); renderDetail(); renderFeed(); tick();
 }
 document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{lang=b.dataset.l;applyLang();});
