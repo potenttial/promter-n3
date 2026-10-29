@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompter Ad · Medición de preguntas · N3 Labs</title>
+<meta name="description" content="Demo de un Prompter Ad que abre la pregunta en ChatGPT, Gemini, Claude, Copilot, Perplexity o Grok, y mide clic, apertura y pregunta verificada con una liga única por IA.">
+<style>
+:root{--bg:#08090f;--card:#151823;--card2:#1d2130;--line:#2a2f42;--text:#ececf0;--muted:#9a9db0;--coral:#e6553d;--blue:#6e96e6;--green:#4cc38a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,"Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 16px 40px}
+.kicker{color:var(--coral);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+h1{font-size:clamp(24px,3.4vw,34px);margin:6px 0 6px;line-height:1.15}
+.lead{color:var(--muted);max-width:760px;margin:0 0 22px}
+.lang{float:right;display:flex;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.lang button{background:none;border:0;color:var(--muted);padding:6px 12px;font-weight:700;cursor:pointer}
+.lang button.on{background:var(--coral);color:#fff}
+.grid{display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start}
+/* banner 300x600 */
+.slotlabel{font-size:11px;color:var(--muted);margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase}
+.ad{width:300px;height:600px;border-radius:6px;overflow:hidden;position:relative;background:linear-gradient(180deg,#0e3b4a 0%,#0b6f85 38%,#f0c98c 39%,#e8b675 100%);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.ad .sun{position:absolute;right:28px;top:58px;width:58px;height:58px;border-radius:50%;background:#ffd88a;box-shadow:0 0 40px #ffd88a}
+.ad .wave{position:absolute;left:0;right:0;top:205px;height:30px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 18px,transparent 18px 36px);opacity:.5;animation:w 3s linear infinite}
+@keyframes w{to{background-position:72px 0}}
+.ad .tag{position:absolute;top:10px;left:12px;font-size:10px;color:#cfe;letter-spacing:.1em}
+.ad .head{position:absolute;top:120px;left:16px;right:16px;color:#fff;font-weight:800;font-size:25px;line-height:1.1;text-shadow:0 2px 10px rgba(0,0,0,.35)}
+.ad .box{position:absolute;left:12px;right:12px;top:250px;background:rgba(8,9,15,.92);border-radius:12px;padding:12px}
+.ad .q{font-size:13px;color:#fff;background:#232838;border-radius:10px;padding:9px 10px;min-height:56px}
+.ad .q .cur{display:inline-block;width:6px;background:var(--coral);animation:b 1s steps(1) infinite}
+@keyframes b{50%{opacity:0}}
+.ad .ask{font-size:11px;color:var(--muted);margin:9px 0 6px}
+.ad .btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.ad .btns button{border:0;border-radius:8px;padding:8px 6px;font-weight:700;font-size:12px;cursor:pointer;color:#111;background:#fff}
+.ad .btns button:hover{background:var(--coral);color:#fff}
+.ad .foot{position:absolute;bottom:8px;left:12px;right:12px;font-size:9.5px;color:#4b3a22;text-align:center}
+/* panel */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.panel h2{font-size:16px;margin:0 0 4px}
+.panel .sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+.funnel{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.step{background:var(--card2);border-radius:10px;padding:12px}
+.step b{display:block;font-size:30px;line-height:1}
+.step small{color:var(--muted);font-size:12px}
+.step .src{font-size:10.5px;color:var(--blue);margin-top:4px;display:block}
+.step.v b{color:var(--green)}
+.urls{display:grid;gap:8px;margin-bottom:14px}
+.url{background:var(--card2);border-radius:8px;padding:10px 12px;font:12.5px/1.45 ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
+.url .l{font:700 11px Inter,Arial,sans-serif;color:var(--coral);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:3px}
+.url mark{background:rgba(76,195,138,.18);color:var(--green);padding:0 2px;border-radius:3px}
+.log{background:#05060a;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:12px/1.6 ui-monospace,Menlo,Consolas,monospace;height:170px;overflow:auto;color:#b9c0d0}
+.log .ua{color:var(--green)}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+.howto{margin-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.howto div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+.howto b{color:var(--coral)}
+.howto p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--coral);color:#fff;padding:10px 16px;border-radius:10px;font-weight:700;display:none;z-index:9;max-width:92vw;text-align:center}
+footer{margin-top:28px;color:var(--muted);font-size:12px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}.ad{margin:0 auto}.funnel{grid-template-columns:repeat(2,1fr)}.howto{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="lang"><button data-l="es" class="on">ES</button><button data-l="en">EN</button></div>
+  <div class="kicker">N3 Labs · Prompter Ads</div>
+  <h1 data-t="h1"></h1>
+  <p class="lead" data-t="lead"></p>
+
+  <div class="grid">
+    <div>
+      <div class="slotlabel" data-t="slot"></div>
+      <div class="ad" id="ad">
+        <div class="tag" data-t="adtag"></div>
+        <div class="sun"></div><div class="wave"></div>
+        <div class="head" data-t="adhead"></div>
+        <div class="box">
+          <div class="q"><span id="qtxt"></span><span class="cur">&nbsp;</span></div>
+          <div class="ask" data-t="ask"></div>
+          <div class="btns" id="btns"></div>
+        </div>
+        <div class="foot" data-t="adfoot"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 data-t="ph"></h2>
+      <p class="sub" data-t="psub"></p>
+      <div class="funnel">
+        <div class="step"><b id="c1">0</b><small data-t="s1"></small><span class="src" data-t="s1s"></span></div>
+        <div class="step"><b id="c2">0</b><small data-t="s2"></small><span class="src" data-t="s2s"></span></div>
+        <div class="step v"><b id="c3">0</b><small data-t="s3"></small><span class="src" data-t="s3s"></span></div>
+        <div class="step"><b id="c4">0%</b><small data-t="s4"></small><span class="src" data-t="s4s"></span></div>
+      </div>
+      <div class="urls">
+        <div class="url"><span class="l" data-t="u1"></span><span id="u1"></span></div>
+        <div class="url"><span class="l" data-t="u2"></span><span id="u2"></span></div>
+      </div>
+      <div class="log" id="log"></div>
+      <p class="note" data-t="note"></p>
+    </div>
+  </div>
+
+  <div class="howto">
+    <div><b>1 · </b><b data-t="h1t"></b><p data-t="h1p"></p></div>
+    <div><b>2 · </b><b data-t="h2t"></b><p data-t="h2p"></p></div>
+    <div><b>3 · </b><b data-t="h3t"></b><p data-t="h3p"></p></div>
+  </div>
+  <footer data-t="footer"></footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const VERIFY = 'https://n3labs.potenttial.site/v/';
+const BRIDGE = 'https://n3labs.potenttial.site/ir/';
+const CAMPAIGN = 'inv26';
+const AIS = [
+  {id:'chatgpt', name:'ChatGPT', code:'cgpt', ua:'ChatGPT-User/1.0', url:q=>'https://chatgpt.com/?q='+encodeURIComponent(q)},
+  {id:'gemini', name:'Gemini', code:'gem', ua:'Google (fetch for Gemini)', url:q=>'https://gemini.google.com/app', copy:true},
+  {id:'claude', name:'Claude', code:'cld', ua:'Claude-User/1.0', url:q=>'https://claude.ai/new?q='+encodeURIComponent(q)},
+  {id:'copilot', name:'Copilot', code:'cop', ua:'Copilot (Bing fetch)', url:q=>'https://copilot.microsoft.com/?q='+encodeURIComponent(q)},
+  {id:'perplexity', name:'Perplexity', code:'pplx', ua:'Perplexity-User/1.0', url:q=>'https://www.perplexity.ai/search?q='+encodeURIComponent(q)},
+  {id:'grok', name:'Grok', code:'grk', ua:'Grok (xAI fetch)', url:q=>'https://grok.com/?q='+encodeURIComponent(q)},
+];
+const T = {
+ es:{h1:'Prompter Ad: cómo saber si la persona sí hizo la pregunta',
+  lead:'Da clic en una IA del anuncio. Se abre con la pregunta lista, y la pregunta lleva una liga única por IA. Si la persona la envía, la IA visita esa liga y el servidor la registra: esa es la pregunta verificada.',
+  slot:'Anuncio 300×600 · demo', adtag:'PUBLICIDAD', adhead:'¿Playa en invierno, sin frío y sin sorpresas?',
+  ask:'Pregúntale a tu IA:', adfoot:'Demo de N3 Labs · Prompter Ads',
+  q:'¿Cuáles son las mejores playas del Caribe Mexicano para ir este invierno? Compáralas con ',
+  ph:'Medición en vivo', psub:'Clic y apertura se miden en el anuncio y en la página puente. La pregunta se verifica en el registro del servidor.',
+  s1:'clics en el anuncio', s1s:'Servidor de anuncios', s2:'aperturas de la IA', s2s:'Página puente', s3:'preguntas verificadas', s3s:'Registro del servidor (/v/)', s4:'tasa de pregunta', s4s:'Verificadas ÷ aperturas',
+  u1:'Liga del anuncio (página puente)', u2:'Liga que abre la IA (pregunta con liga única)',
+  note:'Las líneas del registro de esta demo son simuladas. En producción salen del registro de acceso de Hostinger (hPanel): cada visita de ChatGPT-User, Claude-User o Perplexity-User a /v/ es una pregunta enviada. Es un piso: a veces la IA responde sin visitar la liga.',
+  h1t:'Clic', h1p:'El servidor de anuncios cuenta el clic en cada botón de IA.',
+  h2t:'Apertura', h2p:'La página puente registra que se abrió la IA y copia la pregunta (Gemini no acepta la pregunta en la liga).',
+  h3t:'Pregunta verificada', h3p:'La pregunta incluye /v/<IA>-<campaña>. Cuando la IA la visita para responder, queda registrada con su nombre.',
+  footer:'Demo de N3 Labs. Las ligas de IA son reales; los contadores y el registro son una simulación de cómo se ve el reporte.',
+  toastCopy:'Pregunta copiada: pégala en Gemini', toastOpen:'Abriendo {ai} con la pregunta…', logWait:'esperando que la persona envíe la pregunta…'},
+ en:{h1:'Prompter Ad: how to know the person actually asked',
+  lead:'Click an AI in the ad. It opens with the question ready, and the question carries a unique link per AI. If the person sends it, the AI visits that link and the server logs it: that is the verified question.',
+  slot:'300×600 ad · demo', adtag:'ADVERTISEMENT', adhead:'Beach in winter, warm and with no surprises?',
+  ask:'Ask your AI:', adfoot:'N3 Labs demo · Prompter Ads',
+  q:'What are the best beaches in the Mexican Caribbean to visit this winter? Compare them with ',
+  ph:'Live measurement', psub:'Click and open are measured in the ad and on the bridge page. The question is verified in the server log.',
+  s1:'ad clicks', s1s:'Ad server', s2:'AI opens', s2s:'Bridge page', s3:'verified questions', s3s:'Server log (/v/)', s4:'question rate', s4s:'Verified ÷ opens',
+  u1:'Ad link (bridge page)', u2:'Link that opens the AI (question with unique link)',
+  note:'The log lines in this demo are simulated. In production they come from the Hostinger access log (hPanel): each ChatGPT-User, Claude-User or Perplexity-User visit to /v/ is a question sent. It is a floor: sometimes the AI answers without visiting the link.',
+  h1t:'Click', h1p:'The ad server counts the click on each AI button.',
+  h2t:'Open', h2p:'The bridge page logs that the AI was opened and copies the question (Gemini does not accept the question in the link).',
+  h3t:'Verified question', h3p:'The question includes /v/<AI>-<campaign>. When the AI visits it to answer, it is logged with its name.',
+  footer:'N3 Labs demo. The AI links are real; the counters and log simulate what the report looks like.',
+  toastCopy:'Question copied: paste it into Gemini', toastOpen:'Opening {ai} with the question…', logWait:'waiting for the person to send the question…'}
+};
+let L = new URLSearchParams(location.search).get('lang')==='en'?'en':'es';
+let c1=0,c2=0,c3=0, sel=AIS[0];
+const $=id=>document.getElementById(id);
+const verifyUrl = ai => VERIFY + ai.code + '-' + CAMPAIGN;
+const question = ai => T[L].q + verifyUrl(ai);
+function now(){ return new Date().toISOString().replace('T',' ').slice(0,19); }
+function log(html){ const d=document.createElement('div'); d.innerHTML=html; $('log').prepend(d); }
+function render(){
+  document.documentElement.lang=L;
+  document.querySelectorAll('[data-t]').forEach(e=>e.textContent=T[L][e.dataset.t]);
+  document.querySelectorAll('.lang button').forEach(b=>b.classList.toggle('on',b.dataset.l===L));
+  $('btns').innerHTML = AIS.map(a=>`<button data-ai="${a.id}">${a.name}</button>`).join('');
+  $('btns').querySelectorAll('button').forEach(b=>b.onclick=()=>go(AIS.find(a=>a.id===b.dataset.ai)));
+  showUrls(sel); typeQ();
+}
+function showUrls(ai){
+  $('u1').textContent = `${BRIDGE}${ai.id}?c=${CAMPAIGN}&lang=${L}`;
+  const q = question(ai), v = verifyUrl(ai);
+  const full = ai.copy ? `${ai.url(q)}  +  [${L==='es'?'portapapeles':'clipboard'}] ${q}` : decodeURIComponent(ai.url(q));
+  $('u2').innerHTML = full.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(encodeURIComponent(v), `<mark>${encodeURIComponent(v)}</mark>`).replace(v, `<mark>${v}</mark>`);
+}
+let typer;
+function typeQ(){ clearInterval(typer); const s=T[L].q.replace(/ Compáralas con $| Compare them with $/,''); let i=0; $('qtxt').textContent=''; typer=setInterval(()=>{ $('qtxt').textContent=s.slice(0,++i); if(i>=s.length) clearInterval(typer); },35); }
+function counters(){ $('c1').textContent=c1; $('c2').textContent=c2; $('c3').textContent=c3; $('c4').textContent=(c2?Math.round(c3/c2*100):0)+'%'; }
+function toast(t){ const e=$('toast'); e.textContent=t; e.style.display='block'; clearTimeout(e._t); e._t=setTimeout(()=>e.style.display='none',2600); }
+async function go(ai){
+  sel=ai; showUrls(ai); c1++; c2++; counters();
+  log(`${now()}  GET /ir/${ai.id}?c=${CAMPAIGN}  → 302 ${ai.name}  <span style="color:#9a9db0">(${L==='es'?'clic + apertura':'click + open'})</span>`);
+  const q = question(ai);
+  if (ai.copy) { try { await navigator.clipboard.writeText(q); } catch(e){} toast(T[L].toastCopy); }
+  else toast(T[L].toastOpen.replace('{ai}', ai.name));
+  window.open(ai.url(q), '_blank', 'noopener');
+  log(`<span style="color:#6b6f82">${now()}  ${T[L].logWait}</span>`);
+  setTimeout(()=>{ c3++; counters(); log(`${now()}  GET /v/${ai.code}-${CAMPAIGN}  200  "<span class="ua">${ai.ua}</span>"  ← ${L==='es'?'pregunta verificada (simulada)':'verified question (simulated)'}`); }, 6000);
+}
+document.querySelectorAll('.lang button').forEach(b=>b.onclick=()=>{ L=b.dataset.l; render(); });
+render(); counters();
+</script>
+</body>
+</html>
