@@ -6,15 +6,19 @@
 <title>Prompter Ad · Medición de preguntas · N3 Labs</title>
 <meta name="description" content="Demo de un Prompter Ad que abre la pregunta en ChatGPT, Claude, Copilot, Perplexity o Grok, y mide clic, apertura y pregunta verificada con una liga única por IA.">
 <style>
+*{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:300}
+b,strong,h1,h2,button{font-weight:300}
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.brand img{height:54px;width:auto;border-radius:8px;display:block}
 :root{--bg:#08090f;--card:#151823;--card2:#1d2130;--line:#2a2f42;--text:#ececf0;--muted:#9a9db0;--coral:#e6553d;--blue:#6e96e6;--green:#4cc38a}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,"Helvetica Neue",Arial,sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);font:300 15px/1.5 "Helvetica Neue",Helvetica,Arial,sans-serif}
 .wrap{max-width:1120px;margin:0 auto;padding:28px 16px 40px}
-.kicker{color:var(--coral);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.kicker{color:var(--coral);font-size:12px;font-weight:300;letter-spacing:.16em;text-transform:uppercase}
 h1{font-size:clamp(24px,3.4vw,34px);margin:6px 0 6px;line-height:1.15}
 .lead{color:var(--muted);max-width:760px;margin:0 0 22px}
 .lang{float:right;display:flex;border:1px solid var(--line);border-radius:18px;overflow:hidden}
-.lang button{background:none;border:0;color:var(--muted);padding:6px 12px;font-weight:700;cursor:pointer}
+.lang button{background:none;border:0;color:var(--muted);padding:6px 12px;font-weight:300;cursor:pointer}
 .lang button.on{background:var(--coral);color:#fff}
 .grid{display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start}
 /* banner 300x600 */
@@ -24,14 +28,14 @@ h1{font-size:clamp(24px,3.4vw,34px);margin:6px 0 6px;line-height:1.15}
 .ad .wave{position:absolute;left:0;right:0;top:205px;height:30px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.35) 0 18px,transparent 18px 36px);opacity:.5;animation:w 3s linear infinite}
 @keyframes w{to{background-position:72px 0}}
 .ad .tag{position:absolute;top:10px;left:12px;font-size:10px;color:#cfe;letter-spacing:.1em}
-.ad .head{position:absolute;top:120px;left:16px;right:16px;color:#fff;font-weight:800;font-size:25px;line-height:1.1;text-shadow:0 2px 10px rgba(0,0,0,.35)}
+.ad .head{position:absolute;top:120px;left:16px;right:16px;color:#fff;font-weight:300;font-size:25px;line-height:1.1;text-shadow:0 2px 10px rgba(0,0,0,.35)}
 .ad .box{position:absolute;left:12px;right:12px;top:250px;background:rgba(8,9,15,.92);border-radius:12px;padding:12px}
 .ad .q{font-size:13px;color:#fff;background:#232838;border-radius:10px;padding:9px 10px;min-height:56px}
 .ad .q .cur{display:inline-block;width:6px;background:var(--coral);animation:b 1s steps(1) infinite}
 @keyframes b{50%{opacity:0}}
 .ad .ask{font-size:11px;color:var(--muted);margin:9px 0 6px}
 .ad .btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.ad .btns button{border:0;border-radius:8px;padding:8px 6px;font-weight:700;font-size:12px;cursor:pointer;color:#111;background:#fff}
+.ad .btns button{border:0;border-radius:8px;padding:8px 6px;font-weight:300;font-size:12px;cursor:pointer;color:#111;background:#fff}
 .ad .btns button:last-child:nth-child(odd){grid-column:1 / -1}
 .ad .btns button:hover{background:var(--coral);color:#fff}
 .ad .foot{position:absolute;bottom:8px;left:12px;right:12px;font-size:9.5px;color:#4b3a22;text-align:center}
@@ -46,23 +50,23 @@ h1{font-size:clamp(24px,3.4vw,34px);margin:6px 0 6px;line-height:1.15}
 .step .src{font-size:10.5px;color:var(--blue);margin-top:4px;display:block}
 .step.v b{color:var(--green)}
 .urls{display:grid;gap:8px;margin-bottom:14px}
-.url{background:var(--card2);border-radius:8px;padding:10px 12px;font:12.5px/1.45 ui-monospace,Menlo,Consolas,monospace;word-break:break-all}
-.url .cdn{font:13px/1.5 Inter,"Helvetica Neue",Arial,sans-serif;word-break:normal;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--text)}
+.url{background:var(--card2);border-radius:8px;padding:10px 12px;font:300 12.5px/1.45 "Helvetica Neue",Helvetica,Arial,sans-serif;word-break:break-all}
+.url .cdn{font:300 13px/1.5 "Helvetica Neue",Helvetica,Arial,sans-serif;word-break:normal;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);color:var(--text)}
 .url .cdn b{color:var(--blue);font-size:12px;letter-spacing:.04em}
 .url .cdn ul{margin:6px 0 6px;padding-left:18px}
 .url .cdn li{margin:3px 0;color:var(--muted)}
 .url .cdn li::marker{color:var(--coral)}
-.url .cdn p{margin:0;color:var(--green);font-weight:700}
-.url .l{font:700 11px Inter,Arial,sans-serif;color:var(--coral);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:3px}
+.url .cdn p{margin:0;color:var(--green);font-weight:300}
+.url .l{font:300 11px "Helvetica Neue",Helvetica,Arial,sans-serif;color:var(--coral);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:3px}
 .url mark{background:rgba(76,195,138,.18);color:var(--green);padding:0 2px;border-radius:3px}
-.log{background:#05060a;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:12px/1.6 ui-monospace,Menlo,Consolas,monospace;height:170px;overflow:auto;color:#b9c0d0}
+.log{background:#05060a;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font:300 12px/1.6 "Helvetica Neue",Helvetica,Arial,sans-serif;height:170px;overflow:auto;color:#b9c0d0}
 .log .ua{color:var(--green)}
 .note{font-size:12px;color:var(--muted);margin-top:10px}
 .howto{margin-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .howto div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
 .howto b{color:var(--coral)}
 .howto p{margin:6px 0 0;color:var(--muted);font-size:13px}
-.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--coral);color:#fff;padding:10px 16px;border-radius:10px;font-weight:700;display:none;z-index:9;max-width:92vw;text-align:center}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--coral);color:#fff;padding:10px 16px;border-radius:10px;font-weight:300;display:none;z-index:9;max-width:92vw;text-align:center}
 footer{margin-top:28px;color:var(--muted);font-size:12px}
 @media(max-width:860px){.grid{grid-template-columns:1fr}.ad{margin:0 auto}.funnel{grid-template-columns:repeat(2,1fr)}.howto{grid-template-columns:1fr}}
 </style>
@@ -70,7 +74,7 @@ footer{margin-top:28px;color:var(--muted);font-size:12px}
 <body>
 <div class="wrap">
   <div class="lang"><button data-l="es" class="on">ES</button><button data-l="en">EN</button></div>
-  <div class="kicker">N3 Labs · Prompter Ads</div>
+  <div class="brand"><img src="n3-thinktech-logo.png" alt="N3 · Thinktech IA Laboratory"><div class="kicker">N3 Labs · Prompter Ads</div></div>
   <h1 data-t="h1"></h1>
   <p class="lead" data-t="lead"></p>
 
