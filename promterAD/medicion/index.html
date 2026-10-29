@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Prompter Ad · Medición de preguntas · N3 Labs</title>
-<meta name="description" content="Demo de un Prompter Ad que abre la pregunta en ChatGPT, Gemini, Claude, Copilot, Perplexity o Grok, y mide clic, apertura y pregunta verificada con una liga única por IA.">
+<meta name="description" content="Demo de un Prompter Ad que abre la pregunta en ChatGPT, Claude, Copilot, Perplexity o Grok, y mide clic, apertura y pregunta verificada con una liga única por IA.">
 <style>
 :root{--bg:#08090f;--card:#151823;--card2:#1d2130;--line:#2a2f42;--text:#ececf0;--muted:#9a9db0;--coral:#e6553d;--blue:#6e96e6;--green:#4cc38a}
 *{box-sizing:border-box}
@@ -32,6 +32,7 @@ h1{font-size:clamp(24px,3.4vw,34px);margin:6px 0 6px;line-height:1.15}
 .ad .ask{font-size:11px;color:var(--muted);margin:9px 0 6px}
 .ad .btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .ad .btns button{border:0;border-radius:8px;padding:8px 6px;font-weight:700;font-size:12px;cursor:pointer;color:#111;background:#fff}
+.ad .btns button:last-child:nth-child(odd){grid-column:1 / -1}
 .ad .btns button:hover{background:var(--coral);color:#fff}
 .ad .foot{position:absolute;bottom:8px;left:12px;right:12px;font-size:9.5px;color:#4b3a22;text-align:center}
 /* panel */
@@ -123,7 +124,6 @@ const BRIDGE = 'https://n3labs.potenttial.site/ir/';
 const CAMPAIGN = 'inv26';
 const AIS = [
   {id:'chatgpt', name:'ChatGPT', code:'cgpt', ua:'ChatGPT-User/1.0', url:q=>'https://chatgpt.com/?q='+encodeURIComponent(q)},
-  {id:'gemini', name:'Gemini', code:'gem', ua:'Google (fetch for Gemini)', url:q=>'https://gemini.google.com/app', copy:true},
   {id:'claude', name:'Claude', code:'cld', ua:'Claude-User/1.0', url:q=>'https://claude.ai/new?q='+encodeURIComponent(q)},
   {id:'copilot', name:'Copilot', code:'cop', ua:'Copilot (Bing fetch)', url:q=>'https://copilot.microsoft.com/?q='+encodeURIComponent(q)},
   {id:'perplexity', name:'Perplexity', code:'pplx', ua:'Perplexity-User/1.0', url:q=>'https://www.perplexity.ai/search?q='+encodeURIComponent(q)},
@@ -145,10 +145,10 @@ const T = {
   cdnI:'Lo ideal: poner una CDN en el sitio del destino.',
   note:'Las líneas del registro de esta demo son simuladas. En producción salen del registro de acceso de Hostinger (hPanel): cada visita de ChatGPT-User, Claude-User o Perplexity-User a /v/ es una pregunta enviada. Es un piso: a veces la IA responde sin visitar la liga.',
   h1t:'Clic', h1p:'El servidor de anuncios cuenta el clic en cada botón de IA.',
-  h2t:'Apertura', h2p:'La página puente registra que se abrió la IA y copia la pregunta (Gemini no acepta la pregunta en la liga).',
+  h2t:'Apertura', h2p:'La página puente registra que se abrió la IA con la pregunta lista.',
   h3t:'Pregunta verificada', h3p:'La pregunta incluye /v/<IA>-<campaña>. Cuando la IA la visita para responder, queda registrada con su nombre.',
   footer:'Demo de N3 Labs. Las ligas de IA son reales; los contadores y el registro son una simulación de cómo se ve el reporte.',
-  toastCopy:'Pregunta copiada: pégala en Gemini', toastOpen:'Abriendo {ai} con la pregunta…', logWait:'esperando que la persona envíe la pregunta…'},
+  toastOpen:'Abriendo {ai} con la pregunta…', logWait:'esperando que la persona envíe la pregunta…'},
  en:{h1:'Prompter Ad: how to know the person actually asked',
   lead:'Click an AI in the ad. It opens with the question ready, and the question carries a unique link per AI. If the person sends it, the AI visits that link and the server logs it: that is the verified question.',
   slot:'300×600 ad · demo', adtag:'ADVERTISEMENT', adhead:'Beach in winter, warm and with no surprises?',
@@ -164,10 +164,10 @@ const T = {
   cdnI:'Ideal: put a CDN on the destination\'s site.',
   note:'The log lines in this demo are simulated. In production they come from the Hostinger access log (hPanel): each ChatGPT-User, Claude-User or Perplexity-User visit to /v/ is a question sent. It is a floor: sometimes the AI answers without visiting the link.',
   h1t:'Click', h1p:'The ad server counts the click on each AI button.',
-  h2t:'Open', h2p:'The bridge page logs that the AI was opened and copies the question (Gemini does not accept the question in the link).',
+  h2t:'Open', h2p:'The bridge page logs that the AI was opened with the question ready.',
   h3t:'Verified question', h3p:'The question includes /v/<AI>-<campaign>. When the AI visits it to answer, it is logged with its name.',
   footer:'N3 Labs demo. The AI links are real; the counters and log simulate what the report looks like.',
-  toastCopy:'Question copied: paste it into Gemini', toastOpen:'Opening {ai} with the question…', logWait:'waiting for the person to send the question…'}
+  toastOpen:'Opening {ai} with the question…', logWait:'waiting for the person to send the question…'}
 };
 let L = new URLSearchParams(location.search).get('lang')==='en'?'en':'es';
 let c1=0,c2=0,c3=0, sel=AIS[0];
