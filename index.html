@@ -138,6 +138,14 @@ pre#prompt .e{color:#fbbf24}
 .case small{color:var(--muted);font-size:12.5px}
 footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);color:var(--dim);font-size:12.5px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.ahorro{display:flex;gap:20px;align-items:center;flex-wrap:wrap;border:1px solid var(--accent-line);background:linear-gradient(var(--accent-soft),var(--accent-soft)),var(--bg);border-radius:12px;padding:16px 20px;margin:0 0 24px}
+.ahorro .ah-num{font-size:15px;color:var(--muted);white-space:nowrap}
+.ahorro .ah-num b{display:block;font-size:44px;line-height:1;font-weight:300;color:#fff;letter-spacing:-.02em}
+.ahorro .ah-txt{flex:1 1 320px;min-width:0;font-size:14px;color:var(--muted);line-height:1.55}
+.ahorro .ah-txt strong{display:block;color:var(--fg);font-weight:500;font-size:15px;margin-bottom:4px}
+.ahorro small{display:block;margin-top:6px;font-size:12px}
+.ahorro a{color:inherit;text-decoration:underline}
 </style>
 </head>
 <body>
@@ -154,6 +162,16 @@ footer{margin-top:48px;padding-top:20px;border-top:1px solid var(--line);color:v
     <h1>Prompter CFO<span>by N3 · v1.0</span></h1>
     <p>Llena los campos y se arma el prompt de tu Agente Orquestador o de cualquiera de los 16 agentes verticales. Cópialo y pégalo en tu IA favorita.</p>
   </header>
+
+  <aside class="ahorro" aria-label="Ahorro de tokens">
+    <div class="ah-num">hasta <b>80%</b></div>
+    <div class="ah-txt">
+      <strong>menos tokens cuando tu equipo aprende a escribir buenos prompts.</strong>
+      Pedir el formato y la extensión exactos, y dar contexto en un solo mensaje, reduce entre 45% y 80% los tokens de cada tarea: hasta 80% en minutas, 60–70% en resúmenes y 50–65% en correos. Este Prompter arma ese prompt por ti.
+      <small>Fuente: <a href="https://www.worklytics.co/blog/how-can-employees-lower-the-cost-of-their-llm-usage" target="_blank" rel="noopener">Worklytics, “How can employees lower the cost of their LLM usage”, mayo 2026</a>.</small>
+    </div>
+  </aside>
+
 
   <div class="shared">
     <label class="f"><b>Empresa</b><input type="text" id="empresa" value="Grupo Industrial del Norte"></label>
