@@ -1,0 +1,1272 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tokenómetro N3 · Contador de tokens y costo de IA | N3 Labs</title>
+<meta name="description" content="Tokenómetro N3: cuenta tokens en tiempo real, explica por qué la IA divide tu texto y por qué cuestan los tokens, y estima el costo en ChatGPT, Gemini, Claude, Perplexity, Copilot y DeepSeek en monedas de Latinoamérica. Real-time token counter and AI cost estimator. Contador de tokens e custo de IA em tempo real.">
+<meta name="author" content="N3 Labs · Thinktech IA Laboratory · Potenttial Group">
+<meta name="keywords" content="tokens, contador de tokens, token counter, contador de tokens IA, costo de tokens, ChatGPT, Gemini, Claude, DeepSeek, Perplexity, Copilot, prompt, N3 Labs, Thinktech, Potenttial">
+<link rel="canonical" href="https://n3.potenttial.com/tokenometro/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://n3.potenttial.com/tokenometro/">
+<meta property="og:title" content="Tokenómetro N3 · ¿Cuánto cuesta tu prompt?">
+<meta property="og:description" content="Escribe y mira cómo la IA parte tu texto en tokens, por qué cuestan y cuánto pagas en cada modelo. ES · EN · PT">
+<meta property="og:locale" content="es_MX"><meta property="og:locale:alternate" content="en_US"><meta property="og:locale:alternate" content="pt_BR">
+<meta name="twitter:card" content="summary">
+<style>
+/* Layout: N3 black ground; header band with logo, then counter (input | why), then cost table, fragment simulator, guides */
+:root{
+  --bg:#06060C; --surface:#101018; --raise:#17171F; --ink:#F4F4F6; --muted:#9A9AA6; --line:#26262F;
+  --red:#C43D31; --red-hi:#E2574A; --red-soft:#2A1214;
+  --good:#5FC48E; --warn:#E8A84A;
+  --c-word:#163626; --c-word-b:#5FC48E;
+  --c-frag:#3B2410; --c-frag-b:#E8A84A;
+  --c-num:#24224A; --c-num-b:#A69BFF;
+  --c-punct:#22222B; --c-punct-b:#8C8C98;
+  --c-space:#15151C; --c-space-b:#5A5A66;
+  --c-byte:#3A1418; --c-byte-b:#E2574A;
+  --f:"Helvetica Neue", Helvetica, "Nimbus Sans", Arial, sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-weight:300;font-size:15px;line-height:1.55;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 40px}
+b,strong{font-weight:500}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+a{color:var(--red-hi)}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:20px 28px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+header img{height:74px;width:auto}
+.htext{flex:1 1 360px;min-width:0}
+h1{font-weight:200;font-size:clamp(34px,6vw,56px);line-height:1;letter-spacing:-.02em;margin:0}
+h1 span{color:var(--red-hi)}
+h2{font-weight:200;font-size:clamp(24px,3.4vw,32px);letter-spacing:-.01em;margin:0;line-height:1.15;text-wrap:balance}
+h3{font-weight:500;font-size:15px;margin:0}
+.lede{margin:8px 0 0;color:var(--muted);max-width:62ch}
+.free{display:inline-flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;color:var(--good);border:1px solid #1E4A33;border-radius:999px;padding:4px 12px}
+.free::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--good)}
+.ref{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.refbadge{font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 12px}
+.learn{font:300 12px var(--f);color:var(--red-hi);background:transparent;border:1px solid var(--red);border-radius:999px;padding:4px 11px;cursor:pointer}
+.learn[aria-expanded="true"]{background:var(--red);color:#fff}
+.learnbox{flex:1 1 100%;background:var(--surface);border:1px solid var(--line);border-left:2px solid var(--red);border-radius:8px;padding:14px 16px;font-size:14px}
+.learnbox p{margin:0 0 8px}
+.learnbox ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.enc{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:4px}
+.enc button,.tog button,.preset{font:300 13px var(--f);cursor:pointer}
+.enc button{border:0;background:transparent;color:var(--muted);padding:7px 12px;border-radius:5px}
+.enc button[aria-pressed="true"]{background:var(--red);color:#fff}
+button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,.chip:focus-visible,a:focus-visible{outline:2px solid var(--red-hi);outline-offset:2px}
+.grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.label{font-weight:500;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.preset{border:1px solid var(--line);background:transparent;color:var(--ink);padding:5px 11px;border-radius:999px}
+.preset:hover{border-color:var(--red-hi);color:var(--red-hi)}
+textarea{width:100%;min-height:150px;resize:vertical;font:300 16px/1.5 var(--f);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat{border-left:1px solid var(--line);padding-left:10px}
+.stat b{display:block;font-weight:200;font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat.main{border-color:var(--red)} .stat.main b{color:var(--red-hi)}
+.stat small{color:var(--muted);font-size:12.5px}
+.tog{display:flex;gap:2px;border:1px solid var(--line);border-radius:6px;padding:2px}
+.tog button{border:0;background:transparent;color:var(--muted);padding:4px 10px;border-radius:4px}
+.tog button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.tokens{font:300 16px/2.15 var(--f);white-space:pre-wrap;word-break:break-word;min-height:90px;max-height:420px;overflow:auto;padding:4px 2px}
+.chip{border-radius:3px;padding:2px 1px;cursor:pointer;border-bottom:2px solid transparent}
+.chip:hover{filter:brightness(1.25)}
+.chip.sel{outline:2px solid var(--red-hi);outline-offset:1px}
+.k-word{background:var(--c-word);border-color:var(--c-word-b)}
+.k-frag{background:var(--c-frag);border-color:var(--c-frag-b)}
+.k-num{background:var(--c-num);border-color:var(--c-num-b)}
+.k-punct{background:var(--c-punct);border-color:var(--c-punct-b)}
+.k-space{background:var(--c-space);border-color:var(--c-space-b);color:var(--muted)}
+.k-byte{background:var(--c-byte);border-color:var(--c-byte-b)}
+.ids .chip{padding:2px 5px;margin-right:3px;font-size:13px;font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;border-bottom:2px solid}
+.why{position:sticky;top:max(16px, env(safe-area-inset-top, 0px))}
+.focus{border:1px solid var(--line);border-radius:8px;padding:14px;background:var(--bg);display:flex;flex-direction:column;gap:8px}
+.focus .tk{font-weight:300;font-size:24px;white-space:pre}
+.focus .meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.focus .kind{font-weight:500;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase}
+.focus p{margin:0}
+.insights{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.insights li{display:grid;grid-template-columns:26px minmax(0,1fr);gap:8px;font-size:14px}
+.insights .n{font-weight:500;font-size:12px;color:var(--red-hi);padding-top:2px}
+.insights code{font:300 13px var(--f);background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:0 4px}
+.status{font-size:13px;color:var(--muted);margin:0}
+section.block{display:flex;flex-direction:column;gap:16px}
+.sub{color:var(--muted);margin:0;max-width:70ch}
+.controls{display:flex;flex-wrap:wrap;gap:12px}
+.controls label{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:4px;flex:1 1 170px}
+select,input[type=number]{font:300 15px var(--f);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 9px;width:100%}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;min-width:720px;font-variant-numeric:tabular-nums}
+th,td{padding:10px 14px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:500;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--raise)}
+th:nth-child(-n+2),td:nth-child(-n+2){text-align:left}
+tr:last-child td{border-bottom:0}
+td.prov{color:var(--muted)}
+td.big{font-weight:400;font-size:16px}
+td small{display:block;color:var(--muted);font-size:12px}
+.pill{display:inline-block;font-size:10.5px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+.pill.lo{background:#163626;color:var(--good)} .pill.hi{background:var(--red-soft);color:var(--red-hi)}
+.note{font-size:12.5px;color:var(--muted);margin:0}
+.verdict{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:22px}
+@media (max-width:860px){.verdict{grid-template-columns:1fr}}
+.yes{font-weight:200;font-size:64px;line-height:1;color:var(--red-hi)}
+.bars{display:flex;flex-direction:column;gap:12px}
+.bar{display:grid;grid-template-columns:120px minmax(0,1fr) 92px;gap:10px;align-items:center;font-size:13.5px}
+@media (max-width:520px){.bar{grid-template-columns:86px minmax(0,1fr) 74px}}
+.track{height:14px;background:var(--bg);border-radius:3px;overflow:hidden}
+.fill{height:100%;background:var(--muted);transition:width .25s}
+.fill.red{background:var(--red)}
+.bar span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.mult{font-weight:200;font-size:44px;color:var(--red-hi);line-height:1;font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--red)}
+.cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;background:var(--red);color:#fff;border-radius:12px;padding:20px 22px}
+.cta p{margin:0;max-width:60ch}
+.cta a{background:#fff;color:#06060C;text-decoration:none;font-weight:500;padding:11px 18px;border-radius:6px;white-space:nowrap}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+.tips{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.tips li{border-left:1px solid var(--red);padding-left:12px}
+.tips li b{display:block}
+.bad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:900px){.bad{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.bad{grid-template-columns:1fr}}
+.bad div{background:var(--surface);border:1px solid var(--line);border-top:2px solid var(--red);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.bad em{font-style:normal;color:var(--red-hi);font-size:12.5px}
+footer{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:16px}
+@media (prefers-reduced-motion:reduce){.fill{transition:none}}
+
+.hright{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+@media (max-width:700px){.hright{align-items:flex-start}}
+.langs{display:flex;gap:2px;border:1px solid var(--line);border-radius:6px;padding:2px;background:var(--surface)}
+.langs button{font:400 12px var(--f);letter-spacing:.08em;border:0;background:transparent;color:var(--muted);padding:5px 10px;border-radius:4px;cursor:pointer}
+.langs button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.wc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:900px){.wc{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.wc{grid-template-columns:1fr}}
+.wc article{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.wc article .num{font-weight:500;font-size:11px;letter-spacing:.12em;color:var(--red-hi)}
+.wc article p{margin:0;color:var(--ink)}
+.wc article.lead{grid-column:span 2;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:16px;align-items:center}
+@media (max-width:900px){.wc article.lead{grid-column:span 2}}
+@media (max-width:560px){.wc article.lead{grid-column:span 1;grid-template-columns:1fr}}
+.flow{display:flex;flex-direction:column;gap:10px;font-size:12.5px;color:var(--muted)}
+.flow .ln{display:grid;grid-template-columns:64px minmax(0,1fr);gap:8px;align-items:center}
+.flow .cells{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+.flow .cells i{width:16px;height:16px;border-radius:2px;background:var(--c-word);border-bottom:2px solid var(--c-word-b)}
+.flow .cells.out i{background:var(--red-soft);border-bottom-color:var(--red-hi);opacity:.25;animation:step 3.6s infinite}
+.flow .cells span{margin-left:6px;color:var(--ink)}
+@keyframes step{0%{opacity:.25}12%{opacity:1}100%{opacity:1}}
+.flow .cells.out i:nth-child(1){animation-delay:0s}.flow .cells.out i:nth-child(2){animation-delay:.4s}.flow .cells.out i:nth-child(3){animation-delay:.8s}
+.flow .cells.out i:nth-child(4){animation-delay:1.2s}.flow .cells.out i:nth-child(5){animation-delay:1.6s}.flow .cells.out i:nth-child(6){animation-delay:2s}
+.ratio{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.ratio b{font-weight:200;font-size:44px;line-height:1;color:var(--red-hi);font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){.flow .cells.out i{animation:none;opacity:1}}
+.wc{grid-auto-flow:dense}
+.wc article.wide{grid-column:1 / -1}
+
+.wc p.def{color:var(--muted);font-size:14px}
+.wc p.analogy{border-left:1px solid var(--red);padding-left:12px;font-size:14px}
+.mini-cta{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.mini-cta p{margin:0}
+.mc-links{display:flex;flex-wrap:wrap;gap:8px}
+.mc-links a{font-size:13px;text-decoration:none;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 12px}
+.mc-links a:hover{border-color:var(--red-hi);color:var(--red-hi)}
+.mc-links a.wa{background:var(--red);border-color:var(--red);color:#fff}
+.mc-links a.wa:hover{background:var(--red-hi);color:#fff}
+.num-sel{user-select:all;color:var(--ink)}
+
+.hlinks{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.hlinks .free{margin-top:0}
+.jump{font:400 13px var(--f);color:#fff;background:var(--red);border:0;border-radius:999px;padding:6px 14px;cursor:pointer}
+.jump:hover{background:var(--red-hi)}
+.evgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:860px){.evgrid{grid-template-columns:1fr}}
+.evl{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--muted)}
+.evl input{font:300 16px var(--f);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+#ev-prompt{min-height:170px}
+.evscore{display:flex;gap:18px;align-items:center}
+.ring{--p:0;flex:none;width:112px;height:112px;border-radius:50%;display:flex;align-items:baseline;justify-content:center;padding-top:36px;
+  background:radial-gradient(closest-side,var(--surface) 82%,transparent 83%),conic-gradient(var(--rc,var(--red)) calc(var(--p)*1%),var(--line) 0)}
+.ring[data-lv="2"],.ring[data-lv="3"]{--rc:var(--good)}
+.ring[data-lv="1"]{--rc:var(--warn)}
+.ring b{font-weight:200;font-size:36px;line-height:1;font-variant-numeric:tabular-nums}
+.ring small{color:var(--muted);font-size:12px;margin-left:2px}
+.lvl{font-weight:200;font-size:28px;line-height:1.15;margin:2px 0 4px}
+.crit{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.crit li{display:flex;flex-direction:column;gap:5px}
+.crit .ch{display:flex;justify-content:space-between;gap:10px;font-size:13.5px}
+.crit .pts{color:var(--muted);font-variant-numeric:tabular-nums}
+.crit .track{height:6px}
+.crit li.ok .fill{background:var(--good)} .crit li.mid .fill{background:var(--warn)} .crit li.low .fill{background:var(--red)}
+.crit p{margin:0;font-size:13px;color:var(--muted)}
+.crit p.okp{color:var(--good)}
+.evopt pre{margin:0;white-space:pre-wrap;word-break:break-word;font:300 15px/1.6 var(--f);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:14px;color:var(--ink);min-height:60px}
+
+.ahorro{display:flex;gap:20px;align-items:center;flex-wrap:wrap;border:1px solid var(--red);background:var(--red-soft);border-radius:12px;padding:16px 20px}
+.ahorro .ah-num{font-size:14px;color:var(--muted);white-space:nowrap}
+.ahorro .ah-num b{display:block;font-size:46px;line-height:1;font-weight:200;color:var(--ink)}
+.ahorro .ah-txt{flex:1 1 320px;min-width:0;font-size:14px;color:var(--muted)}
+.ahorro .ah-txt strong{display:block;color:var(--ink);font-weight:500;font-size:15px;margin-bottom:4px}
+.ahorro small{display:block;margin-top:6px;font-size:12px}
+.ahorro a{color:inherit}
+</style>
+<div class="wrap">
+  <header>
+    <img src="data:image/png;base64,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" alt="N3 Thinktech IA Laboratory">
+    <div class="htext">
+      <h1>Tokenó<span>metro</span></h1>
+      <p class="lede" data-i18n="lede">Escribe y mira cómo la IA parte tu texto en tokens, por qué lo hace y cuánto cuesta en cada modelo.</p>
+      <div class="hlinks"><span class="free" data-i18n="free">Funciona en tu navegador: no llama a ninguna IA ni consume tokens</span><button class="jump" id="ev-jump" data-i18n="ev_jump">Evalúa tu prompt ↓</button></div>
+    </div>
+    <div class="hright">
+      <div class="langs" role="group" aria-label="Idioma / Language / Idioma">
+        <button id="l-es" data-lang="es" aria-pressed="true">ES</button>
+        <button id="l-en" data-lang="en" aria-pressed="false">EN</button>
+        <button id="l-pt" data-lang="pt" aria-pressed="false">PT</button>
+      </div>
+      <div class="ref">
+        <span class="refbadge" data-i18n="refbadge">Conteo de referencia (OpenAI)</span>
+        <button id="learn" class="learn" aria-expanded="false" aria-controls="learnbox">Aprende más</button>
+      </div>
+    </div>
+    <div id="learnbox" class="learnbox" hidden>
+      <p data-i18n="learn_p">Este conteo usa el tokenizador público de OpenAI. Los demás modelos cuentan distinto, así que úsalo como estimación:</p>
+      <ul>
+        <li data-i18n="learn_1"><b>Claude:</b> tiene su propio tokenizador y no es público.</li>
+        <li data-i18n="learn_2"><b>Gemini:</b> solo cuenta tokens a través de su API, con clave y conexión, y la página no puede usarla.</li>
+        <li data-i18n="learn_3"><b>DeepSeek:</b> su tokenizador es público, pero no hay una versión ligera para el navegador.</li>
+        <li data-i18n="learn_4"><b>Perplexity y Copilot:</b> usan modelos de terceros.</li>
+      </ul>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="panel">
+      <div class="row">
+        <span class="label" data-i18n="l_text">Tu texto</span>
+        <div class="presets" id="presets"></div>
+      </div>
+      <textarea id="input" spellcheck="false" aria-label="Texto"></textarea>
+      <div class="stats">
+        <div class="stat main"><b id="s-tok">0</b><small data-i18n="st_tok">tokens</small></div>
+        <div class="stat"><b id="s-chr">0</b><small data-i18n="st_chr">caracteres</small></div>
+        <div class="stat"><b id="s-wrd">0</b><small data-i18n="st_wrd">palabras</small></div>
+        <div class="stat"><b id="s-rat">0</b><small data-i18n="st_rat">tokens por palabra</small></div>
+      </div>
+      <div class="row">
+        <span class="label" data-i18n="l_view">Así lo ve el modelo</span>
+        <div class="tog" role="group">
+          <button id="v-text" aria-pressed="true" data-i18n="v_text">Texto</button>
+          <button id="v-ids" aria-pressed="false">IDs</button>
+        </div>
+      </div>
+      <div class="tokens" id="tokens" aria-live="polite"></div>
+      <div class="legend">
+        <span><i class="k-word"></i><span data-i18n="lg_word">Palabra entera</span></span>
+        <span><i class="k-frag"></i><span data-i18n="lg_frag">Fragmento de palabra</span></span>
+        <span><i class="k-num"></i><span data-i18n="lg_num">Número</span></span>
+        <span><i class="k-punct"></i><span data-i18n="lg_punct">Puntuación</span></span>
+        <span><i class="k-space"></i><span data-i18n="lg_space">Espacio / salto</span></span>
+        <span><i class="k-byte"></i><span data-i18n="lg_byte">Bytes (emoji, símbolo raro)</span></span>
+      </div>
+      <p class="status" id="status">Cargando vocabulario del tokenizador…</p>
+    </section>
+
+    <aside class="panel why">
+      <span class="label" data-i18n="l_why">Por qué, en tiempo real</span>
+      <div class="focus" id="focus"></div>
+      <ol class="insights" id="insights"></ol>
+    </aside>
+  </div>
+
+  <section class="block" id="evalua">
+    <div>
+      <span class="label" data-i18n="ev_label">Evalúa tu prompt</span>
+      <h2 data-i18n="ev_h">¿Qué tan bueno es tu prompt, y cuántos tokens desperdicia?</h2>
+      <p class="sub" data-i18n="ev_sub">Escribe qué quieres lograr y el prompt que usarías. Se califica en vivo con seis criterios de claridad y ahorro de tokens.</p>
+    </div>
+    <div class="ahorro">
+      <div class="ah-num"><span data-i18n="ah_up">hasta</span> <b>80%</b></div>
+      <div class="ah-txt">
+        <strong data-i18n="ah_h">menos tokens cuando tu equipo aprende a escribir buenos prompts.</strong>
+        <span data-i18n="ah_p"></span>
+        <small><span data-i18n="ah_src">Fuente:</span> <a href="https://www.worklytics.co/blog/how-can-employees-lower-the-cost-of-their-llm-usage" target="_blank" rel="noopener">Worklytics, “How can employees lower the cost of their LLM usage”, 2026</a></small>
+      </div>
+    </div>
+    <div class="evgrid">
+      <div class="panel">
+        <label class="evl" for="ev-goal"><span data-i18n="ev_goal">Tu objetivo</span>
+          <input id="ev-goal" type="text" autocomplete="off">
+        </label>
+        <label class="evl" for="ev-prompt"><span data-i18n="ev_prompt">Tu prompt</span>
+          <textarea id="ev-prompt" spellcheck="false"></textarea>
+        </label>
+        <div class="row">
+          <div class="presets">
+            <button class="preset" id="ev-bad" data-i18n="ev_bad">Ejemplo mal escrito</button>
+            <button class="preset" id="ev-good" data-i18n="ev_good">Ejemplo bien escrito</button>
+            <button class="preset" id="ev-clear" data-i18n="ev_clear">Borrar</button>
+          </div>
+          <span class="note" id="ev-tok"></span>
+        </div>
+      </div>
+      <div class="panel evres">
+        <div class="evscore">
+          <div class="ring" id="ev-ring"><b id="ev-score">0</b><small>/100</small></div>
+          <div>
+            <span class="label" data-i18n="ev_level">Tu nivel</span>
+            <div class="lvl" id="ev-lvl">—</div>
+            <p class="note" id="ev-waste"></p>
+          </div>
+        </div>
+        <ul class="crit" id="ev-crit"></ul>
+      </div>
+    </div>
+    <div class="panel evopt">
+      <div class="row">
+        <div>
+          <span class="label" data-i18n="ev_opt">Versión optimizada</span>
+          <p class="note" id="ev-saved" style="margin-top:4px"></p>
+        </div>
+        <button class="learn" id="ev-copy" data-i18n="ev_copy">Copiar</button>
+      </div>
+      <pre id="ev-out"></pre>
+      <p class="note" data-i18n="ev_note">Evaluación automática por reglas, sin IA: mide estructura y eficiencia, no la calidad de tus ideas. Completa lo que está entre &lt; &gt; antes de usarlo.</p>
+      <div class="mc-links">
+        <a href="https://n3labs.potenttial.site/prompter" target="_blank" rel="noopener" data-i18n="ev_cta">Optimizarlo con el Prompter N3</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="costo">
+    <div>
+      <span class="label" data-i18n="c_label">Costo estimado por modelo</span>
+      <h2 data-i18n="c_h">Lo que cuesta este texto en cada IA</h2>
+      <p class="sub" data-i18n="c_sub">Precio API por millón de tokens en USD. Se calcula la entrada (tu texto) más la respuesta esperada. Cada empresa tokeniza distinto, así que el conteo real puede variar.</p>
+    </div>
+    <div class="controls">
+      <label for="cur"><span data-i18n="c_cur">Moneda</span>
+        <select id="cur"></select>
+      </label>
+      <label for="resp"><span data-i18n="c_resp">Respuesta esperada</span>
+        <select id="resp">
+          <option value="0.5" data-i18n="r_1">Corta (½ de tu texto)</option>
+          <option value="1" data-i18n="r_2">Igual a tu texto</option>
+          <option value="3" selected data-i18n="r_3">Larga (3× tu texto)</option>
+          <option value="10" data-i18n="r_4">Muy larga (10× tu texto)</option>
+        </select>
+      </label>
+      <label for="times"><span data-i18n="c_times">Envíos al día</span>
+        <input id="times" type="number" min="1" step="1" value="1000">
+      </label>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th data-i18n="th_1">Proveedor</th><th data-i18n="th_2">Modelo</th><th data-i18n="th_3">Entrada /1M</th><th data-i18n="th_4">Salida /1M</th><th data-i18n="th_5">Por envío</th><th data-i18n="th_6">Al mes</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <p class="note" id="fxnote"></p>
+  </section>
+
+  <section class="block" id="por-que-cuestan">
+    <div>
+      <span class="label" data-i18n="wc_label">Economía de la IA</span>
+      <h2 data-i18n="wc_h">¿Por qué cuestan los tokens y por qué se cobra así?</h2>
+      <p class="sub" data-i18n="wc_sub">Un token es la unidad de trabajo de un modelo. Cobrar por token es como cobrar un taxi por kilómetro: pagas lo que realmente se recorrió.</p>
+    </div>
+    <div class="wc">
+      <article>
+        <span class="num">01</span>
+        <h3 data-i18n="wc1_h">Cada token es cálculo en GPU</h3>
+        <p data-i18n="wc1_p">Para leer o escribir cada token, el modelo hace operaciones con todos sus parámetros, que son miles de millones. Eso ocurre en chips especializados (GPU) que cuestan millones de dólares y consumen mucha electricidad.</p>
+      </article>
+      <article class="lead">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span class="num">02</span>
+          <h3 data-i18n="wc2_h">Escribir cuesta más que leer</h3>
+          <p data-i18n="wc2_p">Tu texto se procesa de golpe, en paralelo. La respuesta se genera un token a la vez y cada uno requiere una pasada completa por el modelo. Por eso la salida cuesta varias veces más que la entrada.</p>
+          <p class="def" data-i18n="wc2_def"></p>
+          <p class="analogy" data-i18n="wc2_an"></p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="flow" aria-hidden="true">
+            <div class="ln"><span data-i18n="fl_in">Entrada</span><div class="cells"><i></i><i></i><i></i><i></i><i></i><i></i><span data-i18n="fl_in2">1 pasada</span></div></div>
+            <div class="ln"><span data-i18n="fl_out">Salida</span><div class="cells out"><i></i><i></i><i></i><i></i><i></i><i></i><span data-i18n="fl_out2">6 pasadas</span></div></div>
+          </div>
+          <div class="ratio"><b id="ratio">×5</b><span class="note" data-i18n="wc2_r">la salida frente a la entrada, en promedio, en los modelos de esta página</span></div>
+        </div>
+      </article>
+      <article>
+        <span class="num">03</span>
+        <h3 data-i18n="wc3_h">El contexto ocupa memoria</h3>
+        <p data-i18n="wc3_p">Mientras responde, el modelo guarda toda la conversación en la memoria de la GPU. Conversaciones largas ocupan más memoria y dejan menos espacio para otros usuarios; algunos proveedores cobran más por encima de 200 mil tokens.</p>
+      </article>
+      <article>
+        <span class="num">04</span>
+        <h3 data-i18n="wc4_h">Modelo más grande, token más caro</h3>
+        <p data-i18n="wc4_p">Más parámetros significa más cálculo por token. Los modelos de razonamiento además generan tokens de “pensamiento” que no ves, pero se cobran como salida.</p>
+      </article>
+      <article>
+        <span class="num">05</span>
+        <h3 data-i18n="wc5_h">Repetir sale más barato con caché</h3>
+        <p data-i18n="wc5_p">Si cada mensaje empieza con las mismas instrucciones o el mismo documento, el proveedor puede reutilizar ese cálculo y cobrar esos tokens hasta 90% más barato.</p>
+      </article>
+      <article class="wide">
+        <span class="num">06</span>
+        <h3 data-i18n="wc6_h">Las suscripciones también miden tokens</h3>
+        <p data-i18n="wc6_p">En ChatGPT Plus, Claude Pro, Gemini o Copilot pagas una cuota fija, pero tu uso tiene límites medidos en tokens. Chats largos y documentos pesados agotan tu cupo más rápido.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" id="fragmentar">
+    <div>
+      <span class="label" data-i18n="f_label">Mito o realidad</span>
+      <h2 data-i18n="f_h">¿Escribir el prompt en partes o sin claridad cuesta más?</h2>
+    </div>
+    <div class="verdict">
+      <div class="panel">
+        <div class="yes" data-i18n="yes">Sí.</div>
+        <p style="margin:0" data-i18n="f_p1">Un chat no tiene memoria propia: <b>en cada mensaje el modelo vuelve a leer toda la conversación</b>, y cada lectura se cobra como tokens de entrada. Si mandas tu idea en cuatro partes, la primera parte se paga cuatro veces, la segunda tres, y cada respuesta intermedia también se reenvía.</p>
+        <p style="margin:0" data-i18n="f_p2">Un prompt vago suma otra capa: respuestas que no sirven, aclaraciones y "otra vez, pero mejor". Cada vuelta es una conversación más larga que se vuelve a leer completa.</p>
+        <p class="note" data-i18n="f_note">Algunas plataformas aplican caché y descuentan parte del historial repetido, pero el costo sigue creciendo con cada turno.</p>
+      </div>
+      <div class="panel">
+        <span class="label" data-i18n="sim_label">Simulador con tu texto</span>
+        <div class="controls">
+          <label for="parts"><span><span data-i18n="parts_l">Mensajes en que divides la idea</span>: <b id="parts-v">4</b></span>
+            <input id="parts" type="range" min="1" max="8" value="4">
+          </label>
+          <label for="retries"><span><span data-i18n="retries_l">Correcciones por falta de claridad</span>: <b id="retries-v">1</b></span>
+            <input id="retries" type="range" min="0" max="5" value="1">
+          </label>
+        </div>
+        <div class="bars">
+          <div class="bar"><span data-i18n="b_clear">1 prompt claro</span><div class="track"><div class="fill" id="b-clear"></div></div><span id="t-clear">0</span></div>
+          <div class="bar"><span data-i18n="b_frag">En partes</span><div class="track"><div class="fill red" id="b-frag"></div></div><span id="t-frag">0</span></div>
+        </div>
+        <div class="row" style="align-items:flex-end">
+          <div><div class="mult" id="mult">×1</div><span class="note" data-i18n="mult_l">más tokens por la misma idea</span></div>
+          <p class="note" style="max-width:34ch" data-i18n="sim_note">Supone una respuesta de 3× tu texto, respuestas parciales a cada fragmento y que cada corrección regenera la respuesta completa.</p>
+        </div>
+      </div>
+    </div>
+    <div class="cta">
+      <p data-i18n="cta_p"><b>Un prompt bien armado desde el inicio es el ahorro más grande.</b> El Prompter de N3 estructura tu petición en un solo mensaje claro: contexto, tarea, formato y límites.</p>
+      <a href="https://n3labs.potenttial.site/prompter" target="_blank" rel="noopener" data-i18n="cta_a">Optimizar con el Prompter N3</a>
+    </div>
+  </section>
+
+  <section class="block" id="optimizar">
+    <div>
+      <span class="label" data-i18n="o_label">Buenas prácticas</span>
+      <h2 data-i18n="o_h">Cómo gastar menos tokens</h2>
+    </div>
+    <div class="cols">
+      <div class="panel">
+        <h3 data-i18n="o_per">Uso personal</h3>
+        <ul class="tips" id="tips-per"></ul>
+      </div>
+      <div class="panel">
+        <h3 data-i18n="o_off">En la oficina</h3>
+        <ul class="tips" id="tips-off"></ul>
+        <div class="mini-cta">
+          <p data-i18n="mc_p"></p>
+          <div class="mc-links">
+            <a href="https://n3labs.potenttial.site/prompter" target="_blank" rel="noopener" data-i18n="mc_1"></a>
+            <a href="https://n3.potenttial.com/prompter-cfo.html" target="_blank" rel="noopener" data-i18n="mc_2"></a>
+            <a class="wa" id="wa" href="https://wa.me/525529050452?text=Quiero%20un%20prompter" target="_blank" rel="noopener" data-i18n="mc_3"></a>
+          </div>
+          <p class="note"><span data-i18n="mc_num"></span> <span class="num-sel">+52 55 2905 0452</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="irresponsable">
+    <div>
+      <span class="label" data-i18n="x_label">Lo que no hay que hacer</span>
+      <h2 data-i18n="x_h">Ejemplos de uso irresponsable de tokens</h2>
+    </div>
+    <div class="bad" id="bad"></div>
+  </section>
+
+  <footer>
+    <span><b>Tokenómetro · N3 Labs · Thinktech IA Laboratory · Potenttial Group</b></span>
+    <span data-i18n="ft_1">Conteo con el tokenizador público de OpenAI (o200k_base). Claude, Gemini, DeepSeek y Perplexity usan tokenizadores propios: el número de tokens es aproximado.</span>
+    <span data-i18n="ft_2">Precios API de referencia, octubre 2026 (OpenAI verificado 27 sep; Gemini 25 oct; DeepSeek 29 oct, tarifa pico; Claude 5 oct; Perplexity jul 2026, sin tarifa por búsqueda). Copilot se estima con GPT-5 vía Azure OpenAI; las suscripciones de Copilot no se cobran por token. Los precios cambian seguido: verifica con cada proveedor.</span>
+    <span data-i18n="ft_3">Tipos de cambio de referencia: MXN Banxico 26 oct 2026; resto, 19 oct 2026 (ARS oficial).</span>
+  </footer>
+</div>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"Tokenómetro N3","url":"https://n3.potenttial.com/tokenometro/","applicationCategory":"EducationalApplication","operatingSystem":"Web","inLanguage":["es","en","pt"],"isAccessibleForFree":true,"featureList":["Contador de tokens en tiempo real / Real-time token counter / Contador de tokens em tempo real","Evaluador de prompts con calificación 0-100 / Prompt grader / Avaliador de prompts","Costo por modelo en monedas de Latinoamérica / AI cost by model"],
+ "description":"Contador de tokens en tiempo real que explica por qué la IA divide tu texto y cuánto cuesta en ChatGPT, Gemini, Claude, Perplexity, Copilot y DeepSeek. Real-time token counter that explains tokenization and AI cost. Contador de tokens em tempo real que explica a tokenização e o custo da IA.",
+ "creator":{"@type":"Organization","name":"N3 Labs · Thinktech IA Laboratory","url":"https://n3labs.potenttial.site/","parentOrganization":{"@type":"Organization","name":"Potenttial Group"}},
+ "founder":{"@type":"Person","name":"Engel Fonseca","sameAs":"https://www.linkedin.com/in/engelfonseca/"}},
+{"@type":"FAQPage","mainEntity":[
+ {"@type":"Question","inLanguage":"es","name":"¿Qué es un token en inteligencia artificial?","acceptedAnswer":{"@type":"Answer","text":"Un token es la unidad en que un modelo de IA divide el texto: puede ser una palabra completa, un fragmento de palabra, un número, un signo o un byte. Los modelos leen y cobran por tokens, no por palabras."}},
+ {"@type":"Question","inLanguage":"es","name":"¿Por qué cuestan los tokens?","acceptedAnswer":{"@type":"Answer","text":"Cada token requiere cálculo en GPU a través de todos los parámetros del modelo. La salida cuesta más que la entrada porque se genera un token a la vez. Por eso los proveedores cobran por millón de tokens."}},
+ {"@type":"Question","inLanguage":"es","name":"¿Hacer un prompt en partes cuesta más tokens?","acceptedAnswer":{"@type":"Answer","text":"Sí. En cada mensaje el modelo vuelve a leer toda la conversación, así que dividir una idea en varios mensajes o corregir un prompt poco claro multiplica los tokens de entrada."}},
+ {"@type":"Question","inLanguage":"es","name":"¿Cómo saber si mi prompt es bueno?","acceptedAnswer":{"@type":"Answer","text":"Un buen prompt tiene objetivo claro, verbo de acción, contexto, formato de salida y un límite de extensión, sin cortesías ni relleno que gasten tokens. El Tokenómetro de N3 lo califica de 0 a 100 sin consumir tokens."}},
+ {"@type":"Question","inLanguage":"en","name":"How do I know if my prompt is good?","acceptedAnswer":{"@type":"Answer","text":"A good prompt has a clear goal, an action verb, context, an output format and a length limit, without pleasantries or filler that waste tokens. The N3 Tokenometer grades it from 0 to 100 without using tokens."}},
+ {"@type":"Question","inLanguage":"en","name":"Why do AI tokens cost money?","acceptedAnswer":{"@type":"Answer","text":"Every token requires GPU computation across all of the model's parameters. Output costs more than input because it is generated one token at a time. That is why providers bill per million tokens."}},
+ {"@type":"Question","inLanguage":"en","name":"Does splitting a prompt into several messages cost more tokens?","acceptedAnswer":{"@type":"Answer","text":"Yes. On every message the model rereads the whole conversation, so splitting an idea or fixing an unclear prompt multiplies input tokens."}},
+ {"@type":"Question","inLanguage":"pt","name":"Por que os tokens de IA custam dinheiro?","acceptedAnswer":{"@type":"Answer","text":"Cada token exige cálculo em GPU com todos os parâmetros do modelo. A saída custa mais que a entrada porque é gerada um token por vez. Por isso os provedores cobram por milhão de tokens."}},
+ {"@type":"Question","inLanguage":"pt","name":"Dividir um prompt em várias mensagens custa mais tokens?","acceptedAnswer":{"@type":"Answer","text":"Sim. A cada mensagem o modelo relê a conversa inteira, então dividir uma ideia ou corrigir um prompt pouco claro multiplica os tokens de entrada."}}
+]}]}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/gpt-tokenizer@2.9.0/dist/o200k_base.js"></script>
+<script>
+(function(){
+const T = {
+es:{
+  _title:"Tokenómetro N3", _loc:"es-MX",
+  lede:"Escribe y mira cómo la IA parte tu texto en tokens, por qué lo hace y cuánto cuesta en cada modelo.",
+  free:"Funciona en tu navegador: no llama a ninguna IA ni consume tokens",
+  refbadge:"Conteo de referencia (OpenAI)", learn:"Aprende más", close:"Cerrar",
+  learn_p:"Este conteo usa el tokenizador público de OpenAI. Los demás modelos cuentan distinto, así que úsalo como estimación:",
+  learn_1:"<b>Claude:</b> tiene su propio tokenizador y no es público.",
+  learn_2:"<b>Gemini:</b> solo cuenta tokens a través de su API, con clave y conexión, y la página no puede usarla.",
+  learn_3:"<b>DeepSeek:</b> su tokenizador es público, pero no hay una versión ligera para el navegador.",
+  learn_4:"<b>Perplexity y Copilot:</b> usan modelos de terceros.",
+  l_text:"Tu texto", st_tok:"tokens", st_chr:"caracteres", st_wrd:"palabras", st_rat:"tokens por palabra",
+  l_view:"Así lo ve el modelo", v_text:"Texto",
+  lg_word:"Palabra entera", lg_frag:"Fragmento de palabra", lg_num:"Número", lg_punct:"Puntuación", lg_space:"Espacio / salto", lg_byte:"Bytes (emoji, símbolo raro)",
+  l_why:"Por qué, en tiempo real",
+  c_label:"Costo estimado por modelo", c_h:"Lo que cuesta este texto en cada IA",
+  c_sub:"Precio API por millón de tokens en USD. Se calcula la entrada (tu texto) más la respuesta esperada. Cada empresa tokeniza distinto, así que el conteo real puede variar.",
+  c_cur:"Moneda", c_resp:"Respuesta esperada", c_times:"Envíos al día",
+  r_1:"Corta (½ de tu texto)", r_2:"Igual a tu texto", r_3:"Larga (3× tu texto)", r_4:"Muy larga (10× tu texto)",
+  th_1:"Proveedor", th_2:"Modelo", th_3:"Entrada /1M", th_4:"Salida /1M", th_5:"Por envío", th_6:"Al mes",
+  wc_label:"Economía de la IA", wc_h:"¿Por qué cuestan los tokens y por qué se cobra así?",
+  wc_sub:"Un token es la unidad de trabajo de un modelo. Cobrar por token es como cobrar un taxi por kilómetro: pagas lo que realmente se recorrió.",
+  wc1_h:"Cada token es cálculo en GPU", wc1_p:"Para leer o escribir cada token, el modelo hace operaciones con todos sus parámetros, que son miles de millones. Eso ocurre en chips especializados (GPU) que cuestan millones de dólares y consumen mucha electricidad.",
+  wc2_h:"Escribir cuesta más que leer", wc2_p:"Tu texto se procesa de golpe, en paralelo. La respuesta se genera un token a la vez y cada uno requiere una pasada completa por el modelo. Por eso la salida cuesta varias veces más que la entrada.",
+  wc2_def:"<b>Entrada</b> es todo lo que el modelo lee: tu mensaje, las instrucciones, los archivos y la conversación anterior. <b>Salida</b> es todo lo que escribe: la respuesta y, en modelos de razonamiento, su “pensamiento” interno.",
+  wc2_an:"<b>Piénsalo como un restaurante.</b> Leer la comanda (entrada) toma un vistazo, sin importar cuántos platillos pidas. Cocinar (salida) se hace platillo por platillo, y cada uno ocupa la cocina completa. Por eso cuesta más lo que se cocina que lo que se lee, y por eso pedir “solo lo necesario” es la forma más directa de pagar menos.",
+  mc_p:"<b>Un prompter hecho a la medida de tu área es la plantilla que mejor ahorra tokens.</b> Conoce los de N3 o pide el tuyo.",
+  mc_1:"Prompter N3", mc_2:"Prompter para CFOs", mc_3:"Cotiza tu prompter por WhatsApp", mc_num:"WhatsApp:", mc_msg:"Quiero un prompter",
+  fl_in:"Entrada", fl_in2:"1 pasada", fl_out:"Salida", fl_out2:"6 pasadas",
+  wc2_r:"la salida frente a la entrada, en promedio, en los modelos de esta página",
+  wc3_h:"El contexto ocupa memoria", wc3_p:"Mientras responde, el modelo guarda toda la conversación en la memoria de la GPU. Conversaciones largas ocupan más memoria y dejan menos espacio para otros usuarios; algunos proveedores cobran más por encima de 200 mil tokens.",
+  wc4_h:"Modelo más grande, token más caro", wc4_p:"Más parámetros significa más cálculo por token. Los modelos de razonamiento además generan tokens de “pensamiento” que no ves, pero se cobran como salida.",
+  wc5_h:"Repetir sale más barato con caché", wc5_p:"Si cada mensaje empieza con las mismas instrucciones o el mismo documento, el proveedor puede reutilizar ese cálculo y cobrar esos tokens hasta 90% más barato.",
+  wc6_h:"Las suscripciones también miden tokens", wc6_p:"En ChatGPT Plus, Claude Pro, Gemini o Copilot pagas una cuota fija, pero tu uso tiene límites medidos en tokens. Chats largos y documentos pesados agotan tu cupo más rápido.",
+  f_label:"Mito o realidad", f_h:"¿Escribir el prompt en partes o sin claridad cuesta más?", yes:"Sí.",
+  f_p1:"Un chat no tiene memoria propia: <b>en cada mensaje el modelo vuelve a leer toda la conversación</b>, y cada lectura se cobra como tokens de entrada. Si mandas tu idea en cuatro partes, la primera parte se paga cuatro veces, la segunda tres, y cada respuesta intermedia también se reenvía.",
+  f_p2:"Un prompt vago suma otra capa: respuestas que no sirven, aclaraciones y \"otra vez, pero mejor\". Cada vuelta es una conversación más larga que se vuelve a leer completa.",
+  f_note:"Algunas plataformas aplican caché y descuentan parte del historial repetido, pero el costo sigue creciendo con cada turno.",
+  sim_label:"Simulador con tu texto", parts_l:"Mensajes en que divides la idea", retries_l:"Correcciones por falta de claridad",
+  b_clear:"1 prompt claro", b_frag:"En partes", mult_l:"más tokens por la misma idea",
+  sim_note:"Supone una respuesta de 3× tu texto, respuestas parciales a cada fragmento y que cada corrección regenera la respuesta completa.",
+  cta_p:"<b>Un prompt bien armado desde el inicio es el ahorro más grande.</b> El Prompter de N3 estructura tu petición en un solo mensaje claro: contexto, tarea, formato y límites.",
+  cta_a:"Optimizar con el Prompter N3",
+  o_label:"Buenas prácticas", o_h:"Cómo gastar menos tokens", o_per:"Uso personal", o_off:"En la oficina",
+  tips_per:[["Escribe todo en un solo mensaje.","Contexto, pregunta y formato juntos. Evita \"te paso más info en un momento\"."],
+    ["Pide la extensión que necesitas.","\"Responde en 5 viñetas\" o \"máximo 100 palabras\". La salida cuesta varias veces más que la entrada."],
+    ["Abre un chat nuevo por tema.","Un hilo de 50 mensajes se relee completo cada vez, aunque ya no tenga que ver con tu pregunta."],
+    ["Pega solo el fragmento relevante.","No el PDF completo si la duda está en una página."],
+    ["Usa el modelo justo.","Para resumir o traducir, un modelo ligero cuesta hasta 50 veces menos que uno de razonamiento."]],
+  tips_off:[["Plantillas de prompts por área.","Un prompt probado evita que cada persona itere 5 veces para llegar al mismo resultado."],
+    ["Contexto fijo y reutilizable.","Instrucciones de sistema y documentos base cortos y estables permiten aprovechar la caché del proveedor."],
+    ["Modelo según la tarea.","Clasificar correos con un modelo ligero; reservar el modelo caro para análisis y decisiones."],
+    ["Límites de salida en integraciones.","Fija el máximo de tokens de respuesta en cada flujo automatizado."],
+    ["Mide por equipo.","Revisar el consumo mensual por área muestra rápido dónde se están quemando tokens."]],
+  x_label:"Lo que no hay que hacer", x_h:"Ejemplos de uso irresponsable de tokens",
+  bad:[["El chat eterno","Usar un mismo hilo durante semanas para todo. Cada pregunta nueva arrastra miles de tokens de historia irrelevante.","Abre un chat por tema."],
+    ["\"Hola\" … \"¿estás?\" … \"te explico\"","Mandar la idea en goteo. Cada mensaje vuelve a cobrar lo anterior.","Un mensaje, completo."],
+    ["Pegar el documento entero","Subir un contrato de 80 páginas para preguntar por una cláusula.","Recorta antes de pegar."],
+    ["\"Hazlo otra vez, mejor\"","Regenerar 10 veces sin decir qué cambiar. Diez respuestas completas pagadas para elegir una.","Di qué cambiar y por qué."],
+    ["El modelo más caro para todo","Usar un modelo de razonamiento para corregir ortografía o traducir un saludo.","Elige el modelo por tarea."],
+    ["Automatizar sin límites","Un flujo que llama a la IA por cada correo, sin tope de respuesta ni filtro previo. Se multiplica por miles al día.","Filtra y pon máximos."]],
+  ft_1:"Conteo con el tokenizador público de OpenAI (o200k_base). Claude, Gemini, DeepSeek y Perplexity usan tokenizadores propios: el número de tokens es aproximado.",
+  ft_2:"Precios API de referencia, octubre 2026 (OpenAI verificado 27 sep; Gemini 25 oct; DeepSeek 29 oct, tarifa pico; Claude 5 oct; Perplexity jul 2026, sin tarifa por búsqueda). Copilot se estima con GPT-5 vía Azure OpenAI; las suscripciones de Copilot no se cobran por token. Los precios cambian seguido: verifica con cada proveedor.",
+  ft_3:"Tipos de cambio de referencia: MXN Banxico 26 oct 2026; resto, 19 oct 2026 (ARS oficial).",
+  presets:{es:"Español",en:"English",pt:"Português",code:"Código",nums:"Números",emoji:"Emojis",caps:"Mayúsculas"},
+  ex:{nums:"El 30/10/2026 facturamos $1,234,567.89 con 80000 personas capacitadas.",emoji:"Me encanta 🧠✨🚀 ¡Neurociencia + IA = 💡! Pingüino, ñandú, acción.",caps:"hola Hola HOLA hOLA"},
+  copilot:"GPT-5 vía Azure OpenAI", cheap:"Más barato", pricey:"Más caro",
+  loading:"Cargando vocabulario del tokenizador…", fail:"No se pudo cargar el tokenizador. Revisa tu conexión y recarga la página.",
+  status:n=>`Conteo de referencia (OpenAI o200k) · ${n} tokens · se actualiza mientras escribes`,
+  fx:(i,o,n)=>`${i} tokens de entrada + ${o} de respuesta por envío × ${n} envíos al día × 30 días.`, fxr:(r,c)=>` Tipo de cambio: 1 USD = ${r} ${c}.`,
+  empty:"Toca o pasa el cursor sobre cualquier token para ver por qué existe.",
+  k:{word:"Palabra entera",frag:"Fragmento de palabra",num:"Número",punct:"Puntuación o símbolo",space:"Espacio o salto de línea",byteM:"Carácter partido en bytes",byteS:"Símbolo especial"},
+  lead:" Incluye el espacio anterior: el espacio viaja pegado a la palabra que le sigue, por eso «hola» y « hola» son tokens distintos.",
+  w_word:"Esta secuencia aparece tantas veces en los datos de entrenamiento que el vocabulario le reservó un ID propio. Cuesta 1 token.",
+  w_frag:(w,n)=>`«${w}» no es lo bastante frecuente para tener ID propio, así que se arma con ${n} piezas más comunes. Esa palabra cuesta ${n} tokens.`,
+  w_acc:" Los acentos y la ñ ocupan 2 bytes y aparecen menos en los datos, lo que tiende a partir más la palabra.",
+  w_caps:" Las mayúsculas a mitad de palabra rompen los patrones aprendidos.",
+  w_num:"Los números se cortan en grupos de hasta 3 dígitos. Una cifra larga cuesta varios tokens y el modelo ve bloques, no cantidades.",
+  w_punct:"Los signos comunes tienen token propio. Los raros, como comillas tipográficas o ¿¡, a veces se combinan con espacios o se parten.",
+  w_space:"Los espacios y saltos de línea también se cobran. Espacios dobles o la sangría del código consumen tokens sin aportar contenido.",
+  w_byteM:(b,n)=>`Este carácter mide ${b} bytes en UTF-8 y no tiene ID propio, así que el modelo lo deletrea byte a byte: ${n} tokens por un solo símbolo.`,
+  w_byteS:b=>`Este símbolo sí tiene ID propio, pero ocupa ${b} bytes. Muchos emojis no tienen esa suerte.`,
+  m_tok:n=>`${n} token${n>1?"s":""}`, m_pos:(i,n)=>`posición ${i} de ${n}`,
+  i_frag:(n,l)=>`${n} palabra${n>1?"s se partieron":" se partió"} en fragmentos. ${n>1?"Las más caras":"La más cara"}: ${l}.`,
+  i_whole:"Todas las palabras tienen ID propio: vocabulario muy frecuente, el caso más barato.",
+  i_bytes:(n,e)=>`${n} símbolo${n>1?"s se deletrean":" se deletrea"} byte a byte y suma${n>1?"n":""} ${e} token${e>1?"s":""} extra.`,
+  i_nums:n=>`Las cifras ocupan ${n} tokens. El modelo lee los números por bloques; por eso a veces se equivoca al calcular.`,
+  i_sp:n=>`${n} token${n>1?"s":""} solo en espacios y saltos de línea.`,
+  i_r1:r=>`${r} tokens por palabra: texto eficiente, típico del inglés.`,
+  i_r2:r=>`${r} tokens por palabra: rango normal del español y el portugués. El mismo mensaje en inglés suele costar menos; compara con el ejemplo "English".`,
+  i_r3:r=>`${r} tokens por palabra: texto caro. Términos técnicos, nombres propios, acentos o símbolos inflan la cuenta.`,
+  i_voc:v=>`Cada token es un número entre 0 y ${v}. El modelo nunca ve tus letras, solo esa lista de números.`
+},
+en:{
+  _title:"N3 Tokenometer", _loc:"en-US",
+  lede:"Type and watch how AI splits your text into tokens, why it does it, and what it costs on each model.",
+  free:"Runs in your browser: it calls no AI and uses no tokens",
+  refbadge:"Reference count (OpenAI)", learn:"Learn more", close:"Close",
+  learn_p:"This count uses OpenAI's public tokenizer. Other models count differently, so treat it as an estimate:",
+  learn_1:"<b>Claude:</b> has its own tokenizer, and it isn't public.",
+  learn_2:"<b>Gemini:</b> only counts tokens through its API, which needs a key and a connection this page can't use.",
+  learn_3:"<b>DeepSeek:</b> its tokenizer is public, but there's no lightweight browser version.",
+  learn_4:"<b>Perplexity and Copilot:</b> run on third-party models.",
+  l_text:"Your text", st_tok:"tokens", st_chr:"characters", st_wrd:"words", st_rat:"tokens per word",
+  l_view:"How the model sees it", v_text:"Text",
+  lg_word:"Whole word", lg_frag:"Word fragment", lg_num:"Number", lg_punct:"Punctuation", lg_space:"Space / line break", lg_byte:"Bytes (emoji, rare symbol)",
+  l_why:"Why, in real time",
+  c_label:"Estimated cost by model", c_h:"What this text costs on each AI",
+  c_sub:"API price per million tokens in USD. It counts the input (your text) plus the expected response. Each company tokenizes differently, so the real count may vary.",
+  c_cur:"Currency", c_resp:"Expected response", c_times:"Sends per day",
+  r_1:"Short (½ of your text)", r_2:"Same as your text", r_3:"Long (3× your text)", r_4:"Very long (10× your text)",
+  th_1:"Provider", th_2:"Model", th_3:"Input /1M", th_4:"Output /1M", th_5:"Per send", th_6:"Per month",
+  wc_label:"AI economics", wc_h:"Why do tokens cost money, and why are they billed this way?",
+  wc_sub:"A token is a model's unit of work. Billing per token is like a taxi charging by the kilometer: you pay for the distance actually traveled.",
+  wc1_h:"Every token is GPU computation", wc1_p:"To read or write each token, the model runs operations across all of its parameters, which number in the billions. That happens on specialized chips (GPUs) that cost millions of dollars and draw a lot of electricity.",
+  wc2_h:"Writing costs more than reading", wc2_p:"Your text is processed all at once, in parallel. The response is generated one token at a time, and each token takes a full pass through the model. That's why output costs several times more than input.",
+  wc2_def:"<b>Input</b> is everything the model reads: your message, the instructions, files and the earlier conversation. <b>Output</b> is everything it writes: the answer and, in reasoning models, its internal “thinking”.",
+  wc2_an:"<b>Think of a restaurant.</b> Reading the order (input) takes one glance, no matter how many dishes you ask for. Cooking (output) happens dish by dish, and each one ties up the whole kitchen. That's why what gets cooked costs more than what gets read, and why asking for “only what you need” is the most direct way to pay less.",
+  mc_p:"<b>A prompter tailored to your team is the template that saves the most tokens.</b> Explore N3's or request your own.",
+  mc_1:"N3 Prompter", mc_2:"Prompter for CFOs", mc_3:"Get a quote on WhatsApp", mc_num:"WhatsApp:", mc_msg:"I want a prompter",
+  fl_in:"Input", fl_in2:"1 pass", fl_out:"Output", fl_out2:"6 passes",
+  wc2_r:"output versus input price, on average, across the models on this page",
+  wc3_h:"Context takes up memory", wc3_p:"While it responds, the model keeps the whole conversation in GPU memory. Long conversations take more memory and leave less room for other users; some providers charge more above 200,000 tokens.",
+  wc4_h:"Bigger model, pricier token", wc4_p:"More parameters means more computation per token. Reasoning models also generate “thinking” tokens you never see, and they're billed as output.",
+  wc5_h:"Repetition is cheaper with caching", wc5_p:"If every message starts with the same instructions or document, the provider can reuse that computation and bill those tokens up to 90% cheaper.",
+  wc6_h:"Subscriptions measure tokens too", wc6_p:"With ChatGPT Plus, Claude Pro, Gemini or Copilot you pay a flat fee, but your usage has limits measured in tokens. Long chats and heavy documents use up your allowance faster.",
+  f_label:"Myth or fact", f_h:"Does writing a prompt in pieces, or unclearly, cost more?", yes:"Yes.",
+  f_p1:"A chat has no memory of its own: <b>on every message the model rereads the whole conversation</b>, and each read is billed as input tokens. Send your idea in four parts and the first part is paid four times, the second three times, and every intermediate reply is resent too.",
+  f_p2:"A vague prompt adds another layer: answers that miss, clarifications and \"again, but better\". Every round is a longer conversation that gets reread in full.",
+  f_note:"Some platforms cache and discount part of the repeated history, but the cost still grows with every turn.",
+  sim_label:"Simulator with your text", parts_l:"Messages you split the idea into", retries_l:"Corrections from unclear prompts",
+  b_clear:"1 clear prompt", b_frag:"In pieces", mult_l:"more tokens for the same idea",
+  sim_note:"Assumes a response 3× your text, partial replies to each piece, and that each correction regenerates the full response.",
+  cta_p:"<b>A well-built prompt from the start is the biggest saving.</b> The N3 Prompter structures your request into one clear message: context, task, format and limits.",
+  cta_a:"Optimize with the N3 Prompter",
+  o_label:"Good practices", o_h:"How to spend fewer tokens", o_per:"Personal use", o_off:"At the office",
+  tips_per:[["Write everything in one message.","Context, question and format together. Avoid \"I'll send more info in a moment\"."],
+    ["Ask for the length you need.","\"Answer in 5 bullets\" or \"100 words max\". Output costs several times more than input."],
+    ["Start a new chat per topic.","A 50-message thread is reread in full every time, even when it has nothing to do with your question."],
+    ["Paste only the relevant excerpt.","Not the whole PDF if the question is about one page."],
+    ["Use the right-sized model.","For summarizing or translating, a light model costs up to 50 times less than a reasoning model."]],
+  tips_off:[["Prompt templates by team.","A tested prompt saves each person from iterating 5 times to reach the same result."],
+    ["Fixed, reusable context.","Short, stable system instructions and base documents let you benefit from the provider's cache."],
+    ["Model by task.","Sort emails with a light model; save the expensive model for analysis and decisions."],
+    ["Output limits in integrations.","Set a maximum response length in every automated workflow."],
+    ["Measure by team.","Reviewing monthly usage by department quickly shows where tokens are being burned."]],
+  x_label:"What not to do", x_h:"Examples of irresponsible token use",
+  bad:[["The endless chat","Using the same thread for weeks for everything. Every new question drags along thousands of tokens of irrelevant history.","One chat per topic."],
+    ["\"Hi\" … \"you there?\" … \"let me explain\"","Drip-feeding the idea. Every message bills everything before it again.","One complete message."],
+    ["Pasting the whole document","Uploading an 80-page contract to ask about one clause.","Trim before you paste."],
+    ["\"Do it again, but better\"","Regenerating 10 times without saying what to change. Ten full answers paid for to pick one.","Say what to change and why."],
+    ["The priciest model for everything","Using a reasoning model to fix spelling or translate a greeting.","Pick the model by task."],
+    ["Automating without limits","A workflow that calls the AI on every email, with no response cap or pre-filter. Multiplied by thousands a day.","Filter and set caps."]],
+  ft_1:"Counted with OpenAI's public tokenizer (o200k_base). Claude, Gemini, DeepSeek and Perplexity use their own tokenizers: the token count is approximate.",
+  ft_2:"Reference API prices, October 2026 (OpenAI verified Sep 27; Gemini Oct 25; DeepSeek Oct 29, peak rate; Claude Oct 5; Perplexity Jul 2026, excluding per-search fees). Copilot is estimated with GPT-5 via Azure OpenAI; Copilot subscriptions aren't billed per token. Prices change often: check with each provider.",
+  ft_3:"Reference exchange rates: MXN Banxico Oct 26, 2026; others Oct 19, 2026 (official ARS).",
+  presets:{es:"Español",en:"English",pt:"Português",code:"Code",nums:"Numbers",emoji:"Emojis",caps:"Capitals"},
+  ex:{nums:"On 10/30/2026 we billed $1,234,567.89 and trained 80000 people.",emoji:"I love 🧠✨🚀 Neuroscience + AI = 💡! Penguin, jalapeño, naïve.",caps:"hello Hello HELLO hELLO"},
+  copilot:"GPT-5 via Azure OpenAI", cheap:"Cheapest", pricey:"Priciest",
+  loading:"Loading tokenizer vocabulary…", fail:"The tokenizer couldn't load. Check your connection and reload the page.",
+  status:n=>`Reference count (OpenAI o200k) · ${n} tokens · updates as you type`,
+  fx:(i,o,n)=>`${i} input tokens + ${o} response tokens per send × ${n} sends a day × 30 days.`, fxr:(r,c)=>` Exchange rate: 1 USD = ${r} ${c}.`,
+  empty:"Tap or hover over any token to see why it exists.",
+  k:{word:"Whole word",frag:"Word fragment",num:"Number",punct:"Punctuation or symbol",space:"Space or line break",byteM:"Character split into bytes",byteS:"Special symbol"},
+  lead:" It includes the preceding space: the space travels attached to the next word, so “hello” and “ hello” are different tokens.",
+  w_word:"This sequence shows up so often in the training data that the vocabulary gave it its own ID. It costs 1 token.",
+  w_frag:(w,n)=>`“${w}” isn't frequent enough to have its own ID, so it's built from ${n} more common pieces. That word costs ${n} tokens.`,
+  w_acc:" Accented letters take 2 bytes and appear less often in the data, which tends to split the word further.",
+  w_caps:" Capitals in the middle of a word break learned patterns.",
+  w_num:"Numbers are cut into groups of up to 3 digits. A long figure costs several tokens, and the model sees chunks, not quantities.",
+  w_punct:"Common signs have their own token. Rare ones, like curly quotes or ¿¡, sometimes merge with spaces or get split.",
+  w_space:"Spaces and line breaks are billed too. Double spaces or code indentation use tokens without adding content.",
+  w_byteM:(b,n)=>`This character is ${b} bytes in UTF-8 and has no ID of its own, so the model spells it out byte by byte: ${n} tokens for a single symbol.`,
+  w_byteS:b=>`This symbol does have its own ID, but it takes ${b} bytes. Many emojis aren't so lucky.`,
+  m_tok:n=>`${n} token${n>1?"s":""}`, m_pos:(i,n)=>`position ${i} of ${n}`,
+  i_frag:(n,l)=>`${n} word${n>1?"s were":" was"} split into fragments. Most expensive: ${l}.`,
+  i_whole:"Every word has its own ID: very frequent vocabulary, the cheapest case.",
+  i_bytes:(n,e)=>`${n} symbol${n>1?"s are":" is"} spelled out byte by byte, adding ${e} extra token${e>1?"s":""}.`,
+  i_nums:n=>`Figures take ${n} tokens. The model reads numbers in chunks, which is why it sometimes miscalculates.`,
+  i_sp:n=>`${n} token${n>1?"s":""} just for spaces and line breaks.`,
+  i_r1:r=>`${r} tokens per word: efficient text, typical of English.`,
+  i_r2:r=>`${r} tokens per word: the normal range for Spanish or Portuguese. The same message in English usually costs less; compare with the "English" sample.`,
+  i_r3:r=>`${r} tokens per word: expensive text. Technical terms, proper names, accents or symbols inflate the count.`,
+  i_voc:v=>`Each token is a number between 0 and ${v}. The model never sees your letters, only that list of numbers.`
+},
+pt:{
+  _title:"Tokenômetro N3", _loc:"pt-BR",
+  lede:"Digite e veja como a IA divide seu texto em tokens, por que faz isso e quanto custa em cada modelo.",
+  free:"Funciona no seu navegador: não chama nenhuma IA nem consome tokens",
+  refbadge:"Contagem de referência (OpenAI)", learn:"Saiba mais", close:"Fechar",
+  learn_p:"Esta contagem usa o tokenizador público da OpenAI. Os outros modelos contam de outro jeito, então use como estimativa:",
+  learn_1:"<b>Claude:</b> tem tokenizador próprio, e ele não é público.",
+  learn_2:"<b>Gemini:</b> só conta tokens pela API, com chave e conexão, e a página não pode usá-la.",
+  learn_3:"<b>DeepSeek:</b> o tokenizador é público, mas não existe uma versão leve para o navegador.",
+  learn_4:"<b>Perplexity e Copilot:</b> usam modelos de terceiros.",
+  l_text:"Seu texto", st_tok:"tokens", st_chr:"caracteres", st_wrd:"palavras", st_rat:"tokens por palavra",
+  l_view:"Como o modelo vê", v_text:"Texto",
+  lg_word:"Palavra inteira", lg_frag:"Fragmento de palavra", lg_num:"Número", lg_punct:"Pontuação", lg_space:"Espaço / quebra", lg_byte:"Bytes (emoji, símbolo raro)",
+  l_why:"Por quê, em tempo real",
+  c_label:"Custo estimado por modelo", c_h:"Quanto este texto custa em cada IA",
+  c_sub:"Preço da API por milhão de tokens em USD. Calcula a entrada (seu texto) mais a resposta esperada. Cada empresa tokeniza de um jeito, então a contagem real pode variar.",
+  c_cur:"Moeda", c_resp:"Resposta esperada", c_times:"Envios por dia",
+  r_1:"Curta (½ do seu texto)", r_2:"Igual ao seu texto", r_3:"Longa (3× o seu texto)", r_4:"Muito longa (10× o seu texto)",
+  th_1:"Provedor", th_2:"Modelo", th_3:"Entrada /1M", th_4:"Saída /1M", th_5:"Por envio", th_6:"Por mês",
+  wc_label:"Economia da IA", wc_h:"Por que os tokens custam e por que são cobrados assim?",
+  wc_sub:"Um token é a unidade de trabalho de um modelo. Cobrar por token é como o táxi cobrar por quilômetro: você paga o que foi realmente percorrido.",
+  wc1_h:"Cada token é cálculo em GPU", wc1_p:"Para ler ou escrever cada token, o modelo faz operações com todos os seus parâmetros, que somam bilhões. Isso acontece em chips especializados (GPUs) que custam milhões de dólares e consomem muita eletricidade.",
+  wc2_h:"Escrever custa mais que ler", wc2_p:"Seu texto é processado de uma vez, em paralelo. A resposta é gerada um token por vez, e cada um exige uma passada completa pelo modelo. Por isso a saída custa várias vezes mais que a entrada.",
+  wc2_def:"<b>Entrada</b> é tudo o que o modelo lê: sua mensagem, as instruções, os arquivos e a conversa anterior. <b>Saída</b> é tudo o que ele escreve: a resposta e, nos modelos de raciocínio, seu “pensamento” interno.",
+  wc2_an:"<b>Pense em um restaurante.</b> Ler a comanda (entrada) leva uma olhada, não importa quantos pratos você pediu. Cozinhar (saída) acontece prato por prato, e cada um ocupa a cozinha inteira. Por isso o que é cozinhado custa mais do que o que é lido, e pedir “só o necessário” é o jeito mais direto de pagar menos.",
+  mc_p:"<b>Um prompter sob medida para a sua área é o modelo que mais economiza tokens.</b> Conheça os da N3 ou peça o seu.",
+  mc_1:"Prompter N3", mc_2:"Prompter para CFOs", mc_3:"Peça um orçamento pelo WhatsApp", mc_num:"WhatsApp:", mc_msg:"Quero um prompter",
+  fl_in:"Entrada", fl_in2:"1 passada", fl_out:"Saída", fl_out2:"6 passadas",
+  wc2_r:"a saída em relação à entrada, em média, nos modelos desta página",
+  wc3_h:"O contexto ocupa memória", wc3_p:"Enquanto responde, o modelo guarda a conversa inteira na memória da GPU. Conversas longas ocupam mais memória e deixam menos espaço para outros usuários; alguns provedores cobram mais acima de 200 mil tokens.",
+  wc4_h:"Modelo maior, token mais caro", wc4_p:"Mais parâmetros significam mais cálculo por token. Os modelos de raciocínio também geram tokens de “pensamento” que você não vê, mas que são cobrados como saída.",
+  wc5_h:"Repetir sai mais barato com cache", wc5_p:"Se toda mensagem começa com as mesmas instruções ou o mesmo documento, o provedor pode reaproveitar esse cálculo e cobrar esses tokens até 90% mais barato.",
+  wc6_h:"As assinaturas também medem tokens", wc6_p:"No ChatGPT Plus, Claude Pro, Gemini ou Copilot você paga uma mensalidade fixa, mas o uso tem limites medidos em tokens. Chats longos e documentos pesados esgotam sua cota mais rápido.",
+  f_label:"Mito ou verdade", f_h:"Escrever o prompt em partes ou sem clareza custa mais?", yes:"Sim.",
+  f_p1:"Um chat não tem memória própria: <b>a cada mensagem o modelo relê a conversa inteira</b>, e cada leitura é cobrada como tokens de entrada. Se você manda a ideia em quatro partes, a primeira é paga quatro vezes, a segunda três, e cada resposta intermediária também é reenviada.",
+  f_p2:"Um prompt vago soma outra camada: respostas que não servem, esclarecimentos e \"de novo, só que melhor\". Cada rodada é uma conversa mais longa que é relida por completo.",
+  f_note:"Algumas plataformas usam cache e descontam parte do histórico repetido, mas o custo continua crescendo a cada turno.",
+  sim_label:"Simulador com o seu texto", parts_l:"Mensagens em que você divide a ideia", retries_l:"Correções por falta de clareza",
+  b_clear:"1 prompt claro", b_frag:"Em partes", mult_l:"mais tokens pela mesma ideia",
+  sim_note:"Supõe uma resposta de 3× o seu texto, respostas parciais a cada parte e que cada correção gera a resposta completa de novo.",
+  cta_p:"<b>Um prompt bem montado desde o início é a maior economia.</b> O Prompter da N3 estrutura seu pedido em uma única mensagem clara: contexto, tarefa, formato e limites.",
+  cta_a:"Otimizar com o Prompter N3",
+  o_label:"Boas práticas", o_h:"Como gastar menos tokens", o_per:"Uso pessoal", o_off:"No escritório",
+  tips_per:[["Escreva tudo em uma única mensagem.","Contexto, pergunta e formato juntos. Evite \"já te mando mais informação\"."],
+    ["Peça o tamanho que você precisa.","\"Responda em 5 tópicos\" ou \"no máximo 100 palavras\". A saída custa várias vezes mais que a entrada."],
+    ["Abra um chat novo por assunto.","Uma conversa de 50 mensagens é relida inteira a cada vez, mesmo sem relação com a sua pergunta."],
+    ["Cole só o trecho relevante.","Não o PDF inteiro se a dúvida está em uma página."],
+    ["Use o modelo certo.","Para resumir ou traduzir, um modelo leve custa até 50 vezes menos que um de raciocínio."]],
+  tips_off:[["Modelos de prompt por área.","Um prompt testado evita que cada pessoa itere 5 vezes para chegar ao mesmo resultado."],
+    ["Contexto fixo e reutilizável.","Instruções de sistema e documentos-base curtos e estáveis aproveitam o cache do provedor."],
+    ["Modelo conforme a tarefa.","Classificar e-mails com um modelo leve; reservar o modelo caro para análises e decisões."],
+    ["Limites de saída nas integrações.","Defina o máximo de tokens de resposta em cada fluxo automatizado."],
+    ["Meça por equipe.","Revisar o consumo mensal por área mostra rápido onde os tokens estão sendo queimados."]],
+  x_label:"O que não fazer", x_h:"Exemplos de uso irresponsável de tokens",
+  bad:[["O chat eterno","Usar a mesma conversa por semanas para tudo. Cada pergunta nova arrasta milhares de tokens de histórico irrelevante.","Um chat por assunto."],
+    ["\"Oi\" … \"tá aí?\" … \"vou explicar\"","Mandar a ideia a conta-gotas. Cada mensagem cobra de novo tudo o que veio antes.","Uma mensagem, completa."],
+    ["Colar o documento inteiro","Enviar um contrato de 80 páginas para perguntar sobre uma cláusula.","Recorte antes de colar."],
+    ["\"Faz de novo, melhor\"","Gerar 10 vezes sem dizer o que mudar. Dez respostas completas pagas para escolher uma.","Diga o que mudar e por quê."],
+    ["O modelo mais caro para tudo","Usar um modelo de raciocínio para corrigir ortografia ou traduzir um cumprimento.","Escolha o modelo pela tarefa."],
+    ["Automatizar sem limites","Um fluxo que chama a IA a cada e-mail, sem teto de resposta nem filtro prévio. Multiplicado por milhares por dia.","Filtre e defina limites."]],
+  ft_1:"Contagem com o tokenizador público da OpenAI (o200k_base). Claude, Gemini, DeepSeek e Perplexity usam tokenizadores próprios: o número de tokens é aproximado.",
+  ft_2:"Preços de API de referência, outubro de 2026 (OpenAI verificado em 27/set; Gemini 25/out; DeepSeek 29/out, tarifa de pico; Claude 5/out; Perplexity jul/2026, sem tarifa por busca). O Copilot é estimado com o GPT-5 via Azure OpenAI; as assinaturas do Copilot não são cobradas por token. Os preços mudam com frequência: confirme com cada provedor.",
+  ft_3:"Câmbio de referência: MXN Banxico 26/out/2026; demais, 19/out/2026 (ARS oficial).",
+  presets:{es:"Español",en:"English",pt:"Português",code:"Código",nums:"Números",emoji:"Emojis",caps:"Maiúsculas"},
+  ex:{nums:"Em 30/10/2026 faturamos R$ 1.234.567,89 com 80000 pessoas capacitadas.",emoji:"Eu amo 🧠✨🚀 Neurociência + IA = 💡! Pinguim, ação, coração.",caps:"olá Olá OLÁ oLÁ"},
+  copilot:"GPT-5 via Azure OpenAI", cheap:"Mais barato", pricey:"Mais caro",
+  loading:"Carregando vocabulário do tokenizador…", fail:"Não foi possível carregar o tokenizador. Verifique sua conexão e recarregue a página.",
+  status:n=>`Contagem de referência (OpenAI o200k) · ${n} tokens · atualiza enquanto você digita`,
+  fx:(i,o,n)=>`${i} tokens de entrada + ${o} de resposta por envio × ${n} envios por dia × 30 dias.`, fxr:(r,c)=>` Câmbio: 1 USD = ${r} ${c}.`,
+  empty:"Toque ou passe o cursor sobre qualquer token para ver por que ele existe.",
+  k:{word:"Palavra inteira",frag:"Fragmento de palavra",num:"Número",punct:"Pontuação ou símbolo",space:"Espaço ou quebra de linha",byteM:"Caractere dividido em bytes",byteS:"Símbolo especial"},
+  lead:" Inclui o espaço anterior: o espaço viaja colado à palavra seguinte, por isso «olá» e « olá» são tokens diferentes.",
+  w_word:"Esta sequência aparece tantas vezes nos dados de treinamento que o vocabulário reservou um ID próprio para ela. Custa 1 token.",
+  w_frag:(w,n)=>`«${w}» não é frequente o bastante para ter ID próprio, então é montada com ${n} pedaços mais comuns. Essa palavra custa ${n} tokens.`,
+  w_acc:" Acentos, ç e ñ ocupam 2 bytes e aparecem menos nos dados, o que tende a dividir mais a palavra.",
+  w_caps:" Maiúsculas no meio da palavra quebram os padrões aprendidos.",
+  w_num:"Os números são cortados em grupos de até 3 dígitos. Um valor longo custa vários tokens e o modelo vê blocos, não quantidades.",
+  w_punct:"Sinais comuns têm token próprio. Os raros, como aspas tipográficas ou ¿¡, às vezes se juntam a espaços ou são divididos.",
+  w_space:"Espaços e quebras de linha também são cobrados. Espaços duplos ou a indentação do código consomem tokens sem acrescentar conteúdo.",
+  w_byteM:(b,n)=>`Este caractere mede ${b} bytes em UTF-8 e não tem ID próprio, então o modelo o soletra byte a byte: ${n} tokens por um único símbolo.`,
+  w_byteS:b=>`Este símbolo tem ID próprio, mas ocupa ${b} bytes. Muitos emojis não têm essa sorte.`,
+  m_tok:n=>`${n} token${n>1?"s":""}`, m_pos:(i,n)=>`posição ${i} de ${n}`,
+  i_frag:(n,l)=>`${n} palavra${n>1?"s foram divididas":" foi dividida"} em fragmentos. ${n>1?"As mais caras":"A mais cara"}: ${l}.`,
+  i_whole:"Todas as palavras têm ID próprio: vocabulário muito frequente, o caso mais barato.",
+  i_bytes:(n,e)=>`${n} símbolo${n>1?"s são soletrados":" é soletrado"} byte a byte e soma${n>1?"m":""} ${e} token${e>1?"s":""} extra.`,
+  i_nums:n=>`Os números ocupam ${n} tokens. O modelo lê números em blocos; por isso às vezes erra nas contas.`,
+  i_sp:n=>`${n} token${n>1?"s":""} só em espaços e quebras de linha.`,
+  i_r1:r=>`${r} tokens por palavra: texto eficiente, típico do inglês.`,
+  i_r2:r=>`${r} tokens por palavra: faixa normal do português e do espanhol. A mesma mensagem em inglês costuma custar menos; compare com o exemplo "English".`,
+  i_r3:r=>`${r} tokens por palavra: texto caro. Termos técnicos, nomes próprios, acentos ou símbolos inflam a conta.`,
+  i_voc:v=>`Cada token é um número entre 0 e ${v}. O modelo nunca vê suas letras, só essa lista de números.`
+}};
+const SAMPLES = {
+  es:"Pensar es tecnología.",
+  en:"Thinking is technology.",
+  pt:"Pensar é tecnologia.",
+  code:"function cost(tokens, price) {\n  return (tokens / 1_000_000) * price;\n}"
+};
+const MODELS = [
+  ["OpenAI · ChatGPT","GPT-6 Astra",10,50],["OpenAI · ChatGPT","GPT-5.6 Sol",5,30],["OpenAI · ChatGPT","GPT-5.5",5,30],
+  ["OpenAI · ChatGPT","GPT-5",1.25,10],["OpenAI · ChatGPT","GPT-5 mini",0.25,2],["OpenAI · ChatGPT","GPT-4o",2.5,10],
+  ["Google · Gemini","Gemini 4 Argon",2,10],["Google · Gemini","Gemini 3.1 Pro",2,12],["Google · Gemini","Gemini 3.8 Flash",0.75,3.75],
+  ["Google · Gemini","Gemini 2.5 Flash",0.30,2.5],["Google · Gemini","Gemini 2.5 Flash-Lite",0.10,0.40],
+  ["Anthropic · Claude","Claude Opus 5.5",4,20],["Anthropic · Claude","Claude Sonnet 5.5",2,10],["Anthropic · Claude","Claude Haiku 4.5",1,5],
+  ["Perplexity","Sonar Pro",3,15],["Microsoft · Copilot","@copilot",1.25,10],
+  ["DeepSeek","DeepSeek V4 Pro",1.32,3.96],["DeepSeek","DeepSeek V4.1 Flash",0.30,1.20]
+];
+const FX = [
+  ["MXN",17.55,"Peso mexicano","Mexican peso","Peso mexicano"],["USD",1,"Dólar (EE. UU., Ecuador, El Salvador)","US dollar (US, Ecuador, El Salvador)","Dólar (EUA, Equador, El Salvador)"],
+  ["ARS",1514.57,"Peso argentino","Argentine peso","Peso argentino"],["BOB",11.6791,"Boliviano","Bolivian boliviano","Boliviano"],
+  ["BRL",5.0725,"Real brasileño","Brazilian real","Real brasileiro"],["CLP",981.67,"Peso chileno","Chilean peso","Peso chileno"],
+  ["COP",3174.49,"Peso colombiano","Colombian peso","Peso colombiano"],["CRC",454.24,"Colón costarricense","Costa Rican colón","Colón costarriquenho"],
+  ["DOP",61.2668,"Peso dominicano","Dominican peso","Peso dominicano"],["GTQ",7.6342,"Quetzal","Guatemalan quetzal","Quetzal"],
+  ["HNL",26.8631,"Lempira","Honduran lempira","Lempira"],["NIO",36.7858,"Córdoba","Nicaraguan córdoba","Córdoba"],
+  ["PAB",1,"Balboa panameño","Panamanian balboa","Balboa panamenho"],["PYG",5729.58,"Guaraní","Paraguayan guaraní","Guarani"],
+  ["PEN",3.4362,"Sol peruano","Peruvian sol","Sol peruano"],["UYU",40.1707,"Peso uruguayo","Uruguayan peso","Peso uruguaio"],
+  ["VES",881.07,"Bolívar","Venezuelan bolívar","Bolívar venezuelano"]
+];
+const LI = {es:2,en:3,pt:4};
+const $ = id => document.getElementById(id);
+const input=$("input"), tokensEl=$("tokens"), focusEl=$("focus"), insightsEl=$("insights");
+const SRC="https://cdn.jsdelivr.net/npm/gpt-tokenizer@2.9.0/dist/o200k_base.js";
+let failed=false, L="es", tk=null, view="text", segs=[], selIdx=-1, timer=null, total=0, words=0, curPreset=null;
+const utf8=new TextEncoder(), dec=new TextDecoder();
+const t=()=>T[L];
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function show(s){return s.replace(/\n/g,"↵\n").replace(/\t/g,"→");}
+const nf=(n,d=0)=>n.toLocaleString(t()._loc,{minimumFractionDigits:d,maximumFractionDigits:d});
+function sample(k){ return SAMPLES[k] || t().ex[k]; }
+
+// ---------- language ----------
+function pickLang(){
+  const h=(location.hash||"").slice(1);
+  if(T[h]) return h;
+  try{ const s=localStorage.getItem("tkm-lang"); if(T[s]) return s; }catch(e){}
+  const n=(navigator.language||"es").slice(0,2).toLowerCase();
+  return T[n]?n:"es";
+}
+function applyLang(newL){
+  const prevSamples = Object.keys(T[L].presets).map(k=>SAMPLES[k]||T[L].ex[k]);
+  const wasSample = prevSamples.indexOf(input.value);
+  const prevKey = wasSample>=0 ? Object.keys(T[L].presets)[wasSample] : null;
+  L=newL;
+  document.documentElement.lang=L;
+  document.title=t()._title;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ const v=t()[el.dataset.i18n]; if(typeof v==="string") el.innerHTML=v; });
+  document.querySelectorAll(".langs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lang===L)));
+  $("learn").textContent = $("learnbox").hidden ? t().learn : t().close;
+  input.setAttribute("aria-label", t().l_text);
+  // presets
+  const pw=$("presets"); pw.innerHTML="";
+  Object.entries(t().presets).forEach(([k,lab])=>{const b=document.createElement("button");b.className="preset";b.id="p-"+k;b.textContent=lab;b.onclick=()=>{input.value=sample(k);selIdx=-1;run();input.focus();};pw.appendChild(b);});
+  // if the text was a language-dependent sample (nums/emoji/caps or the page language sample), swap it
+  if(prevKey){ input.value=sample(["es","en","pt"].includes(prevKey)? newL : prevKey); }
+  // currency names
+  const cur=$("cur"), sel=cur.value||"MXN"; cur.innerHTML="";
+  FX.forEach(f=>{const o=document.createElement("option");o.value=f[0];o.textContent=f[0]+" · "+f[LI[L]];cur.appendChild(o);});
+  cur.value=sel;
+  // tips + bad
+  const tip=a=>a.map(([h,p])=>`<li><b>${h}</b>${p}</li>`).join("");
+  $("tips-per").innerHTML=tip(t().tips_per); $("tips-off").innerHTML=tip(t().tips_off);
+  $("bad").innerHTML=t().bad.map(([h,p,e])=>`<div><h3>${h}</h3><p style="margin:0">${p}</p><em>${e}</em></div>`).join("");
+  $("wa").href="https://wa.me/525529050452?text="+encodeURIComponent(t().mc_msg);
+  // ratio
+  const r=MODELS.reduce((a,m)=>a+m[3]/m[2],0)/MODELS.length; $("ratio").textContent="×"+nf(r,1);
+  try{ localStorage.setItem("tkm-lang",L); }catch(e){}
+  try{ history.replaceState(null,"","#"+L); }catch(e){}
+  evI18n();
+  if(tk) run(); else $("status").textContent=failed?t().fail:t().loading;
+}
+
+// ---------- tokenization ----------
+function load(){
+  return new Promise((res,rej)=>{
+    if(window.GPTTokenizer_o200k_base) return res(window.GPTTokenizer_o200k_base);
+    const s=document.createElement("script"); s.src=SRC;
+    s.onload=()=>window.GPTTokenizer_o200k_base?res(window.GPTTokenizer_o200k_base):rej(); s.onerror=rej; document.head.appendChild(s);
+  });
+}
+function tokBytes(id){
+  const r=tk.bytePairEncodingCoreProcessor.tryDecodeToken(id);
+  if(r instanceof Uint8Array) return r;
+  if(typeof r==="string") return utf8.encode(r);
+  return r?Uint8Array.from(r):new Uint8Array();
+}
+function segment(text, ids){
+  try{
+    const src=utf8.encode(text), boundary=new Set([0]); let b=0;
+    for(const ch of text){ b+=utf8.encode(ch).length; boundary.add(b); }
+    const out=[]; let bp=0, prev=0, start=0;
+    for(let i=0;i<ids.length;i++){
+      bp+=tokBytes(ids[i]).length;
+      if(boundary.has(bp)){ out.push({text:dec.decode(src.slice(prev,bp)),ids:ids.slice(start,i+1)}); prev=bp; start=i+1; }
+    }
+    if(start<ids.length) out.push({text:dec.decode(src.slice(prev)),ids:ids.slice(start)});
+    return out;
+  }catch(e){ return ids.map(id=>({text:tk.decode([id]),ids:[id]})); }
+}
+const isLetter=c=>/\p{L}/u.test(c||"");
+function classify(){
+  segs.forEach((s,i)=>{
+    const tx=s.text, core=tx.trim(), prev=segs[i-1]?.text||"", next=segs[i+1]?.text||"";
+    s.joinPrev=isLetter(prev.slice(-1))&&isLetter(tx[0]);
+    s.joinNext=isLetter(tx.slice(-1))&&isLetter(next[0]);
+    if(s.ids.length>1||/\p{Extended_Pictographic}/u.test(tx)) s.kind="byte";
+    else if(core==="") s.kind="space";
+    else if(/^\d+$/.test(core)) s.kind="num";
+    else if(/^[\p{L}\p{M}']+$/u.test(core)) s.kind=(s.joinPrev||s.joinNext)?"frag":"word";
+    else s.kind="punct";
+  });
+}
+function fullWord(i){let a=i,b=i;while(a>0&&segs[a].joinPrev)a--;while(b<segs.length-1&&segs[b].joinNext)b++;return{a,b,word:segs.slice(a,b+1).map(s=>s.text).join("").trim()};}
+
+function explain(i){
+  const s=segs[i], d=t(); if(!s){ focusEl.innerHTML=`<p class="note">${d.empty}</p>`; return; }
+  const bytes=utf8.encode(s.text).length, tx=s.text, lead=tx.startsWith(" ")?d.lead:"";
+  let kind="", why="";
+  switch(s.kind){
+    case "word": kind=d.k.word; why=d.w_word+lead; break;
+    case "frag": { const w=fullWord(i), n=w.b-w.a+1; kind=d.k.frag; why=d.w_frag(esc(w.word),n);
+      if(/[áéíóúñüçãõâêôàÁÉÍÓÚÑÜÇÃÕÂÊÔÀ]/.test(w.word)) why+=d.w_acc;
+      if(/[A-ZÁÉÍÓÚÑÇ]/.test(w.word.slice(1))) why+=d.w_caps; break; }
+    case "num": kind=d.k.num; why=d.w_num; break;
+    case "punct": kind=d.k.punct; why=d.w_punct+lead; break;
+    case "space": kind=d.k.space; why=d.w_space; break;
+    case "byte": if(s.ids.length>1){kind=d.k.byteM; why=d.w_byteM(bytes,s.ids.length);} else {kind=d.k.byteS; why=d.w_byteS(bytes);} break;
+  }
+  const col={word:"--c-word-b",frag:"--c-frag-b",num:"--c-num-b",punct:"--c-punct-b",space:"--c-space-b",byte:"--c-byte-b"}[s.kind];
+  focusEl.innerHTML=`<span class="kind" style="color:var(${col})">${kind}</span>
+    <span class="tk">${esc(show(JSON.stringify(tx).slice(1,-1)))}</span>
+    <div class="meta"><span>ID ${s.ids.join(" · ")}</span><span>${d.m_tok(s.ids.length)}</span><span>${bytes} byte${bytes>1?"s":""}</span><span>${d.m_pos(i+1,segs.length)}</span></div>
+    <p>${why}</p>`;
+}
+function insights(){
+  const d=t(), out=[], frags={};
+  for(let i=0;i<segs.length;i++){ if(segs[i].kind==="frag"&&!segs[i].joinPrev){ const w=fullWord(i); frags[w.word]=segs.slice(w.a,w.b+1).map(s=>s.text.trim()); i=w.b; } }
+  const fk=Object.keys(frags);
+  if(fk.length){ const top=fk.sort((a,b)=>frags[b].length-frags[a].length).slice(0,3);
+    out.push(d.i_frag(fk.length, top.map(w=>`<code>${esc(frags[w].join("|"))}</code>`).join(", "))); }
+  else if(words) out.push(d.i_whole);
+  const bs=segs.filter(s=>s.kind==="byte"&&s.ids.length>1);
+  if(bs.length) out.push(d.i_bytes(bs.length, bs.reduce((a,s)=>a+s.ids.length-1,0)));
+  const nums=segs.filter(s=>s.kind==="num").length; if(nums>1) out.push(d.i_nums(nums));
+  const sp=segs.filter(s=>s.kind==="space").reduce((a,s)=>a+s.ids.length,0); if(sp) out.push(d.i_sp(sp));
+  if(words){ const r=total/words, rs=nf(r,2); out.push(r<=1.3?d.i_r1(rs):r<=1.7?d.i_r2(rs):d.i_r3(rs)); }
+  out.push(d.i_voc(nf(tk.vocabularySize||200000)));
+  insightsEl.innerHTML=out.map((x,i)=>`<li><span class="n">${String(i+1).padStart(2,"0")}</span><span>${x}</span></li>`).join("");
+}
+function money(usd, code){
+  const fx=FX.find(f=>f[0]===code)[1], v=usd*fx, dd=v===0?2:v<0.01?4:v<1?3:2;
+  return "$"+nf(v,dd)+" "+code;
+}
+function costs(){
+  const d=t(), code=$("cur").value||"MXN", resp=parseFloat($("resp").value)||1, n=Math.max(1,parseFloat($("times").value)||1);
+  const outTok=Math.round(total*resp);
+  const rows=MODELS.map(m=>({m, per:(total*m[2]+outTok*m[3])/1e6}));
+  const sorted=rows.map(r=>r.per).sort((a,b)=>a-b), lo=sorted[0], hi=sorted[sorted.length-1];
+  $("tbody").innerHTML=rows.map(r=>{
+    const month=r.per*n*30, name=r.m[1]==="@copilot"?d.copilot:r.m[1];
+    const tag= total?(r.per===lo?`<span class="pill lo">${d.cheap}</span>`:r.per===hi?`<span class="pill hi">${d.pricey}</span>`:""):"";
+    return `<tr><td class="prov">${r.m[0]}</td><td>${name}${tag}</td><td>$${nf(r.m[2],2)}</td><td>$${nf(r.m[3],2)}</td>
+      <td>${money(r.per,code)}${code!=="USD"?`<small>US$${nf(r.per,r.per<0.01?5:4)}</small>`:""}</td>
+      <td class="big">${money(month,code)}${code!=="USD"?`<small>US$${nf(month,2)}</small>`:""}</td></tr>`;
+  }).join("");
+  const fx=FX.find(f=>f[0]===code);
+  $("fxnote").textContent=d.fx(nf(total),nf(outTok),nf(n))+(code!=="USD"?d.fxr(nf(fx[1],2),code):"");
+}
+function sim(){
+  const n=+$("parts").value, r=+$("retries").value;
+  $("parts-v").textContent=n; $("retries-v").textContent=r;
+  const P=Math.max(total,1), R=Math.max(Math.round(P*3),1), clear=P+R;
+  let hist=0, cost=0; const part=P/n;
+  for(let i=0;i<n;i++){ hist+=part; cost+=hist; const ans=(i===n-1)?R:Math.round(R*0.35); cost+=ans; hist+=ans; }
+  for(let j=0;j<r;j++){ const ask=Math.max(12,Math.round(P*0.25)); hist+=ask; cost+=hist; cost+=R; hist+=R; }
+  const frag=Math.round(cost);
+  $("t-clear").textContent=nf(clear)+" tk"; $("t-frag").textContent=nf(frag)+" tk";
+  $("b-clear").style.width=(clear/frag*100)+"%"; $("b-frag").style.width="100%";
+  $("mult").textContent="×"+nf(frag/clear,1);
+}
+function render(){
+  tokensEl.className=view==="text"?"tokens":"tokens ids";
+  tokensEl.innerHTML=segs.map((s,i)=>`<span class="chip k-${s.kind}${i===selIdx?" sel":""}" data-i="${i}" tabindex="0">${view==="text"?esc(show(s.text)):s.ids.join(", ")}</span>`).join("");
+}
+function run(){
+  if(!tk) return;
+  const text=input.value;
+  try{ localStorage.setItem("tkm-draft",text); }catch(e){}
+  let ids=[]; try{ ids=tk.encode(text,{disallowedSpecial:new Set()}); }catch(e){ try{ ids=tk.encode(text); }catch(_){ ids=[]; } }
+  total=ids.length; segs=segment(text,ids); classify();
+  words=(text.match(/[\p{L}\p{N}][\p{L}\p{N}'’_-]*/gu)||[]).length;
+  $("s-tok").textContent=nf(total); $("s-chr").textContent=nf([...text].length); $("s-wrd").textContent=nf(words);
+  $("s-rat").textContent=words?nf(total/words,2):"0";
+  if(selIdx>=segs.length) selIdx=-1;
+  if(selIdx<0) selIdx=segs.findIndex(s=>s.kind==="frag");
+  render(); explain(selIdx); insights(); costs(); sim(); evaluate();
+  $("status").textContent=t().status(nf(total));
+}
+
+// ---------- events ----------
+input.addEventListener("input",()=>{clearTimeout(timer);selIdx=-1;timer=setTimeout(run,60);});
+$("cur").addEventListener("change",()=>{try{localStorage.setItem("tkm-cur",$("cur").value);}catch(e){} costs();});
+$("resp").addEventListener("change",costs); $("times").addEventListener("input",costs);
+$("parts").addEventListener("input",sim); $("retries").addEventListener("input",sim);
+function pick(e){const c=e.target.closest(".chip"); if(!c) return; selIdx=+c.dataset.i; tokensEl.querySelectorAll(".sel").forEach(x=>x.classList.remove("sel")); c.classList.add("sel"); explain(selIdx);}
+tokensEl.addEventListener("mouseover",pick); tokensEl.addEventListener("click",pick); tokensEl.addEventListener("focusin",pick);
+$("v-text").onclick=()=>{view="text";$("v-text").setAttribute("aria-pressed","true");$("v-ids").setAttribute("aria-pressed","false");render();};
+$("v-ids").onclick=()=>{view="ids";$("v-ids").setAttribute("aria-pressed","true");$("v-text").setAttribute("aria-pressed","false");render();};
+$("learn").onclick=()=>{const box=$("learnbox"), open=box.hidden; box.hidden=!open; $("learn").setAttribute("aria-expanded",String(open)); $("learn").textContent=open?t().close:t().learn;};
+document.querySelectorAll(".langs button").forEach(b=>b.onclick=()=>applyLang(b.dataset.lang));
+window.addEventListener("hashchange",()=>{const h=location.hash.slice(1); if(T[h]&&h!==L) applyLang(h);});
+
+/* EV */
+// ---------- prompt evaluator (rules only, no AI) ----------
+Object.assign(T.es,{
+  ah_up:"hasta", ah_h:"menos tokens cuando tu equipo aprende a escribir buenos prompts.", ah_p:"Pedir el formato y la extensión exactos, y dar contexto en un solo mensaje, reduce entre 45% y 80% los tokens de cada tarea: hasta 80% en minutas, 60–70% en resúmenes y 50–65% en correos.", ah_src:"Fuente:",
+  ev_jump:"Evalúa tu prompt ↓",
+  ev_label:"Evalúa tu prompt", ev_h:"¿Qué tan bueno es tu prompt, y cuántos tokens desperdicia?",
+  ev_sub:"Escribe qué quieres lograr y el prompt que usarías. Se califica en vivo con seis criterios de claridad y ahorro de tokens.",
+  ev_goal:"Tu objetivo", ev_prompt:"Tu prompt", ev_bad:"Ejemplo mal escrito", ev_good:"Ejemplo bien escrito", ev_clear:"Borrar",
+  ev_level:"Tu nivel", ev_opt:"Versión optimizada", ev_copy:"Copiar", ev_copied:"Copiado",
+  ev_note:"Evaluación automática por reglas, sin IA: mide estructura y eficiencia, no la calidad de tus ideas. Completa lo que está entre &lt; &gt; antes de usarlo.",
+  ev_cta:"Optimizarlo con el Prompter N3",
+  ev_goal_ph:"Ej. correo para invitar clientes a un webinar", ev_prompt_ph:"Pega o escribe aquí tu prompt…",
+  ev_lv:["Principiante","En desarrollo","Competente","Experto"],
+  ev_tok:n=>`${n} tokens`, ev_waste:(n,p)=>n?`${n} tokens de relleno (${p}% del prompt)`:"Sin relleno detectado",
+  ev_saved:(a,b)=>a>b?`Prompt limpio: ${a} → ${b} tokens (−${a-b})`:`Tu prompt ya no tiene relleno que quitar`,
+  ev_c:{obj:"Objetivo alineado",task:"Tarea clara",ctx:"Contexto",fmt:"Formato de salida",lim:"Límites de extensión",eff:"Eficiencia de tokens"},
+  ev_ok:"Bien",
+  ev_t:{
+    obj0:"Escribe tu objetivo arriba para medir si el prompt lo cumple.",
+    obj:m=>`Usa en el prompt las palabras clave de tu objetivo (${m}) para que la IA no adivine.`,
+    task:"Empieza con un verbo de acción: redacta, resume, compara, analiza.",
+    vague:v=>`Evita palabras vagas (${v}): no le dicen nada al modelo y provocan correcciones.`,
+    ctx:"Di quién eres, para quién es y en qué situación se usará.",
+    fmt:"Pide un formato: tabla, viñetas, correo, JSON. Así no tendrás que pedirlo otra vez.",
+    lim:"Pon un tope con número: «máximo 100 palabras» o «5 viñetas». La salida es lo más caro.",
+    limw:"Ya pides brevedad; pon un número exacto para controlar el costo de la salida.",
+    filler:(l,n)=>`Quita cortesías y relleno (${l}): ${n} tokens que no cambian el resultado.`,
+    emoji:"Los emojis cuestan varios tokens cada uno y no ayudan a la tarea.",
+    rep:"Hay frases repetidas: cada repetición se paga.",
+    long:"Prompt muy largo: revisa que todo sea necesario o pega solo el fragmento relevante.",
+    caps:"Las MAYÚSCULAS y los signos repetidos (!!!) se parten en más tokens."
+  },
+  ev_tpl:{ctx:"Contexto",goal:"Objetivo",task:"Tarea",fmt:"Formato",lim:"Límites",
+    ctxph:"<quién eres, para quién es y para qué se usará>",fmtph:"<tabla, viñetas, correo, JSON…>",limph:"<máximo N palabras o N viñetas>"},
+  ev_ex:{bgoal:"Correo para invitar clientes a un webinar de IA",
+    bad:"Hola! 😊 Por favor, me podrías ayudar a hacer algo para mis clientes sobre el webinar? Que quede bonito e interesante, muchas gracias!!!",
+    good:"Contexto: soy director comercial de una consultora de transformación digital; los destinatarios son directores de finanzas, clientes actuales.\nTarea: redacta un correo para invitar al webinar \"IA para CFOs\" del 12 de noviembre a las 9:00.\nFormato: asunto + 3 párrafos cortos + llamado a registrarse.\nLímites: máximo 120 palabras, tono profesional y cercano."}
+});
+Object.assign(T.en,{
+  ah_up:"up to", ah_h:"fewer tokens when your team learns to write good prompts.", ah_p:"Asking for the exact format and length, and giving context in a single message, cuts each task's tokens by 45% to 80%: up to 80% on meeting notes, 60–70% on summaries and 50–65% on emails.", ah_src:"Source:",
+  ev_jump:"Grade your prompt ↓",
+  ev_label:"Grade your prompt", ev_h:"How good is your prompt, and how many tokens does it waste?",
+  ev_sub:"Write what you want to achieve and the prompt you would use. It's graded live on six criteria for clarity and token savings.",
+  ev_goal:"Your goal", ev_prompt:"Your prompt", ev_bad:"Poorly written example", ev_good:"Well written example", ev_clear:"Clear",
+  ev_level:"Your level", ev_opt:"Optimized version", ev_copy:"Copy", ev_copied:"Copied",
+  ev_note:"Automatic rule-based grading, no AI: it measures structure and efficiency, not the quality of your ideas. Fill in what's inside &lt; &gt; before using it.",
+  ev_cta:"Optimize it with the N3 Prompter",
+  ev_goal_ph:"E.g. email inviting clients to a webinar", ev_prompt_ph:"Paste or type your prompt here…",
+  ev_lv:["Beginner","Developing","Proficient","Expert"],
+  ev_tok:n=>`${n} tokens`, ev_waste:(n,p)=>n?`${n} filler tokens (${p}% of the prompt)`:"No filler detected",
+  ev_saved:(a,b)=>a>b?`Clean prompt: ${a} → ${b} tokens (−${a-b})`:`Your prompt has no filler left to remove`,
+  ev_c:{obj:"Aligned goal",task:"Clear task",ctx:"Context",fmt:"Output format",lim:"Length limits",eff:"Token efficiency"},
+  ev_ok:"Good",
+  ev_t:{
+    obj0:"Write your goal above to measure whether the prompt delivers it.",
+    obj:m=>`Use your goal's key words in the prompt (${m}) so the AI doesn't have to guess.`,
+    task:"Start with an action verb: write, summarize, compare, analyze.",
+    vague:v=>`Avoid vague words (${v}): they tell the model nothing and lead to corrections.`,
+    ctx:"Say who you are, who it's for and where it will be used.",
+    fmt:"Ask for a format: table, bullets, email, JSON. Then you won't have to ask again.",
+    lim:"Set a numeric cap: “100 words max” or “5 bullets”. Output is the most expensive part.",
+    limw:"You already ask for brevity; add an exact number to control output cost.",
+    filler:(l,n)=>`Remove pleasantries and filler (${l}): ${n} tokens that don't change the result.`,
+    emoji:"Emojis cost several tokens each and don't help the task.",
+    rep:"Some phrases repeat: every repetition is billed.",
+    long:"Very long prompt: check that everything is needed, or paste only the relevant excerpt.",
+    caps:"ALL CAPS and repeated marks (!!!) split into more tokens."
+  },
+  ev_tpl:{ctx:"Context",goal:"Goal",task:"Task",fmt:"Format",lim:"Limits",
+    ctxph:"<who you are, who it's for and what it's used for>",fmtph:"<table, bullets, email, JSON…>",limph:"<N words or N bullets max>"},
+  ev_ex:{bgoal:"Email inviting clients to an AI webinar",
+    bad:"Hi! 😊 Could you please help me make something for my clients about the webinar? Make it nice and interesting, thanks so much!!!",
+    good:"Context: I'm the sales director of a digital transformation consultancy; the recipients are finance directors who are current clients.\nTask: write an email inviting them to the \"AI for CFOs\" webinar on November 12 at 9:00.\nFormat: subject line + 3 short paragraphs + call to register.\nLimits: 120 words max, professional and warm tone."}
+});
+Object.assign(T.pt,{
+  ah_up:"até", ah_h:"menos tokens quando sua equipe aprende a escrever bons prompts.", ah_p:"Pedir o formato e a extensão exatos, e dar contexto em uma única mensagem, reduz de 45% a 80% os tokens de cada tarefa: até 80% em atas, 60–70% em resumos e 50–65% em e-mails.", ah_src:"Fonte:",
+  ev_jump:"Avalie seu prompt ↓",
+  ev_label:"Avalie seu prompt", ev_h:"Quão bom é o seu prompt, e quantos tokens ele desperdiça?",
+  ev_sub:"Escreva o que você quer alcançar e o prompt que usaria. A nota sai ao vivo, com seis critérios de clareza e economia de tokens.",
+  ev_goal:"Seu objetivo", ev_prompt:"Seu prompt", ev_bad:"Exemplo mal escrito", ev_good:"Exemplo bem escrito", ev_clear:"Limpar",
+  ev_level:"Seu nível", ev_opt:"Versão otimizada", ev_copy:"Copiar", ev_copied:"Copiado",
+  ev_note:"Avaliação automática por regras, sem IA: mede estrutura e eficiência, não a qualidade das suas ideias. Preencha o que está entre &lt; &gt; antes de usar.",
+  ev_cta:"Otimizar com o Prompter N3",
+  ev_goal_ph:"Ex.: e-mail convidando clientes para um webinar", ev_prompt_ph:"Cole ou escreva seu prompt aqui…",
+  ev_lv:["Iniciante","Em desenvolvimento","Competente","Especialista"],
+  ev_tok:n=>`${n} tokens`, ev_waste:(n,p)=>n?`${n} tokens de enchimento (${p}% do prompt)`:"Nenhum enchimento detectado",
+  ev_saved:(a,b)=>a>b?`Prompt limpo: ${a} → ${b} tokens (−${a-b})`:`Seu prompt não tem mais enchimento para tirar`,
+  ev_c:{obj:"Objetivo alinhado",task:"Tarefa clara",ctx:"Contexto",fmt:"Formato de saída",lim:"Limites de extensão",eff:"Eficiência de tokens"},
+  ev_ok:"Bom",
+  ev_t:{
+    obj0:"Escreva seu objetivo acima para medir se o prompt o cumpre.",
+    obj:m=>`Use no prompt as palavras-chave do seu objetivo (${m}) para a IA não ter que adivinhar.`,
+    task:"Comece com um verbo de ação: escreva, resuma, compare, analise.",
+    vague:v=>`Evite palavras vagas (${v}): não dizem nada ao modelo e geram correções.`,
+    ctx:"Diga quem você é, para quem é e em que situação será usado.",
+    fmt:"Peça um formato: tabela, tópicos, e-mail, JSON. Assim você não precisa pedir de novo.",
+    lim:"Defina um teto com número: «no máximo 100 palavras» ou «5 tópicos». A saída é a parte mais cara.",
+    limw:"Você já pede brevidade; coloque um número exato para controlar o custo da saída.",
+    filler:(l,n)=>`Tire cortesias e enchimento (${l}): ${n} tokens que não mudam o resultado.`,
+    emoji:"Emojis custam vários tokens cada e não ajudam na tarefa.",
+    rep:"Há frases repetidas: cada repetição é cobrada.",
+    long:"Prompt muito longo: confira se tudo é necessário ou cole só o trecho relevante.",
+    caps:"MAIÚSCULAS e sinais repetidos (!!!) se dividem em mais tokens."
+  },
+  ev_tpl:{ctx:"Contexto",goal:"Objetivo",task:"Tarefa",fmt:"Formato",lim:"Limites",
+    ctxph:"<quem você é, para quem é e para que será usado>",fmtph:"<tabela, tópicos, e-mail, JSON…>",limph:"<no máximo N palavras ou N tópicos>"},
+  ev_ex:{bgoal:"E-mail convidando clientes para um webinar de IA",
+    bad:"Oi! 😊 Por favor, você poderia me ajudar a fazer alguma coisa para meus clientes sobre o webinar? Que fique bonito e interessante, muito obrigado!!!",
+    good:"Contexto: sou diretor comercial de uma consultoria de transformação digital; os destinatários são diretores financeiros, clientes atuais.\nTarefa: escreva um e-mail convidando para o webinar \"IA para CFOs\" de 12 de novembro às 9h.\nFormato: assunto + 3 parágrafos curtos + chamada para inscrição.\nLimites: no máximo 120 palavras, tom profissional e próximo."}
+});
+
+const evNorm=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+const evAcc=s=>s.replace(/[aeioucn]/g,c=>({a:"[aáàâã]",e:"[eéê]",i:"[ií]",o:"[oóôõ]",u:"[uúü]",c:"[cç]",n:"[nñ]"}[c]));
+const FILLER=["si no es mucha molestia","necesito que me ayudes","te pido que","me podrias","podrias","quisiera","me gustaria","muchas gracias","buenos dias","buenas tardes","buenas noches","por favor","porfa","gracias","ayudame a","espero que","hola",
+  "if you don't mind","i was wondering","i would like","i need you to","thank you so much","thanks so much","thank you","could you please","could you","can you","would you","please","thanks","help me","hello","hi",
+  "se nao for incomodo","preciso que voce","voce poderia","muito obrigado","muito obrigada","poderia","gostaria","obrigado","obrigada","me ajude","bom dia","boa tarde","ola","oi"];
+const FILLER_RE=FILLER.map(f=>new RegExp("(^|[^\\p{L}])("+evAcc(f).replace(/ /g,"\\s+").replace(/'/g,"['’]")+")(?![\\p{L}])","giu"));
+const TASK_RE=/\b(escrib|redact|resum|analiz|crea|genera|compar|tradu|enumer|explic|propon|calcul|clasific|revis|corrig|disen|plane|elabor|sugier|identific|extrae|evalu|convier|reescrib|ordena|prioriz|haz |dame|lista|write|draft|summari|analy|create|generat|translat|list|explain|propos|classif|review|fix|design|plan|suggest|identif|extract|convert|rewrit|rank|outline|give me|escrev|redij|analis|crie|gere|traduz|expliq|classifiq|corrij|sugir|identifiq|extrai|avali|reescrev|faca|me de)/;
+const CTX_RE=/\b(soy|somos|trabajo en|mi empresa|nuestr[oa]s?|dirigid[oa]|audiencia|publico|clientes?|contexto|situacion|destinatari[oa]s|actua como|eres un|i am|i'm|we are|my company|our|audience|customers?|clients?|context|background|recipients|act as|you are|eu sou|sou |minha empresa|noss[oa]s?|publico-alvo|atue como|voce e um)\b/g;
+const FMT_RE=/\b(tabla|table|tabela|vinetas|bullets?|topicos|lista|list|json|csv|markdown|parrafos?|paragraphs?|paragrafos?|pasos|steps|passos|correo|e-?mail|asunto|subject|assunto|titulo|title|encabezados?|headings?|formato|format|esquema|outline|columnas|columns|colunas|guion|script|roteiro|tono|tone|tom)\b/g;
+const LIMN_RE=/\b\d+\s*(?:\w+\s+)?(palabras|words|palavras|lineas|lines|linhas|vinetas|bullets?|topicos|puntos|points|pontos|caracteres|characters|parrafos|paragraphs|paragrafos|frases|sentences|items|ideas|ideias|opciones|options|opcoes|pasos|steps|passos|minutos|minutes|paginas|pages|slides|diapositivas)\b/;
+const LIMW_RE=/\b(maximo|max|maximum|no mas de|no more than|nao mais que|no maximo|breve|brief|corto|short|curto|conciso|concise|sin explicaciones|without explanation|sem explicacoes|resumido)\b/;
+const VAGUE_RE=/\b(algo|cosas?|etc|bonit[oa]|interesante|lo que sea|cualquier cosa|something|stuff|things|nice|interesting|whatever|coisas?|alguma coisa|legal|interessante|qualquer coisa)\b/g;
+const STOP=new Set("para como sobre esta este estos estas desde donde cuando quiero quiere hacer tener entre porque with that this from what when want have will your their about into make para uma umas sobre esse essa isso quero fazer como mais muito".split(" "));
+const EMOJI_RE=/\p{Extended_Pictographic}/gu;
+
+const evGoal=$("ev-goal"), evPrompt=$("ev-prompt");
+let evTimer=null, evLast=null;
+function countTok(s){ if(!s) return 0; if(tk){ try{ return tk.encode(s,{disallowedSpecial:new Set()}).length; }catch(e){} } return Math.ceil(s.length/4); }
+function evaluate(){
+  const d=t(), goal=evGoal.value.trim(), p=evPrompt.value, n=evNorm(p);
+  const total=countTok(p);
+  // filler
+  let fillers=[], fillerTok=0, w=p;
+  FILLER_RE.forEach(re=>{ w=w.replace(re,(m,a,f)=>{ fillers.push(f); return a+" "; }); });
+  const fl=[...new Set(fillers.map(f=>f.toLowerCase()))];
+  fillers.forEach(f=>fillerTok+=countTok(" "+f));
+  const emojis=(p.match(EMOJI_RE)||[]); emojis.forEach(e=>fillerTok+=countTok(e));
+  const bangs=(p.match(/[!?¡¿]{2,}/g)||[]); bangs.forEach(b=>fillerTok+=Math.max(0,countTok(b)-1));
+  // criteria
+  const C={};
+  // objective alignment
+  const gw=[...new Set(evNorm(goal).match(/\p{L}{4,}/gu)||[])].filter(w=>!STOP.has(w));
+  const pst=new Set((n.match(/\p{L}{4,}/gu)||[]).map(w=>w.slice(0,5)));
+  const hit=gw.filter(w=>pst.has(w.slice(0,5))), miss=gw.filter(w=>!pst.has(w.slice(0,5)));
+  if(!gw.length) C.obj={s:0,max:20,tip:d.ev_t.obj0};
+  else { const s=Math.round(20*Math.min(1,hit.length/gw.length*1.25)); C.obj={s,max:20,tip:s<20?d.ev_t.obj(miss.slice(0,4).join(", ")):""}; }
+  // task
+  const vg=[...new Set(n.match(VAGUE_RE)||[])];
+  let ts=TASK_RE.test(n)?15:(p.trim()?4:0); ts=Math.max(0,ts-vg.length*3);
+  C.task={s:ts,max:15,tip:!TASK_RE.test(n)?d.ev_t.task:(vg.length?d.ev_t.vague(vg.join(", ")):"")};
+  // context
+  const cx=new Set(n.match(CTX_RE)||[]).size;
+  C.ctx={s:cx>=2?15:cx===1?8:0,max:15,tip:cx>=2?"":d.ev_t.ctx};
+  // format
+  const fm=new Set(n.match(FMT_RE)||[]).size;
+  C.fmt={s:fm>=2?15:fm===1?10:0,max:15,tip:fm>=2?"":d.ev_t.fmt};
+  // limits
+  const ln=LIMN_RE.test(n), lw=LIMW_RE.test(n);
+  C.lim={s:ln?15:lw?8:0,max:15,tip:ln?"":lw?d.ev_t.limw:d.ev_t.lim};
+  // efficiency
+  let es=20; const etips=[];
+  if(fl.length){ es-=Math.min(12,fillers.length*3); etips.push(d.ev_t.filler(fl.slice(0,4).map(x=>"«"+x+"»").join(", "),fillerTok)); }
+  if(emojis.length){ es-=Math.min(4,emojis.length*2); etips.push(d.ev_t.emoji); }
+  const sents=n.split(/[.!?\n]+/).map(s=>s.trim()).filter(s=>s.length>12);
+  if(new Set(sents).size<sents.length){ es-=4; etips.push(d.ev_t.rep); }
+  if(total>600){ es-=4; etips.push(d.ev_t.long); }
+  const capsW=(p.match(/\b\p{Lu}{4,}\b/gu)||[]).length;
+  if(bangs.length||capsW>2){ es-=2; etips.push(d.ev_t.caps); }
+  if(!p.trim()) es=0;
+  C.eff={s:Math.max(0,es),max:20,tip:etips.join(" ")};
+  const score=Object.values(C).reduce((a,c)=>a+c.s,0);
+  // cleaned prompt
+  let clean=w;
+  clean=clean.replace(EMOJI_RE,"").replace(/([!?¡¿])\1+/g,"$1").replace(/[ \t]{2,}/g," ").replace(/^[\s,;:.!¡]+/gm,"").replace(/\s+([,.;:!?])/g,"$1").replace(/,\s*([.!?])/g,"$1").replace(/([.!?])\s*[,;]+/g,"$1").trim();
+  clean=clean.replace(/(^|[.!?]\s+|\n)(\p{Ll})/gu,(m,a,b)=>a+b.toUpperCase());
+  evLast={C,score,total,fillerTok,clean,goal};
+  evRender();
+}
+function evRender(){
+  if(!evLast) return;
+  const d=t(), {C,score,total,fillerTok,clean,goal}=evLast;
+  $("ev-score").textContent=score;
+  const lv=score>=85?3:score>=65?2:score>=40?1:0;
+  $("ev-lvl").textContent=d.ev_lv[lv];
+  $("ev-ring").style.setProperty("--p",score);
+  $("ev-ring").dataset.lv=lv;
+  $("ev-tok").textContent=d.ev_tok(nf(total));
+  $("ev-waste").textContent=d.ev_waste(nf(fillerTok), total?Math.round(fillerTok/total*100):0);
+  $("ev-crit").innerHTML=Object.keys(C).map(k=>{const c=C[k], full=c.s>=c.max, cls=full?"ok":c.s>=c.max/2?"mid":"low";
+    return `<li class="${cls}"><div class="ch"><span>${d.ev_c[k]}</span><span class="pts">${c.s}/${c.max}</span></div><div class="track"><div class="fill" style="width:${c.s/c.max*100}%"></div></div>${c.tip?`<p>${esc(c.tip)}</p>`:`<p class="okp">${d.ev_ok}</p>`}</li>`;}).join("");
+  // optimized version
+  const tp=d.ev_tpl, lines=[];
+  if(C.ctx.s<15) lines.push(`${tp.ctx}: ${tp.ctxph}`);
+  if(goal) lines.push(`${tp.goal}: ${goal}`);
+  if(clean) lines.push(C.ctx.s>=15&&C.fmt.s>=15&&C.lim.s>=15 ? clean : `${tp.task}: ${clean}`);
+  if(C.fmt.s<15) lines.push(`${tp.fmt}: ${tp.fmtph}`);
+  if(C.lim.s<15) lines.push(`${tp.lim}: ${tp.limph}`);
+  $("ev-out").textContent=lines.join("\n");
+  $("ev-saved").textContent=clean?d.ev_saved(nf(total),nf(countTok(clean))):"";
+}
+function evLoad(kind){
+  const ex=t().ev_ex;
+  if(kind==="clear"){ evGoal.value=""; evPrompt.value=""; }
+  else { evGoal.value=ex.bgoal; evPrompt.value=kind==="good"?ex.good:ex.bad; }
+  evaluate();
+}
+function evI18n(){
+  const d=t();
+  evGoal.placeholder=d.ev_goal_ph; evPrompt.placeholder=d.ev_prompt_ph;
+  // swap examples to the new language if the fields still hold an example
+  ["es","en","pt"].forEach(l=>{ const ex=T[l].ev_ex;
+    if(evGoal.value===ex.bgoal) evGoal.value=d.ev_ex.bgoal;
+    if(evPrompt.value===ex.bad) evPrompt.value=d.ev_ex.bad;
+    if(evPrompt.value===ex.good) evPrompt.value=d.ev_ex.good; });
+  evaluate();
+}
+[evGoal,evPrompt].forEach(el=>el.addEventListener("input",()=>{clearTimeout(evTimer);evTimer=setTimeout(evaluate,120);}));
+$("ev-bad").onclick=()=>evLoad("bad"); $("ev-good").onclick=()=>evLoad("good"); $("ev-clear").onclick=()=>{evLoad("clear");evPrompt.focus();};
+$("ev-copy").onclick=()=>{
+  const txt=$("ev-out").textContent, b=$("ev-copy");
+  const done=()=>{b.textContent=t().ev_copied; setTimeout(()=>b.textContent=t().ev_copy,1500);};
+  const sel=()=>{const r=document.createRange(); r.selectNodeContents($("ev-out")); const s=getSelection(); s.removeAllRanges(); s.addRange(r);};
+  try{ navigator.clipboard.writeText(txt).then(done,sel); }catch(e){ sel(); }
+};
+evGoal.value=T.es.ev_ex.bgoal; evPrompt.value=T.es.ev_ex.bad;
+
+$("ev-jump").onclick=()=>{ $("evalua").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}); };
+
+// ---------- boot ----------
+L=pickLang();
+let draft=null; try{ draft=localStorage.getItem("tkm-draft"); }catch(e){}
+const LEGACY=["La inteligencia artificial no lee palabras: lee tokens. Sentir es pensar con el cuerpo, y el #desmiedo empieza cuando entiendes lo que consumes.","Artificial intelligence doesn't read words: it reads tokens. Feeling is thinking with the body, and fearlessness starts when you understand what you consume.","A inteligência artificial não lê palavras: lê tokens. Sentir é pensar com o corpo, e o #desmiedo começa quando você entende o que consome."];
+if(draft && LEGACY.includes(draft)) draft=null;
+input.value = draft || SAMPLES[L];
+const fxSel=$("cur"); FX.forEach(f=>{const o=document.createElement("option");o.value=f[0];fxSel.appendChild(o);});
+try{ const c=localStorage.getItem("tkm-cur"); fxSel.value = c && FX.some(f=>f[0]===c) ? c : "MXN"; }catch(e){ fxSel.value="MXN"; }
+const startL=L; L="es"; applyLang(startL);
+load().then(x=>{tk=x;run();}).catch(()=>{failed=true;$("status").textContent=t().fail;});
+})();
+</script>
+</body>
+</html>
