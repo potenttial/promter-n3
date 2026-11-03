@@ -1,0 +1,16 @@
+{
+ "es": {
+  "title": "Tokenómetro: agradecer a la IA una vez al día cuesta $100 MXN al año",
+  "excerpt": "Engel Fonseca explica por qué un “gracias” diario a la IA cuesta unos $100 pesos al año, por qué la indiferencia es cara y cómo optimizar tokens con consciencia tecnológica, prompters y el Tokenómetro de N3 Labs.",
+  "slug": "tokenometro-agradecer-ia-cuesta-100-pesos-al-ano",
+  "hero": "tokenometro-hero-es.png",
+  "chart": "tokenometro-chart-es.png"
+ },
+ "en": {
+  "title": "Tokenometer: Thanking AI Once a Day Costs About US$6 a Year",
+  "excerpt": "Engel Fonseca explains why a daily thank-you to AI costs about 6 dollars a year, why indifference is expensive, and how to optimize tokens with technological awareness, prompters and the N3 Labs Tokenometer.",
+  "slug": "tokenometer-thanking-ai-once-a-day-costs-6-dollars-a-year",
+  "hero": "tokenometro-hero-en.png",
+  "chart": "tokenometro-chart-en.png"
+ }
+}
