@@ -13,14 +13,11 @@ var clickTag2 = "https://claude.ai/new?q=" + Q;
 var clickTag3 = "https://copilot.microsoft.com/?q=" + Q;
 </script>
 <style>
-@font-face{font-family:"Big Shoulders Display";font-weight:900;src:url(fonts/bsd-900.woff2) format("woff2")}
-@font-face{font-family:"Figtree";font-weight:400;src:url(fonts/figtree-400.woff2) format("woff2")}
-@font-face{font-family:"Figtree";font-weight:600 700;src:url(fonts/figtree-700.woff2) format("woff2")}
 /* 300x600: white top with logo + typed question over a faint data grid; blue panel below with 3 AI buttons */
 :root{--blue:#4a9cee;--blue-d:#1f6fc4;--navy:#10233b;--grey:#888888;--tint:#eef5fd;--white:#ffffff;
-  --body:"Figtree","Segoe UI",Helvetica,Arial,sans-serif;--display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif}
+  --body:"Helvetica Neue",Helvetica,Arial,sans-serif;--display:"Helvetica Neue",Helvetica,Arial,sans-serif}
 html,body{margin:0;padding:0;background:#fff}
-.ad{position:relative;width:300px;height:600px;overflow:hidden;background:var(--white);font-family:var(--body);color:var(--navy);box-sizing:border-box;border:1px solid #e3e8ef}
+.ad{font-weight:300;position:relative;width:300px;height:600px;overflow:hidden;background:var(--white);font-family:var(--body);color:var(--navy);box-sizing:border-box;border:1px solid #e3e8ef}
 .grid{position:absolute;inset:0 0 auto 0;height:380px;background-image:linear-gradient(var(--tint) 1px,transparent 1px),linear-gradient(90deg,var(--tint) 1px,transparent 1px);background-size:20px 20px}
 .logo{position:absolute;top:22px;left:20px;width:150px;height:auto}
 .bars{position:absolute;right:20px;top:26px;display:flex;align-items:flex-end;gap:4px;height:38px}
@@ -28,17 +25,17 @@ html,body{margin:0;padding:0;background:#fff}
 .bars i:nth-child(1){height:30%;animation-delay:.1s}.bars i:nth-child(2){height:55%;animation-delay:.25s}.bars i:nth-child(3){height:42%;animation-delay:.4s}.bars i:nth-child(4){height:78%;animation-delay:.55s}.bars i:nth-child(5){height:100%;background:var(--blue-d);animation-delay:.7s}
 @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 .top{position:absolute;left:20px;right:20px;top:104px;display:flex;flex-direction:column;gap:10px}
-.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-d)}
-h1{margin:0;font-family:var(--display);font-weight:900;font-size:46px;line-height:.95;text-transform:uppercase;color:var(--navy);text-wrap:balance}
+.eyebrow{font-size:10.5px;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-d)}
+h1{margin:0;font-family:var(--display);font-weight:300;font-size:40px;line-height:1.04;letter-spacing:-.01em;color:var(--navy);text-wrap:balance}
 h1 em{font-style:normal;color:var(--blue)}
 .sub{font-size:13px;line-height:1.35;color:#3d4c5e;margin:2px 0 0}
 .bottom{position:absolute;left:0;right:0;bottom:0;height:226px;background:var(--navy);color:var(--white);padding:16px 20px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:9px}
 .bottom::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--blue),var(--blue-d))}
-.ask{margin:0;font-size:13px;font-weight:700;line-height:1.25}
-.ask small{display:block;font-weight:400;font-size:11px;opacity:.75;margin-top:2px}
+.ask{margin:0;font-size:13px;font-weight:300;line-height:1.25}
+.ask small{display:block;font-weight:300;font-size:11px;opacity:.75;margin-top:2px}
 .btns{display:flex;flex-direction:column;gap:8px}
-.btn{display:flex;align-items:center;gap:9px;height:38px;padding:0 14px 0 8px;border-radius:999px;background:var(--blue);color:var(--white);text-decoration:none;font-weight:700;font-size:14px;transition:background .15s,transform .15s}
-.btn::after{content:"→";margin-left:auto;font-weight:400;opacity:.85}
+.btn{display:flex;align-items:center;gap:9px;height:38px;padding:0 14px 0 8px;border-radius:999px;background:var(--blue);color:var(--white);text-decoration:none;font-weight:300;font-size:14px;transition:background .15s,transform .15s}
+.btn::after{content:"→";margin-left:auto;font-weight:300;opacity:.85}
 .btn:hover{background:var(--white);color:var(--navy);transform:translateY(-1px)}
 .btn:focus-visible{outline:3px solid var(--white);outline-offset:2px}
 .ic{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;flex:none}

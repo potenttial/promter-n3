@@ -6,19 +6,16 @@
 <title>Negocio Digital · Demo Intelisis</title>
 <meta name="description" content="Demo de un anuncio 300x600 en una página editorial de ejemplo: cada botón abre Claude, ChatGPT, Copilot o Grok con la pregunta ya escrita.">
 <style>
-@font-face{font-family:"Figtree";font-weight:400;src:url(banner/fonts/figtree-400.woff2) format("woff2")}
-@font-face{font-family:"Figtree";font-weight:600 700;src:url(banner/fonts/figtree-700.woff2) format("woff2")}
-@font-face{font-family:"Big Shoulders Display";font-weight:900;src:url(banner/fonts/bsd-900.woff2) format("woff2")}
 /* Layout: a sample publisher page (masthead, article column, sticky 300x600 ad rail) */
 :root{
   --n3:#e7000b; --bar:#06060c; --bar-fg:#f4f4f6; --bar-muted:#9a9aa8;
   --page:#ffffff; --ink:#1b1d21; --muted:#6b7078; --skel:#e9ebee; --skel2:#f2f3f5; --rule:#e4e6ea;
-  --sans:"Figtree","Segoe UI",Helvetica,Arial,sans-serif;
-  --serif:Georgia,"Times New Roman",serif;
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --serif:"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--page);color:var(--ink);font-family:var(--sans)}
+body{background:var(--page);color:var(--ink);font-family:var(--sans);font-weight:300}
 
 /* ---------- N3 demo bar ---------- */
 .demobar{position:sticky;top:0;z-index:10;background:var(--bar);color:var(--bar-fg);
@@ -34,7 +31,7 @@ body{background:var(--page);color:var(--ink);font-family:var(--sans)}
 .barlinks{display:flex;gap:8px;align-items:center}
 .barlinks a.logo-n3{padding:0;border:0;border-radius:0;margin-left:6px;display:block}
 .logo-n3 img{display:block;height:49px;width:auto}
-.barlinks a{font-size:13px;font-weight:700;color:var(--bar-fg);text-decoration:none;padding:7px 12px;border:1px solid #2a2a35;border-radius:999px;white-space:nowrap}
+.barlinks a{font-size:13px;font-weight:300;color:var(--bar-fg);text-decoration:none;padding:7px 12px;border:1px solid #2a2a35;border-radius:999px;white-space:nowrap}
 .barlinks a.primary{background:var(--n3);border-color:var(--n3)}
 .barlinks a:hover{border-color:var(--bar-fg)}
 .barlinks a:focus-visible,.n3:focus-visible{outline:2px solid #fff;outline-offset:2px}
@@ -42,13 +39,13 @@ body{background:var(--page);color:var(--ink);font-family:var(--sans)}
 /* ---------- Sample publisher ---------- */
 .pub{max-width:1100px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-right)) 60px max(16px,env(safe-area-inset-left))}
 .masthead{display:flex;align-items:center;justify-content:space-between;padding:22px 0 14px;border-bottom:3px double var(--rule)}
-.logo{font:900 30px/1 "Big Shoulders Display","Arial Narrow",Impact,sans-serif;letter-spacing:.06em;text-transform:uppercase}
-.logo span{font:400 11px var(--sans);letter-spacing:.16em;color:var(--muted);display:block;margin-top:4px}
-.nav{display:flex;gap:18px;font-size:13px;font-weight:600;color:var(--muted)}
+.logo{font:300 30px/1 "Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.logo span{font:300 11px var(--sans);letter-spacing:.16em;color:var(--muted);display:block;margin-top:4px}
+.nav{display:flex;gap:18px;font-size:13px;font-weight:300;color:var(--muted)}
 .nav span:first-child{color:var(--ink)}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:44px;margin-top:28px}
-.kicker{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0a7f86}
-h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,42px);line-height:1.12;margin:8px 0 12px;text-wrap:balance}
+.kicker{font-size:12px;font-weight:300;letter-spacing:.12em;text-transform:uppercase;color:#0a7f86}
+h1{font-family:var(--serif);font-weight:300;font-size:clamp(28px,4vw,42px);line-height:1.12;margin:8px 0 12px;text-wrap:balance}
 .byline{font-size:13px;color:var(--muted);margin-bottom:20px}
 .hero{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:16/8;border-radius:4px}
 .figcap{font-size:12px;color:var(--muted);margin:6px 0 22px}
@@ -102,7 +99,7 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,42px);line-
 
       <div class="inline-ad">
         <span class="adlabel">Publicidad</span>
-        <iframe class="adframe" src="banner/index.html?v=20261105b" title="Prompter Ad 300x600" scrolling="no" loading="lazy"></iframe>
+        <iframe class="adframe" src="banner/index.html?v=20261105c" title="Prompter Ad 300x600" scrolling="no" loading="lazy"></iframe>
       </div>
 
       <p>Hoy el valor de un ERP no está solo en registrar operaciones, sino en ayudar a anticipar lo que viene. Por eso muchas empresas revisan su sistema antes de su siguiente etapa de crecimiento.</p>
@@ -122,7 +119,7 @@ h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4vw,42px);line-
     <aside class="rail">
       <div class="adslot">
         <span class="adlabel">Publicidad</span>
-        <iframe class="adframe" src="banner/index.html?v=20261105b" title="Prompter Ad 300x600" scrolling="no"></iframe>
+        <iframe class="adframe" src="banner/index.html?v=20261105c" title="Prompter Ad 300x600" scrolling="no"></iframe>
       </div>
       <div class="skelbox" aria-hidden="true"></div>
     </aside>
