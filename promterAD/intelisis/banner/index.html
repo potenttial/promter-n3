@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="ad.size" content="width=300,height=600">
+<title>Intelisis Prompter Ad</title>
+<script type="text/javascript">
+var Q = "%C2%BFPor%20qu%C3%A9%20el%20sitio%20de%20itseller.mx%20argumenta%20que%20Intelisis%20es%20el%20ERP%20m%C3%A1s%20evolucionado%3F";
+var clickTag  = "https://chatgpt.com/?q=" + Q;
+var clickTag1 = "https://chatgpt.com/?q=" + Q;
+var clickTag2 = "https://claude.ai/new?q=" + Q;
+var clickTag3 = "https://copilot.microsoft.com/?q=" + Q;
+</script>
+<style>
+@font-face{font-family:"Big Shoulders Display";font-weight:900;src:url(fonts/bsd-900.woff2) format("woff2")}
+@font-face{font-family:"Figtree";font-weight:400;src:url(fonts/figtree-400.woff2) format("woff2")}
+@font-face{font-family:"Figtree";font-weight:600 700;src:url(fonts/figtree-700.woff2) format("woff2")}
+/* 300x600: white top with logo + typed question over a faint data grid; blue panel below with 3 AI buttons */
+:root{--blue:#4a9cee;--blue-d:#1f6fc4;--navy:#10233b;--grey:#888888;--tint:#eef5fd;--white:#ffffff;
+  --body:"Figtree","Segoe UI",Helvetica,Arial,sans-serif;--display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif}
+html,body{margin:0;padding:0;background:#fff}
+.ad{position:relative;width:300px;height:600px;overflow:hidden;background:var(--white);font-family:var(--body);color:var(--navy);box-sizing:border-box;border:1px solid #e3e8ef}
+.grid{position:absolute;inset:0 0 auto 0;height:380px;background-image:linear-gradient(var(--tint) 1px,transparent 1px),linear-gradient(90deg,var(--tint) 1px,transparent 1px);background-size:20px 20px}
+.logo{position:absolute;top:22px;left:20px;width:150px;height:auto}
+.bars{position:absolute;right:20px;top:26px;display:flex;align-items:flex-end;gap:4px;height:38px}
+.bars i{width:7px;background:var(--blue);border-radius:2px 2px 0 0;opacity:.85;transform-origin:bottom;animation:grow 1.2s ease-out both}
+.bars i:nth-child(1){height:30%;animation-delay:.1s}.bars i:nth-child(2){height:55%;animation-delay:.25s}.bars i:nth-child(3){height:42%;animation-delay:.4s}.bars i:nth-child(4){height:78%;animation-delay:.55s}.bars i:nth-child(5){height:100%;background:var(--blue-d);animation-delay:.7s}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.top{position:absolute;left:20px;right:20px;top:104px;display:flex;flex-direction:column;gap:10px}
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--blue-d)}
+h1{margin:0;font-family:var(--display);font-weight:900;font-size:46px;line-height:.95;text-transform:uppercase;color:var(--navy);text-wrap:balance}
+h1 em{font-style:normal;color:var(--blue)}
+.sub{font-size:13px;line-height:1.35;color:#3d4c5e;margin:2px 0 0}
+.bottom{position:absolute;left:0;right:0;bottom:0;height:226px;background:var(--navy);color:var(--white);padding:16px 20px 12px;box-sizing:border-box;display:flex;flex-direction:column;gap:9px}
+.bottom::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:linear-gradient(90deg,var(--blue),var(--blue-d))}
+.ask{margin:0;font-size:13px;font-weight:700;line-height:1.25}
+.ask small{display:block;font-weight:400;font-size:11px;opacity:.75;margin-top:2px}
+.btns{display:flex;flex-direction:column;gap:8px}
+.btn{display:flex;align-items:center;gap:9px;height:38px;padding:0 14px 0 8px;border-radius:999px;background:var(--blue);color:var(--white);text-decoration:none;font-weight:700;font-size:14px;transition:background .15s,transform .15s}
+.btn::after{content:"→";margin-left:auto;font-weight:400;opacity:.85}
+.btn:hover{background:var(--white);color:var(--navy);transform:translateY(-1px)}
+.btn:focus-visible{outline:3px solid var(--white);outline-offset:2px}
+.ic{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;flex:none}
+.ic svg{width:12px;height:12px;display:block}
+.src{margin:auto 0 0;font-size:8px;line-height:1.3;opacity:.55}
+/* AI typing effect */
+.ch{opacity:0}.ch.on{opacity:1}
+.caret{display:inline-block;width:4px;height:.78em;margin-left:2px;vertical-align:-.04em;background:var(--blue);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.think{position:absolute;left:20px;top:92px;display:flex;gap:6px;transition:opacity .3s}
+.think i{width:8px;height:8px;border-radius:50%;background:var(--blue);animation:pulse 1s ease-in-out infinite}
+.think i:nth-child(2){animation-delay:.15s}.think i:nth-child(3){animation-delay:.3s}
+@keyframes pulse{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+.ad.typing .think{opacity:0}
+.sub,.btns,.ask{transition:opacity .5s ease,transform .5s ease}
+.ad.anim:not(.done) .sub,.ad.anim:not(.done) .ask,.ad.anim:not(.done) .btns{opacity:0;transform:translateY(8px)}
+.ad.stop .caret{animation:none;opacity:0}
+@media (prefers-reduced-motion:reduce){.think{display:none}.bars i{animation:none}}
+</style>
+</head>
+<body>
+<div class="ad" role="region" aria-label="Anuncio de Intelisis: pregúntale a la IA">
+  <div class="grid" aria-hidden="true"></div>
+  <img class="logo" src="intelisis-logo.png" alt="Intelisis">
+  <div class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="think" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="top">
+    <span class="eyebrow">Pregúntale a la IA</span>
+    <h1>¿Sabes por qué <em>Intelisis</em> es el mejor ERP?</h1>
+    <p class="sub">Compruébalo con tu IA favorita.</p>
+  </div>
+  <div class="bottom">
+    <p class="ask">Elige tu IA y descubre la respuesta<small>Se abre con la pregunta lista para enviar</small></p>
+    <div class="btns">
+      <a class="btn" href="javascript:window.open(window.clickTag1)"><span class="ic" aria-hidden="true"><svg viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" rx="1.5" fill="#fff"/></svg></span><span>ChatGPT</span></a>
+      <a class="btn" href="javascript:window.open(window.clickTag2)"><span class="ic" aria-hidden="true"><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="#fff"/></svg></span><span>Claude</span></a>
+      <a class="btn" href="javascript:window.open(window.clickTag3)"><span class="ic" aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M6 1.5 10.5 10H1.5Z" fill="#fff"/></svg></span><span>Copilot</span></a>
+    </div>
+    <p class="src">Marcas de terceros mostradas solo como destino del enlace.</p>
+  </div>
+</div>
+<script>
+(function(){
+  var ad=document.querySelector('.ad'),h=ad.querySelector('h1'),think=ad.querySelector('.think');
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){think.remove();return;}
+  ad.classList.add('anim');
+  var chars=[],w=document.createTreeWalker(h,NodeFilter.SHOW_TEXT),nodes=[],n;
+  while(n=w.nextNode())nodes.push(n);
+  nodes.forEach(function(tn){var f=document.createDocumentFragment();
+    tn.nodeValue.split('').forEach(function(c){var s=document.createElement('span');s.className='ch';s.textContent=c;f.appendChild(s);chars.push(s);});
+    tn.parentNode.replaceChild(f,tn);});
+  var caret=document.createElement('span');caret.className='caret';caret.setAttribute('aria-hidden','true');
+  h.insertBefore(caret,h.firstChild);
+  var i=0;
+  setTimeout(function(){ad.classList.add('typing');
+    (function step(){if(i<chars.length){chars[i].classList.add('on');chars[i].after(caret);i++;
+        setTimeout(step,chars[i-1].textContent===' '?25:45);}
+      else{ad.classList.add('done');setTimeout(function(){ad.classList.add('stop');},9000);}})();
+  },1100);
+})();
+</script>
+</body>
+</html>
