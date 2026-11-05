@@ -70,9 +70,20 @@ h1{font-family:var(--serif);font-weight:300;font-size:clamp(28px,4vw,42px);line-
   .related{grid-template-columns:1fr 1fr}
 }
 @media (max-width:420px){.barlinks a:not(.primary):not(.logo-n3){display:none}.logo-n3 img{height:40px}.related{grid-template-columns:1fr}}
+.n3bar{background:#06060c;color:#f4f4f6;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:8px max(16px,env(safe-area-inset-right)) 8px max(16px,env(safe-area-inset-left));padding-top:calc(8px + env(safe-area-inset-top,0px));
+  font:300 14px "Helvetica Neue",Helvetica,Arial,sans-serif;border-bottom:2px solid #e7000b}
+.n3bar b{font-weight:400}
+.n3bar span small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#9a9aa8}
+.n3bar a{display:block;line-height:0}
+.n3bar img{height:44px;width:auto}
 </style>
 </head>
 <body>
+<div class="n3bar" role="banner">
+  <span><b>Prompter Ad</b> creado por N3 Labs<small>Demo en un medio de ejemplo</small></span>
+  <a href="https://n3labs.potenttial.site/" target="_blank" rel="noopener"><img src="../n3-logo.png" alt="N3 Thinktech IA Laboratory" width="86" height="44"></a>
+</div>
 
 <div class="pub">
   <header class="masthead" aria-label="Medio de ejemplo (ficticio)">
@@ -125,7 +136,7 @@ h1{font-family:var(--serif);font-weight:300;font-size:clamp(28px,4vw,42px);line-
     </aside>
   </div>
 
-  <div class="foot">Demo conceptual. "Negocio Digital" es un medio ficticio. Intelisis es marca de su titular. ChatGPT, Claude y Copilot son marcas de sus dueños, mostradas solo como destino del enlace.</div>
+  <div class="foot">Prompter Ad creado por N3 Labs. Demo conceptual. "Negocio Digital" es un medio ficticio. Intelisis es marca de su titular. ChatGPT, Claude y Copilot son marcas de sus dueños, mostradas solo como destino del enlace.</div>
 </div>
 </body>
 </html>
