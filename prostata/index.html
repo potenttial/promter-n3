@@ -625,6 +625,8 @@ a.cta svg{width:20px;height:20px;fill:currentColor;flex:none}
    WHATSAPP: número de CURAQ para "Quiero sumarme" (formato 52xxxxxxxxxx). Vacío = sin botón.
    ===================================================================== */
 const CONFIG = {
+  // API propia en Hostinger (api.php junto a este archivo). "auto" = se activa sola fuera de GitHub Pages.
+  API_URL: "auto",
   DB_URL: "",
   WHATSAPP: "",
   WHATSAPP_MSG: "Quiero sumarme a la Campaña Próstata 2027 de CURAQ",
@@ -706,7 +708,8 @@ const LOGO_C = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeoAAABuCAIAAABnWc
 /* ================= DATOS (Firebase REST o demo local) ================= */
 const P = new URLSearchParams(location.search);
 const EV = (P.get("evento")||CONFIG.EVENTO_DEFAULT).replace(/[^a-z0-9-_]/gi,"");
-const DEMO = !CONFIG.DB_URL;
+const API = CONFIG.API_URL==="auto" ? (/^https?:$/.test(location.protocol)&&!/github\.io$/.test(location.hostname)?"api.php":"") : CONFIG.API_URL;
+const DEMO = !API && !CONFIG.DB_URL;
 const LSKEY = "curaq_demo_"+EV;
 const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("curaq_"+EV) : null;
 const base = () => CONFIG.DB_URL.replace(/\/$/,"")+"/curaq/"+EV+"/votes";
@@ -717,10 +720,12 @@ function lsSet(o){try{localStorage.setItem(LSKEY,JSON.stringify(o))}catch(e){} b
 async function saveVote(id,patch){
   patch.t = Date.now();
   if(DEMO){const all=lsGet(); all[id]=Object.assign(all[id]||{},patch); lsSet(all); return;}
+  if(API){ try{await fetch(API+"?ev="+EV+"&id="+id,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(patch)})}catch(e){} return; }
   try{await fetch(base()+"/"+id+".json",{method:"PATCH",body:JSON.stringify(patch)})}catch(e){}
 }
 async function loadAll(){
   if(DEMO) return lsGet();
+  if(API){ try{const r=await fetch(API+"?ev="+EV+"&_="+Date.now(),{cache:"no-store"}); return (await r.json())||{}}catch(e){return null} }
   try{const r=await fetch(base()+".json",{cache:"no-store"}); return (await r.json())||{}}catch(e){return null}
 }
 

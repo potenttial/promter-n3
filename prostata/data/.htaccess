@@ -1,0 +1,3 @@
+# Los votos solo se leen a través de api.php
+Require all denied
+Deny from all
