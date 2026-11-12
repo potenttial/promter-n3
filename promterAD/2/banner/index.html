@@ -64,17 +64,14 @@ h1 em{font-style:normal;color:#ffd27a;text-shadow:0 2px 0 rgba(0,0,0,.18)}
 .ad.stop .caret{animation:none;opacity:0}
 @media (prefers-reduced-motion:reduce){.think{display:none}}
 
-/* animated sea background (creative 2) */
+/* still sea photo background (creative 2) */
 .sea{position:absolute;inset:0;overflow:hidden}
-.sea .pan{position:absolute;top:-190px;left:0;width:1547px;height:760px;transform-origin:50% 50%;animation:pan 30s ease-in-out forwards}
-@keyframes pan{0%{transform:translateX(-650px) scale(1.02)}100%{transform:translateX(-1180px) scale(1.06)}}
-.sea .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,44,58,.62) 0%,rgba(3,44,58,.32) 40%,rgba(3,44,58,0) 60%)}
-.ad.still .sea .pan{animation-play-state:paused}
-.bottom{color:#fff;background:rgba(3,38,50,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.18)}
+.sea .photo{position:absolute;inset:0;background:url(sea.jpg) 58% 0/auto 100% no-repeat}
+.sea .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,40,54,.55) 0%,rgba(2,40,54,.22) 45%,rgba(2,40,54,0) 58%)}
+.bottom{color:#fff;background:linear-gradient(180deg,rgba(3,38,50,.55),rgba(3,38,50,.82));border-top:1px solid rgba(255,255,255,.18)}
 .btn{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28)}
 .btn:hover{background:var(--coral);border-color:var(--coral)}
-h1,.fact{text-shadow:0 1px 8px rgba(0,0,0,.25)}
-@media (prefers-reduced-motion:reduce){.sea .pan{animation:none;transform:translateX(-900px)}}
+h1,.fact,.eyebrow{text-shadow:0 1px 10px rgba(0,30,40,.45)}
 </style>
 <script type="text/javascript">
 var clickTag = "https://claude.ai/new?q=Based%20on%20the%20Travel%20%2B%20Leisure%20World%E2%80%99s%20Best%20Awards%202026%2C%20why%20is%20the%20Mexican%20Caribbean%20one%20of%20the%20best%20travel%20destinations%20in%20the%20world%3F";
@@ -87,17 +84,7 @@ var clickTag4 = "https://grok.com/?q=Based%20on%20the%20Travel%20%2B%20Leisure%2
 <body>
 <div class="ad" role="region" aria-label="Caribe Mexicano ad: ask AI">
   <div class="sea" aria-hidden="true">
-    <svg class="pan" width="1547" height="760" viewBox="0 0 1547 760" preserveAspectRatio="none">
-      <defs>
-        <filter id="ripple" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="2" seed="4" result="n">
-            <animate attributeName="baseFrequency" dur="9s" values="0.012 0.030;0.016 0.036;0.012 0.030" repeatCount="indefinite"/>
-          </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" in2="n" scale="14" xChannelSelector="R" yChannelSelector="G"/>
-        </filter>
-      </defs>
-      <image href="sea.jpg" x="-10" y="-10" width="1567" height="780" preserveAspectRatio="none" filter="url(#ripple)"/>
-    </svg>
+    <div class="photo"></div>
     <div class="shade"></div>
   </div>
   <img class="brandlogo" src="mexican-caribbean-logo-white.png" alt="Mexican Caribbean">
@@ -140,10 +127,6 @@ var clickTag4 = "https://grok.com/?q=Based%20on%20the%20Travel%20%2B%20Leisure%2
       else{ad.classList.add('done');setTimeout(function(){ad.classList.add('stop');},9000);}})();
   },1100);
 })();
-</script>
-<script>
-setTimeout(function(){var ad=document.querySelector('.ad');ad.classList.add('still');
-  var s=document.querySelector('.sea svg');if(s&&s.pauseAnimations)s.pauseAnimations();},30000);
 </script>
 </body>
 </html>
