@@ -132,6 +132,12 @@ function rows_for_ally(array $db, array $a): array {
   $have = array_flip(array_map(fn($r) => norm($r['brand']), $out));
   foreach ($db['leads'] ?? [] as $l) {
     if (($l['ally'] ?? '') !== $a['id'] || empty($l['ok'])) continue;
+    if (!empty($l['pg'])) { $p = $l['pg']; if (isset($have[norm($p['brand'])])) continue; $have[norm($p['brand'])] = 1;
+      $out[] = ['ally' => $a['name'], 'brand' => $p['brand'], 'category' => ($p['product'] ?? '') ?: '—', 'contact' => $p['contact'],
+        'status' => in_array($p['status'] ?? '', STAGES, true) ? $p['status'] : 'Interesado', 'next' => $p['next'] ?? '', 'amount' => (float)($p['amount'] ?? 0),
+        'cur' => ($p['cur'] ?? 'MXN') === 'USD' ? 'USD' : 'MXN', 'seller' => (string)($l['by'] ?? ''), 'notes' => $p['notes'] ?? '', 'src' => 'lead', 'key' => 'lead:' . $l['t'], 'allyId' => $a['id'],
+        'product' => $p['product'] ?? '', 'agency' => $p['agency'] ?? '', 'margin' => $p['margin'] ?? null];
+      continue; }
     $pick = function (string $re, string $not = '') use ($l) { foreach ((array)$l['answers'] as $k => $v) { $n = norm($k); if (preg_match($re, $n) && ($not === '' || !preg_match($not, $n))) return (string)$v; } return ''; };
     $brand = $pick('/company|empresa|marca|compan|organiza|cuenta/', '/url|web|sitio/');
     if ($brand === '' || isset($have[norm($brand)])) continue;
@@ -350,7 +356,7 @@ function crm_rows(array $db): array {
     $o = $db['crm'][$r['key']] ?? [];
     $a = ($r['allyId'] ?? '') !== PG_ID ? find_by($db['allies'], 'id', $r['allyId'] ?? '') : null;
     $origin = ($r['src'] ?? '') === 'pg' ? ($r['division'] ?? 'Potenttial Group') : ($a['name'] ?? $r['ally']);
-    $product = ($o['product'] ?? '') !== '' ? $o['product'] : (($r['src'] ?? '') === 'pg' ? ($r['product'] ?? '') : ($a['name'] ?? ''));
+    $product = ($o['product'] ?? '') !== '' ? $o['product'] : (($r['product'] ?? '') !== '' ? $r['product'] : ($a['name'] ?? ''));
     $margin = isset($o['margin']) && $o['margin'] !== '' ? (float)$o['margin'] : (isset($r['margin']) && $r['margin'] !== null && $r['margin'] !== '' ? (float)$r['margin'] : (float)($a['commission'] ?? 0));
     $out[] = $r + ['origin' => $origin, 'productX' => $product, 'agencyX' => ($o['agency'] ?? '') !== '' ? $o['agency'] : ($r['agency'] ?? ''), 'marginX' => $margin, 'edited' => !empty($o)];
   }

@@ -792,12 +792,13 @@ $('#iQ').oninput=e=>{iF.q=e.target.value;if(IN)drawInnov()};
 /* ---------- registrar lead ---------- */
 let LA=[],SC=null,CAT={},MEDIA=[],STG=[];
 async function renderLead(){try{const r=await api('leadAllies');LA=r.allies;CAT=r.catalog;MEDIA=r.media;STG=r.stages}catch(e){toast(e.message);return}
-  const withF=LA.filter(a=>a.hasForm);
+  const withF=LA;
   $('#lAlly').innerHTML=withF.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('')||'<option value="">— Ningún aliado tiene formulario —</option>';
   if(view.type==='ally'&&withF.some(a=>a.id===view.id))$('#lAlly').value=view.id;
   loadForm(false);loadMyLeads()}
-function renderInternal(){SC=null;$('#lRefresh').hidden=true;$('#lSend').disabled=false;
-  $('#lInfo').textContent='Venta de productos de Potenttial Group: entra directo a tu pipeline. Los marcados con * son obligatorios.';
+let INT_ALLY='pg';
+function renderInternal(allyObj){INT_ALLY=allyObj?allyObj.id:'pg';SC=null;$('#lRefresh').hidden=true;$('#lSend').disabled=false;
+  $('#lInfo').textContent=allyObj?`${allyObj.name} no tiene formulario externo: el lead entra directo a su pipeline. Los marcados con * son obligatorios.`:'Venta de productos de Potenttial Group: entra directo a tu pipeline. Los marcados con * son obligatorios.';
   const opt=(arr,ph)=>`<option value="">${ph}</option>`+arr.map(o=>`<option>${esc(o)}</option>`).join('');
   $('#lFields').innerHTML=`<div class="field-row"><label class="req" for="p_brand">Empresa / marca</label><input type="text" id="p_brand"></div>
    <div class="field-row"><label class="req" for="p_contact">Nombre del contacto</label><input type="text" id="p_contact"></div>
@@ -816,8 +817,9 @@ function renderInternal(){SC=null;$('#lRefresh').hidden=true;$('#lSend').disable
   $('#p_div').onchange=()=>{const d=$('#p_div').value,list=CAT[d]||[],row=$('#p_prodRow');
     row.innerHTML=`<label class="req" for="p_prod">Producto</label>`+(list.length?`<select id="p_prod">${opt(list,'— Elige producto —')}</select>`:`<input type="text" id="p_prod" placeholder="Describe el producto o servicio">`);
     $('#p_mediaRow').hidden=true;if($('#p_prod').tagName==='SELECT')$('#p_prod').onchange=()=>$('#p_mediaRow').hidden=$('#p_prod').value!=='Pauta en Medios'}}
-async function loadForm(refresh){const id=$('#lAlly').value;$('#lFields').innerHTML='';$('#lErr').textContent='';SC=null;$('#lRefresh').hidden=false;
+async function loadForm(refresh){const id=$('#lAlly').value;INT_ALLY=null;$('#lFields').innerHTML='';$('#lErr').textContent='';SC=null;$('#lRefresh').hidden=false;
   if(id==='pg'){renderInternal();return}
+  const al=LA.find(a=>a.id===id);if(al&&!al.hasForm){renderInternal(al);$('#p_div').closest('.field-row').hidden=true;$('#p_prodRow').innerHTML='<label for="p_prod">Producto / servicio</label><input type="text" id="p_prod" placeholder="Qué le ofreces">';return}
   if(!id){$('#lInfo').textContent='Agrega la liga del Google Form en Aliados → Editar.';$('#lSend').disabled=true;return}
   $('#lInfo').textContent='Leyendo el formulario…';$('#lSend').disabled=true;
   try{SC=(await api('formSchema',{id,refresh})).schema}catch(e){$('#lInfo').textContent='⚠ '+e.message;return}
@@ -831,10 +833,11 @@ async function loadForm(refresh){const id=$('#lAlly').value;$('#lFields').innerH
     return `<div class="field-row${full}">${lab}${f.help?`<small class="lbl">${esc(f.help)}</small>`:''}${inp}</div>`}).join('')}
 $('#lAlly').onchange=()=>loadForm(false);$('#lRefresh').onclick=()=>loadForm(true);
 $('#leadForm').onsubmit=async e=>{e.preventDefault();$('#lErr').textContent='';
-  if($('#lAlly').value==='pg'){const g=id=>($('#'+id)?.value||'').trim();
+  if($('#lAlly').value==='pg'||INT_ALLY===$('#lAlly').value){const g=id=>($('#'+id)?.value||'').trim();const isPg=$('#lAlly').value==='pg';
     const lead={brand:g('p_brand'),contact:g('p_contact'),email:g('p_email'),phone:g('p_phone'),division:g('p_div'),product:g('p_prod'),media:[...$$('input[name=p_media]:checked')].map(i=>i.value),amount:g('p_amount'),cur:g('p_cur'),agency:g('p_agency'),margin:g('p_margin'),status:g('p_status'),next:g('p_next'),notes:g('p_notes')};
-    if(!lead.brand||!lead.contact||!lead.division||!lead.product){$('#lErr').textContent='Completa empresa, contacto, división y producto.';return}
-    const b=$('#lSend');b.disabled=true;try{await api('registerInternal',{lead});toast('Lead agregado al pipeline de Potenttial Group ✓');renderInternal();loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}return}
+    lead.ally=$('#lAlly').value;
+    if(!lead.brand||!lead.contact||(isPg&&(!lead.division||!lead.product))){$('#lErr').textContent=isPg?'Completa empresa, contacto, división y producto.':'Completa empresa y contacto.';return}
+    const b=$('#lSend');b.disabled=true;try{await api('registerInternal',{lead});toast('Lead agregado al pipeline de '+$('#lAlly').selectedOptions[0].textContent.replace(' · productos propios','')+' ✓');loadForm(false);loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}return}
   if(!SC)return;
   const ans={};for(const f of SC.fields){if(f.type==='checkbox')ans[f.entry]=[...$$(`#lFields input[name="${f.entry}"]:checked`)].map(i=>i.value);
     else if(f.type==='radio')ans[f.entry]=($(`#lFields input[name="${f.entry}"]:checked`)||{}).value||'';else ans[f.entry]=($(`#f_${f.entry}`)?.value||'').trim();
