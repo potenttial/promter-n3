@@ -76,7 +76,7 @@ switch ($action) {
     $utms = $a ? array_filter($db['utms'], fn($u) => $u['ally'] === $a['id']) : ($s ? array_filter($db['utms'], fn($u) => norm($u['seller']) === norm($s['name'])) : $db['utms']);
     $formsFrom = $a ? [$a] : ($s ? array_filter($db['allies'], fn($x) => in_array($x['id'], $s['allies'], true)) : []);
     out(['ok' => true, 'view' => $v, 'label' => $a['name'] ?? ($s['name'] ?? ($isInt ? 'Potenttial Group' : '')), 'rows' => scope($db, $v),
-      'team' => array_map('public_seller', array_values($team)), 'utms' => array_values(array_map(fn($u) => array_intersect_key($u, array_flip(['campaign', 'medium', 'seller', 'link', 'client'])), $utms)),
+      'team' => array_map(fn($x) => ($sess['role'] === 'ally' && ($x['kind'] ?? 'empleado') === 'aliada') ? ['name' => $x['name'], 'kind' => '', 'company' => '', 'role' => '', 'email' => '', 'phone' => ''] : public_seller($x), array_values($team)), 'utms' => array_values(array_map(fn($u) => array_intersect_key($u, array_flip(['campaign', 'medium', 'seller', 'link', 'client'])), $utms)),
       'forms' => array_values(array_map(fn($x) => ['name' => $x['name'], 'url' => $x['form']], array_filter($formsFrom, fn($x) => !empty($x['form'])))),
       'leads' => array_values(array_map(fn($l) => lead_public($l, $db), array_slice(array_values(array_filter($db['leads'] ?? [], fn($l) => $isInt ? ($l['ally'] === PG_ID) : ($a ? ($l['ally'] === $a['id'] && ($sess['role'] !== 'ally' || $l['ok'])) : ($s ? (($l['byId'] ?? '') === $s['id']) : true)))), 0, 50))),
       'fx' => (float)$db['settings']['fx'], 'sync' => (int)$db['cache']['at'], 'error' => $sess['role'] === 'admin' ? $db['cache']['error'] : '']);
