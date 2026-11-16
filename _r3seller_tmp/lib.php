@@ -165,7 +165,7 @@ function scope(array $db, array $v): array {
   foreach ($db['allies'] as $a) $rows = array_merge($rows, rows_for_ally($db, $a));
   return $rows;
 }
-function public_seller(array $s): array { return ['name' => $s['name'], 'role' => $s['role'] ?? '', 'email' => $s['email'] ?? '', 'phone' => $s['phone'] ?? '']; }
+function public_seller(array $s): array { return ['name' => $s['name'], 'kind' => $s['kind'] ?? 'empleado', 'company' => ($s['kind'] ?? 'empleado') === 'aliada' ? ($s['company'] ?? '') : 'Potenttial Group', 'role' => $s['role'] ?? '', 'email' => $s['email'] ?? '', 'phone' => $s['phone'] ?? '']; }
 
 /* ---------- correo (SMTP SSL; Google Workspace con contraseña de aplicación) ---------- */
 function smtp_send(array $settings, array $to, string $subject, string $html): array {

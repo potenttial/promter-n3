@@ -188,12 +188,15 @@ switch ($action) {
     $x = (array)($in['seller'] ?? []); $id = (string)($x['id'] ?? ''); $email = strtolower(trim((string)($x['email'] ?? '')));
     if (trim((string)($x['name'] ?? '')) === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) fail('Nombre y email válido son obligatorios');
     $pass = trim((string)($in['pass'] ?? ''));
+    $kind = ($x['kind'] ?? '') === 'aliada' ? 'aliada' : 'empleado'; $company = trim((string)($x['company'] ?? ''));
+    if ($kind === 'empleado' && !str_ends_with($email, '@potenttial.com')) fail('Un empleado debe usar su correo @potenttial.com');
+    if ($kind === 'aliada' && $company === '') fail('Escribe el nombre de la empresa aliada');
     if ($pass !== '' && $email === $db['admin']['email']) fail('Ese email ya es el acceso de administrador; deja la contraseña vacía');
     foreach ($db['sellers'] as $o) if ($o['id'] !== $id && strtolower($o['email']) === $email) fail('Ese email ya está registrado');
     $idx = null; foreach ($db['sellers'] as $i => $o) if ($o['id'] === $id) $idx = $i;
     $base = $idx !== null ? $db['sellers'][$idx] : ['id' => 's' . bin2hex(random_bytes(4)), 'hash' => ''];
     $ids = array_column($db['allies'], 'id');
-    $s = array_merge($base, ['name' => trim($x['name']), 'role' => trim((string)($x['role'] ?? '')), 'email' => $email, 'phone' => trim((string)($x['phone'] ?? '')),
+    $s = array_merge($base, ['name' => trim($x['name']), 'kind' => $kind, 'company' => $kind === 'aliada' ? $company : 'Potenttial Group', 'role' => trim((string)($x['role'] ?? '')), 'email' => $email, 'phone' => trim((string)($x['phone'] ?? '')),
       'allies' => array_values(array_intersect((array)($x['allies'] ?? []), $ids))]);
     if ($pass !== '') $s['hash'] = password_hash($pass, PASSWORD_DEFAULT);
     if ($idx === null) $db['sellers'][] = $s; else $db['sellers'][$idx] = $s;

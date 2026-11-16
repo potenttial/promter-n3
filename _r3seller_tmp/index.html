@@ -474,6 +474,9 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
     <div class="modal-head"><h2 id="msT">Nuevo vendedor</h2><button class="btn ghost sm" type="button" data-close>Cerrar</button></div>
     <div class="form2">
       <div class="field-row"><label class="req" for="vName">Nombre (igual que en la columna “Vendedor”)</label><input type="text" id="vName"></div>
+      <fieldset class="full" style="border:1px solid var(--edge);border-radius:12px;padding:10px 14px"><legend class="lbl">Tipo de vendedor</legend>
+        <div class="opts2"><label><input type="radio" name="vKind" value="empleado" checked> Empleado Potenttial (correo @potenttial.com)</label><label><input type="radio" name="vKind" value="aliada"> Empresa aliada</label></div></fieldset>
+      <div class="field-row" id="vCompanyRow" hidden><label class="req" for="vCompany">Empresa aliada</label><input type="text" id="vCompany" placeholder="Nombre de la empresa"></div>
       <div class="field-row"><label for="vRole">Puesto</label><input type="text" id="vRole" placeholder="Ejecutivo comercial"></div>
       <div class="field-row"><label class="req" for="vEmail">Email</label><input type="email" id="vEmail"></div>
       <div class="field-row"><label for="vPhone">WhatsApp</label><input type="text" id="vPhone" placeholder="+52 …"></div>
@@ -601,7 +604,7 @@ function draw(){const isAlly=view.type==='ally',isSel=view.type==='seller';
   $('#next').innerHTML=S.open.slice(0,5).map(x=>`<div><strong>${esc(x.brand)}</strong><span class="chip" style="--c:${stColor(x.status)}"><i></i>${esc(stName(x.status))}</span><p>${esc(x.next||'—')} · ${money(x.val)}</p></div>`).join('')||`<div class="empty">${t('noData')}</div>`;
   const maxC=Math.max(1,...S.cat.map(c=>c[1]));
   $('#cats').innerHTML=S.cat.map(([c,v])=>`<div class="hb"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${v/maxC*100}%"></div></div><b>${money(v)}</b></div>`).join('')||`<div class="empty">${t('noData')}</div>`;
-  $('#team').innerHTML=D.team.map(s=>{const mine=L.filter(x=>norm(x.seller)===norm(s.name));return `<div><span class="av">${esc(s.name.split(' ').map(w=>w[0]).slice(0,2).join(''))}</span><div><strong>${esc(s.name)}</strong><small>${esc(s.role||'')}${s.email?' · '+esc(s.email):''}${s.phone?' · '+esc(s.phone):''}</small></div><b>${mine.length} · ${money(mine.reduce((q,x)=>q+x.val,0))}</b></div>`}).join('')||`<div class="empty">${t('noTeam')}</div>`;
+  $('#team').innerHTML=D.team.map(s=>{const mine=L.filter(x=>norm(x.seller)===norm(s.name));return `<div><span class="av">${esc(s.name.split(' ').map(w=>w[0]).slice(0,2).join(''))}</span><div><strong>${esc(s.name)}</strong><small>${esc(s.company||'Potenttial Group')}${s.role?' · '+esc(s.role):''}${s.email?' · '+esc(s.email):''}${s.phone?' · '+esc(s.phone):''}</small></div><b>${mine.length} · ${money(mine.reduce((q,x)=>q+x.val,0))}</b></div>`}).join('')||`<div class="empty">${t('noTeam')}</div>`;
   $('#trafSub').textContent=t('trafSub');
   $('#traf').innerHTML=D.utms.map(u=>`<div class="utm"><div class="row" style="justify-content:space-between"><strong>${esc(u.campaign)}</strong><span class="chip">${esc(u.medium)}${u.seller?' · '+esc(u.seller):''}</span></div><code>${esc(u.link)}</code></div>`).join('')||`<div class="empty">${t('noTraf')}</div>`;
   $('#stFilter').innerHTML=[`<button type="button" data-st="all" aria-pressed="${stF==='all'}">${t('all')}</button>`].concat(STAGES.map(s=>`<button type="button" data-st="${s.k}" aria-pressed="${stF===s.k}">${esc(stName(s.k))}</button>`)).join('');
@@ -677,19 +680,24 @@ $('#delAlly').onclick=async()=>{if(!editing)return;const b=$('#delAlly');if(b.da
 let editS=null;
 function renderSellers(){$('#sellerList').innerHTML=ST.sellers.map(s=>`<div class="ally">
   <div><strong>${esc(s.name)}</strong><small>${esc(s.role||'')} · ${esc(s.email)}${s.phone?' · '+esc(s.phone):''}</small><small>${s.hasPass?'Con acceso (entra con su email)':'Sin acceso'}</small></div>
-  <div style="display:flex;gap:6px;flex-wrap:wrap">${s.allies.map(id=>ST.allies.find(a=>a.id===id)).filter(Boolean).map(a=>`<span class="chip">Visible para ${esc(a.name)}</span>`).join('')||'<span class="chip off">Sin aliados</span>'}</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="chip ${(s.kind||'empleado')==='empleado'?'good':''}">${(s.kind||'empleado')==='empleado'?'Empleado Potenttial':'Empresa aliada · '+esc(s.company||'')}</span>${s.allies.map(id=>ST.allies.find(a=>a.id===id)).filter(Boolean).map(a=>`<span class="chip">Visible para ${esc(a.name)}</span>`).join('')||'<span class="chip off">Sin aliados</span>'}</div>
   <div class="act"><button class="btn ghost sm" type="button" data-sv="${s.id}">Ver dashboard</button><button class="btn ghost sm" type="button" data-sed="${s.id}">Editar</button></div></div>`).join('')||'<div class="empty">Aún no hay vendedores.</div>';
   $$('[data-sed]').forEach(b=>b.onclick=()=>openSeller(ST.sellers.find(s=>s.id===b.dataset.sed)));
   $$('[data-sv]').forEach(b=>b.onclick=()=>{view={type:'seller',id:b.dataset.sv};renderViewAs();roleTag();go('dash')})}
 function openSeller(s){editS=s||null;$('#msT').textContent=s?`Editar · ${s.name}`:'Nuevo vendedor';$('#vErr').textContent='';$('#delSeller').hidden=!s;
   const v=s||{name:'',role:'',email:'',phone:'',allies:ST.allies.map(a=>a.id)};
-  $('#vName').value=v.name;$('#vRole').value=v.role;$('#vEmail').value=v.email;$('#vPhone').value=v.phone;
+  const kind=v.kind||(v.email&&!/@potenttial\.com$/i.test(v.email)?'aliada':'empleado');$$('input[name=vKind]').forEach(r=>r.checked=r.value===kind);$('#vCompany').value=v.kind==='aliada'?(v.company||''):'';$('#vCompanyRow').hidden=kind!=='aliada';$('#vName').value=v.name;$('#vRole').value=v.role;$('#vEmail').value=v.email;$('#vPhone').value=v.phone;
   $('#vPass').value=s&&s.hasPass?'':genPass();$('#vPassL').textContent=s&&s.hasPass?'Nueva contraseña (vacío = no cambiar)':'Contraseña (entra con su email; vacío = sin acceso)';$('#vSend').checked=!s||!s.hasPass;
   $('#vAllies').innerHTML=ST.allies.map(a=>`<label class="sw"><input type="checkbox" value="${a.id}" ${v.allies.includes(a.id)?'checked':''}><span class="k"></span>${esc(a.name)}</label>`).join('');
   $('#mSeller').hidden=false;$('#vName').focus()}
-$('#newSeller').onclick=()=>openSeller();$('#vGen').onclick=()=>$('#vPass').value=genPass();
+$('#newSeller').onclick=()=>openSeller();
+$$('input[name=vKind]').forEach(r=>r.onchange=()=>{$('#vCompanyRow').hidden=r.value!=='aliada'||!r.checked;if(r.checked&&r.value==='empleado')$('#vCompanyRow').hidden=true});
+$('#vEmail').oninput=e=>{if(editS)return;const k=/@potenttial\.com$/i.test(e.target.value.trim())?'empleado':(e.target.value.includes('@')?'aliada':null);if(k){$$('input[name=vKind]').forEach(r=>r.checked=r.value===k);$('#vCompanyRow').hidden=k!=='aliada'}};$('#vGen').onclick=()=>$('#vPass').value=genPass();
 $('#sellerForm').onsubmit=async e=>{e.preventDefault();$('#vErr').textContent='';
-  const seller={id:editS?.id||'',name:$('#vName').value,role:$('#vRole').value,email:$('#vEmail').value,phone:$('#vPhone').value,allies:[...$$('#vAllies input:checked')].map(i=>i.value)};
+  const kindV=($('input[name=vKind]:checked')||{}).value||'empleado';
+  if(kindV==='empleado'&&!/@potenttial\.com$/i.test($('#vEmail').value.trim())){$('#vErr').textContent='Un empleado debe usar su correo @potenttial.com';return}
+  if(kindV==='aliada'&&!$('#vCompany').value.trim()){$('#vErr').textContent='Escribe el nombre de la empresa aliada';return}
+  const seller={id:editS?.id||'',kind:kindV,company:$('#vCompany').value.trim(),name:$('#vName').value,role:$('#vRole').value,email:$('#vEmail').value,phone:$('#vPhone').value,allies:[...$$('#vAllies input:checked')].map(i=>i.value)};
   try{const r=await api('saveSeller',{seller,pass:$('#vPass').value,send:$('#vSend').checked});$('#mSeller').hidden=true;await loadState();views=(await api('views')).views;renderViewAs();renderSellers();mailToast(r,'Vendedor guardado')}catch(err){$('#vErr').textContent=err.message}};
 $('#delSeller').onclick=async()=>{if(!editS)return;const b=$('#delSeller');if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Toca otra vez para eliminar';return}
   b.dataset.sure='';b.textContent='Eliminar vendedor';await api('delSeller',{id:editS.id});$('#mSeller').hidden=true;await loadState();views=(await api('views')).views;renderViewAs();renderSellers();toast('Vendedor eliminado')};
