@@ -118,14 +118,26 @@ function stage_of(string $v): string {
 }
 function num($v): float { $n = preg_replace('/[^0-9.\-]/', '', (string)$v); return is_numeric($n) ? (float)$n : 0.0; }
 function rows_for_ally(array $db, array $a): array {
-  $m = (array)$db['settings']['map']; if (empty($m['ally'])) return [];
+  $m = (array)$db['settings']['map'];
   $g = fn($r, $k) => !empty($m[$k]) ? (string)($r[$m[$k]] ?? '') : '';
   $out = [];
-  foreach ($db['cache']['rows'] as $r) {
+  foreach (empty($m['ally']) ? [] : $db['cache']['rows'] as $r) {
     if (norm($g($r, 'ally')) !== norm($a['code'])) continue;
     $out[] = ['ally' => $a['name'], 'brand' => $g($r, 'brand'), 'category' => $g($r, 'category') ?: '—', 'contact' => $g($r, 'contact'),
       'status' => stage_of($g($r, 'status')), 'next' => $g($r, 'next'), 'amount' => num($g($r, 'amount')),
       'cur' => preg_match('/mxn|peso|\bmn\b/i', $g($r, 'currency')) ? 'MXN' : 'USD', 'seller' => $g($r, 'seller'), 'notes' => $g($r, 'notes')];
+  }
+  // Leads registrados desde R3seller entran al pipeline como "Interesado" (si la marca no está ya en el Sheet)
+  $have = array_flip(array_map(fn($r) => norm($r['brand']), $out));
+  foreach ($db['leads'] ?? [] as $l) {
+    if (($l['ally'] ?? '') !== $a['id'] || empty($l['ok'])) continue;
+    $pick = function (string $re, string $not = '') use ($l) { foreach ((array)$l['answers'] as $k => $v) { $n = norm($k); if (preg_match($re, $n) && ($not === '' || !preg_match($not, $n))) return (string)$v; } return ''; };
+    $brand = $pick('/company|empresa|marca|compan|organiza|cuenta/', '/url|web|sitio/');
+    if ($brand === '' || isset($have[norm($brand)])) continue;
+    $have[norm($brand)] = 1;
+    $out[] = ['ally' => $a['name'], 'brand' => $brand, 'category' => $pick('/industr|categor|sector|giro/') ?: '—', 'contact' => $pick('/full name|nombre|name|contact/', '/compan|empresa/'),
+      'status' => 'Interesado', 'next' => 'Registrado en el formulario del aliado · ' . substr((string)$l['t'], 0, 10), 'amount' => 0.0, 'cur' => 'USD',
+      'seller' => (string)($l['by'] ?? ''), 'notes' => $pick('/detail|nota|coment|additional/'), 'src' => 'lead'];
   }
   return $out;
 }
