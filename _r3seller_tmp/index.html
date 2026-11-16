@@ -70,6 +70,8 @@ h1,h2,h3{margin:0;letter-spacing:-.015em;text-wrap:balance}
 @media(max-width:480px){.qrbox{grid-template-columns:1fr}}
 .qrimg{width:150px;height:150px;background:#fff;border-radius:12px;padding:8px;border:1px solid var(--edge)}
 .qrimg svg{width:100%;height:100%;display:block}
+.lead-i{padding:10px 0;border-bottom:1px solid rgb(var(--t) / .08)}.lead-i:last-child{border-bottom:0}.lead-i strong{display:block;font-size:14px}.lead-i small{display:block;color:var(--fg-3);font-size:12.5px}
+.opts2{display:flex;flex-wrap:wrap;gap:8px 14px;padding:4px 0}.opts2 label{display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--fg)}.opts2 input{width:18px;height:18px;accent-color:#e7000b}
 .out{padding:12px;border-radius:12px;background:var(--well);border:1px solid var(--edge);overflow-wrap:anywhere;font-size:13.5px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px 16px}
 .top-l,.top-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
@@ -273,6 +275,7 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
 
   <nav class="glass tabs" role="tablist" id="tabs">
     <button class="tab" role="tab" data-tab="dash" aria-selected="true" data-i="tDash">Dashboard</button>
+    <button class="tab reg" role="tab" data-tab="lead" aria-selected="false" data-i="tLead">Registrar lead</button>
     <button class="tab adm" role="tab" data-tab="allies" aria-selected="false">Aliados</button>
     <button class="tab adm" role="tab" data-tab="sellers" aria-selected="false">Vendedores</button>
     <button class="tab adm" role="tab" data-tab="profile" aria-selected="false">Mi perfil · UTM</button>
@@ -306,12 +309,29 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
       <div class="glass card"><h3 data-i="catTitle">Monto por categoría</h3><p class="sub" data-i="catSub">Dónde está el valor del pipeline.</p><div id="cats"></div></div>
       <div class="glass card"><h3 data-i="teamTitle">Equipo Potenttial Group</h3><p class="sub" data-i="teamSub">Vendedores que trabajan tus oportunidades.</p><div class="team" id="team"></div></div>
     </div>
+    <div class="glass card" style="margin-top:14px"><h3 data-i="leadsTitle">Leads registrados por Potenttial Group</h3><p class="sub" data-i="leadsSub">Prospectos que te registramos en tu formulario.</p><div class="tw" id="dLeads"></div></div>
     <div class="glass card" style="margin-top:14px" id="trafCard"><h3 data-i="trafTitle">Tráfico enviado por Potenttial Group</h3>
       <p class="sub" id="trafSub"></p><div id="traf"></div></div>
     <div class="glass card" style="margin-top:14px">
       <h3 data-i="tblTitle">Oportunidades</h3><p class="sub" data-i="tblSub">Solo se muestran las oportunidades de este aliado.</p>
       <div class="tools"><input type="search" id="q" data-iph="search" placeholder="Buscar marca, contacto o notas…"><div class="seg" id="stFilter" role="group"></div></div>
       <div class="tw"><table><thead><tr><th data-i="cBrand">Marca</th><th data-i="cCat">Categoría</th><th data-i="cContact">Nombre contacto</th><th data-i="cStatus">Status</th><th data-i="cNext">Next step</th><th id="thSeller">Vendedor</th><th class="num" data-i="cAmount">Monto</th><th data-i="cNotes">Notas</th></tr></thead><tbody id="tbody"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- REGISTRAR LEAD -->
+  <section data-view="lead" hidden>
+    <div class="bar"><div><h1>Registrar lead</h1><p>Se envía directo al formulario de registro del aliado y queda en la bitácora.</p></div></div>
+    <div class="grid g2">
+      <div class="glass card">
+        <div class="row" style="margin-bottom:14px"><div class="field-row"><label for="lAlly">Aliado</label><select id="lAlly"></select></div>
+          <button class="btn ghost sm" type="button" id="lRefresh">Actualizar campos</button></div>
+        <p class="sub" id="lInfo"></p>
+        <form id="leadForm" novalidate><div class="form2" id="lFields"></div>
+          <div class="err" id="lErr" role="alert"></div>
+          <div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn ghost" type="reset" id="lClear">Limpiar</button><button class="btn" type="submit" id="lSend">Registrar en el formulario</button></div></form>
+      </div>
+      <div class="glass card"><h3>Mis registros</h3><p class="sub">Últimos leads enviados desde R3seller.</p><div id="lList"></div></div>
     </div>
   </section>
 
@@ -500,14 +520,14 @@ const I={es:{loginLead:'Dashboard de ventas para aliados comerciales de Potentti
   kOpp:'Oportunidades',kPipe:'Pipeline total',kPipeE:'Suma de todos los montos',kWon:'Monto en cierre',kAdv:'Avance a propuesta',kAdvE:'Llegan a Presentada o más',funnel:'Embudo por etapa',funnelSub:'Número de oportunidades y monto en cada paso.',
   nextTitle:'Próximos pasos',nextSub:'Oportunidades abiertas de mayor monto.',catTitle:'Monto por categoría',catSub:'Dónde está el valor del pipeline.',tblTitle:'Oportunidades',tblSub:'Solo se muestran las oportunidades de esta vista.',
   search:'Buscar marca, contacto o notas…',cBrand:'Marca',cCat:'Categoría',cContact:'Nombre contacto',cStatus:'Status',cNext:'Next step',cAmount:'Monto',cNotes:'Notas',cSeller:'Vendedor',cAllySeller:'Aliado · Vendedor',
-  teamTitle:'Equipo Potenttial Group',teamSub:'Vendedores que trabajan tus oportunidades.',trafTitle:'Tráfico enviado por Potenttial Group',trafSub:'Toda visita con utm_source=potenttial_group en tu analítica viene de Potenttial Group.',noTeam:'Aún no hay vendedores asignados.',noTraf:'Aún no hay ligas de referencia.',opps:'oportunidades',all:'Todas',
+  teamTitle:'Equipo Potenttial Group',teamSub:'Vendedores que trabajan tus oportunidades.',trafTitle:'Tráfico enviado por Potenttial Group',trafSub:'Toda visita con utm_source=potenttial_group en tu analítica viene de Potenttial Group.',noTeam:'Aún no hay vendedores asignados.',noTraf:'Aún no hay ligas de referencia.',opps:'oportunidades',all:'Todas',tLead:'Registrar lead',leadsTitle:'Leads registrados por Potenttial Group',leadsSub:'Prospectos registrados en tu formulario desde R3seller.',noLeads:'Aún no hay leads registrados.',
   dTitle:a=>`Dashboard de ventas · ${a}`,dSub:'Pipeline conjunto con Potenttial Group.',dSubS:'Tus oportunidades con los aliados asignados.',dSubA:'Vista consolidada de todos los aliados.',allP:'Todos los aliados',
   open:n=>`${n} abiertas`,closedN:n=>`${n} en cierre`,synced:d=>`Actualizado ${d}`,noData:'Aún no hay oportunidades en esta vista.',noRes:'Sin resultados con este filtro.',adm:'Administrador',ally:'Aliado',sel:'Vendedor',viewing:'viendo como',reg:'Registrar un lead'},
  en:{loginLead:'Sales dashboard for Potenttial Group commercial partners.',user:'Username or email',pass:'Password',enter:'Sign in',madeWith:'Built with N3 Labs technology · Potenttial Group',madeWith2:'Built with N3 Labs technology',light:'Light',dark:'Dark',logout:'Sign out',tDash:'Dashboard',
   kOpp:'Opportunities',kPipe:'Total pipeline',kPipeE:'Sum of all amounts',kWon:'Closed amount',kAdv:'Reached proposal',kAdvE:'At Presented stage or beyond',funnel:'Funnel by stage',funnelSub:'Opportunities and amount at each step.',
   nextTitle:'Next steps',nextSub:'Largest open opportunities.',catTitle:'Amount by category',catSub:'Where the pipeline value sits.',tblTitle:'Opportunities',tblSub:'Only opportunities in this view are shown.',
   search:'Search brand, contact or notes…',cBrand:'Brand',cCat:'Category',cContact:'Contact name',cStatus:'Status',cNext:'Next step',cAmount:'Amount',cNotes:'Notes',cSeller:'Seller',cAllySeller:'Partner · Seller',
-  teamTitle:'Potenttial Group team',teamSub:'Sellers working your opportunities.',trafTitle:'Traffic sent by Potenttial Group',trafSub:'Every visit with utm_source=potenttial_group in your analytics comes from Potenttial Group.',noTeam:'No sellers assigned yet.',noTraf:'No referral links yet.',opps:'opportunities',all:'All',
+  teamTitle:'Potenttial Group team',teamSub:'Sellers working your opportunities.',trafTitle:'Traffic sent by Potenttial Group',trafSub:'Every visit with utm_source=potenttial_group in your analytics comes from Potenttial Group.',noTeam:'No sellers assigned yet.',noTraf:'No referral links yet.',opps:'opportunities',all:'All',tLead:'Register lead',leadsTitle:'Leads registered by Potenttial Group',leadsSub:'Prospects registered in your form from R3seller.',noLeads:'No leads registered yet.',
   dTitle:a=>`Sales dashboard · ${a}`,dSub:'Joint pipeline with Potenttial Group.',dSubS:'Your opportunities with assigned partners.',dSubA:'Consolidated view across all partners.',allP:'All partners',
   open:n=>`${n} open`,closedN:n=>`${n} closed`,synced:d=>`Updated ${d}`,noData:'No opportunities in this view yet.',noRes:'No results for this filter.',adm:'Admin',ally:'Partner',sel:'Seller',viewing:'viewing as',reg:'Register a lead'}};
 let lang=LS.get('lang','es');const t=(k,...a)=>{const v=I[lang][k];return typeof v==='function'?v(...a):v};
@@ -533,7 +553,7 @@ $('#setupForm').onsubmit=async e=>{e.preventDefault();$('#suErr').textContent=''
 $('#logout').onclick=async()=>{try{await api('logout')}catch(e){}showGate();window.scrollTo(0,0)};
 async function start(m){me=m;if(m.role==='ally'&&m.lang){lang=m.lang;LS.set('lang',lang)}applyLang();
   $('#gate').hidden=true;$('#setup').hidden=true;$('#app').hidden=false;
-  const adm=m.role==='admin';$$('.adm').forEach(e=>e.hidden=!adm);$('#viewWrap').hidden=m.role==='ally';
+  const adm=m.role==='admin';$$('.adm').forEach(e=>e.hidden=!adm);$$('.reg').forEach(e=>e.hidden=m.role==='ally');$('#viewWrap').hidden=m.role==='ally';
   views=(await api('views')).views;view={type:views[0].type,id:views[0].id};
   if(adm)await loadState();
   renderViewAs();roleTag();go('dash')}
@@ -545,10 +565,10 @@ function renderViewAs(){if(me.role==='ally'){$('#viewAs').innerHTML='';return}
   const cur=view.type+':'+view.id;const groups={};views.forEach(v=>(groups[v.group]=groups[v.group]||[]).push(v));
   $('#viewAs').innerHTML=Object.entries(groups).map(([g,vs])=>{const o=vs.map(v=>`<option value="${v.type}:${v.id}" ${v.type+':'+v.id===cur?'selected':''}>${esc(v.label||v.type)}</option>`).join('');return g?`<optgroup label="${esc(g)}">${o}</optgroup>`:o}).join('')}
 $('#viewAs').onchange=e=>{const[type,id]=e.target.value.split(':');view={type,id:id||''};roleTag();go('dash')};
-function go(v){if(v!=='dash'&&me?.role!=='admin')v='dash';
+function go(v){if(v!=='dash'&&me?.role!=='admin'&&!(v==='lead'&&me?.role==='seller'))v='dash';
   $$('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===v));$$('[data-view]').forEach(s=>s.hidden=s.dataset.view!==v);
-  ({dash:renderDash,allies:renderAllies,sellers:renderSellers,profile:renderProfile,reports:renderReports,source:renderSource,settings:renderSettings})[v]()}
-$$('.tab').forEach(b=>b.onclick=async()=>{if(me.role==='admin'&&b.dataset.tab!=='dash'){try{await loadState()}catch(e){}}go(b.dataset.tab)});
+  ({dash:renderDash,lead:renderLead,allies:renderAllies,sellers:renderSellers,profile:renderProfile,reports:renderReports,source:renderSource,settings:renderSettings})[v]()}
+$$('.tab').forEach(b=>b.onclick=async()=>{if(me.role==='admin'&&!['dash','lead'].includes(b.dataset.tab)){try{await loadState()}catch(e){}}go(b.dataset.tab)});
 
 /* ---------- dashboard ---------- */
 const conv=(n,c)=>c===dispCur?n:(c==='USD'?n*D.fx:n/D.fx);
@@ -588,9 +608,41 @@ function draw(){const isAlly=view.type==='ally',isSel=view.type==='seller';
     +`<tr class="t"><td colspan="6">${V.length} ${t('opps')}</td><td class="num"><strong>${money(V.reduce((s,x)=>s+x.val,0))}</strong></td><td></td></tr>`
     :`<tr><td colspan="8"><div class="empty">${L.length?t('noRes'):t('noData')}</div></td></tr>`;
   $$('[data-cur]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.cur===dispCur));$('#fxLine').textContent=`1 USD = ${D.fx} MXN`;
+  const fmtD=s=>new Date(s).toLocaleString(lang==='en'?'en-US':'es-MX',{dateStyle:'medium',timeStyle:'short'});
+  $('#dLeads').innerHTML=(D.leads||[]).length?`<table style="min-width:560px"><thead><tr><th>${lang==='en'?'Date':'Fecha'}</th><th>Lead</th>${isAlly?'':`<th>${t('ally')}</th>`}<th>${t('sel')}</th></tr></thead><tbody>${D.leads.map(l=>`<tr><td>${fmtD(l.t)}</td><td>${esc(l.sum)}</td>${isAlly?'':`<td>${esc(l.ally)}</td>`}<td>${esc(l.by)}</td></tr>`).join('')}</tbody></table>`:`<div class="empty">${t('noLeads')}</div>`;
   $('#footRight').innerHTML=D.forms.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">${t('reg')} · ${esc(f.name)}</a>`).join(' · ')}
 $('#q').oninput=e=>{q=e.target.value;if(D)draw()};
 $$('[data-cur]').forEach(b=>b.onclick=()=>{dispCur=b.dataset.cur;LS.set('dcur',dispCur);if(D)draw()});
+
+/* ---------- registrar lead ---------- */
+let LA=[],SC=null;
+async function renderLead(){try{LA=(await api('leadAllies')).allies}catch(e){toast(e.message);return}
+  const withF=LA.filter(a=>a.hasForm);
+  $('#lAlly').innerHTML=withF.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('')||'<option value="">— Ningún aliado tiene formulario —</option>';
+  if(view.type==='ally'&&withF.some(a=>a.id===view.id))$('#lAlly').value=view.id;
+  loadForm(false);loadMyLeads()}
+async function loadForm(refresh){const id=$('#lAlly').value;$('#lFields').innerHTML='';$('#lErr').textContent='';SC=null;
+  if(!id){$('#lInfo').textContent='Agrega la liga del Google Form en Aliados → Editar.';$('#lSend').disabled=true;return}
+  $('#lInfo').textContent='Leyendo el formulario…';$('#lSend').disabled=true;
+  try{SC=(await api('formSchema',{id,refresh})).schema}catch(e){$('#lInfo').textContent='⚠ '+e.message;return}
+  $('#lInfo').textContent=`${SC.title} · ${SC.fields.length} campos · los marcados con * son obligatorios`;$('#lSend').disabled=false;
+  $('#lFields').innerHTML=SC.fields.map(f=>{const id='f_'+f.entry,lab=`<label class="${f.req?'req':''}" for="${id}">${esc(f.title)}</label>`,full=['textarea','checkbox','radio'].includes(f.type)||f.title.length>50?' full':'';
+    let inp;
+    if(f.type==='textarea')inp=`<textarea id="${id}" name="${f.entry}"></textarea>`;
+    else if(f.type==='select')inp=`<select id="${id}" name="${f.entry}"><option value="">— Elige —</option>${f.opts.map(o=>`<option>${esc(o)}</option>`).join('')}</select>`;
+    else if(f.type==='radio'||f.type==='checkbox')inp=`<div class="opts2" id="${id}">${f.opts.map(o=>`<label><input type="${f.type}" name="${f.entry}" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>`;
+    else{const ty=f.type==='date'?'date':f.type==='time'?'time':/mail/i.test(f.title)?'email':/url|web|sitio/i.test(f.title)?'url':'text';inp=`<input type="${ty}" id="${id}" name="${f.entry}">`}
+    return `<div class="field-row${full}">${lab}${f.help?`<small class="lbl">${esc(f.help)}</small>`:''}${inp}</div>`}).join('')}
+$('#lAlly').onchange=()=>loadForm(false);$('#lRefresh').onclick=()=>loadForm(true);
+$('#leadForm').onsubmit=async e=>{e.preventDefault();if(!SC)return;$('#lErr').textContent='';
+  const ans={};for(const f of SC.fields){if(f.type==='checkbox')ans[f.entry]=[...$$(`#lFields input[name="${f.entry}"]:checked`)].map(i=>i.value);
+    else if(f.type==='radio')ans[f.entry]=($(`#lFields input[name="${f.entry}"]:checked`)||{}).value||'';else ans[f.entry]=($(`#f_${f.entry}`)?.value||'').trim();
+    const v=ans[f.entry];if(f.req&&(!v||(Array.isArray(v)&&!v.length))){$('#lErr').textContent='Falta: '+f.title;return}}
+  const b=$('#lSend');if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='¿Enviar a '+$('#lAlly').selectedOptions[0].textContent+'? Toca otra vez';return}
+  b.dataset.sure='';b.textContent='Registrar en el formulario';b.disabled=true;
+  try{const r=await api('registerLead',{id:$('#lAlly').value,answers:ans});toast(r.sent?'Lead registrado ✓':'No se registró: '+r.msg);if(r.sent)$('#leadForm').reset();loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}};
+$('#lClear').onclick=()=>{$('#lSend').dataset.sure='';$('#lSend').textContent='Registrar en el formulario'};
+async function loadMyLeads(){try{const L=(await api('myLeads')).leads;$('#lList').innerHTML=L.length?L.map(l=>`<div class="lead-i"><strong>${esc(l.sum||'—')}</strong><small>${esc(l.ally)} · ${new Date(l.t).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'})} · ${esc(l.by)}</small><span class="chip ${l.ok?'good':''}" ${l.ok?'':'style="color:var(--crit)"'}>${esc(l.msg)}</span></div>`).join(''):'<div class="empty">Aún no registras leads.</div>'}catch(e){}}
 
 /* ---------- aliados ---------- */
 function genPass(){const c='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';crypto.getRandomValues(new Uint32Array(10)).forEach(x=>s+=c[x%c.length]);return s}

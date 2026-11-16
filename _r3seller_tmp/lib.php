@@ -237,3 +237,50 @@ function utm_html(array $a, array $u): array {
   return [($en ? 'Potenttial Group traffic is on its way · ' : 'Tráfico de Potenttial Group en camino · ') . $u['campaign'], shell($in, $en)];
 }
 function report_recipients(array $a): array { return array_values(array_filter(array_map('trim', explode(',', (string)(($a['report']['to'] ?? '') ?: ($a['email'] ?? '')))))); }
+
+/* ---------- Google Forms del aliado (registro de leads) ---------- */
+function http_req(string $url, ?string $post = null): array {
+  $c = curl_init($url);
+  $o = [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_TIMEOUT => 25, CURLOPT_USERAGENT => 'Mozilla/5.0 (R3seller)'];
+  if ($post !== null) { $o[CURLOPT_POST] = true; $o[CURLOPT_POSTFIELDS] = $post; $o[CURLOPT_HTTPHEADER] = ['Content-Type: application/x-www-form-urlencoded']; }
+  curl_setopt_array($c, $o);
+  $body = curl_exec($c); $code = (int)curl_getinfo($c, CURLINFO_HTTP_CODE); $final = (string)curl_getinfo($c, CURLINFO_EFFECTIVE_URL); curl_close($c);
+  return [$body === false ? '' : (string)$body, $code, $final];
+}
+function form_schema_from_html(string $html, string $finalUrl): ?array {
+  if (!preg_match('~FB_PUBLIC_LOAD_DATA_\s*=\s*(.*?);\s*</script>~s', $html, $m)) return null;
+  $d = json_decode($m[1], true); if (!is_array($d) || !isset($d[1][1]) || !is_array($d[1][1])) return null;
+  if (!preg_match('~/forms/d/e/([\w-]+)~', $finalUrl . ' ' . $html, $id)) return null;
+  $fields = []; $pages = 0;
+  foreach ($d[1][1] as $it) {
+    $type = (int)($it[3] ?? -1);
+    if ($type === 8) { $pages++; continue; }
+    if (empty($it[4]) || !is_array($it[4]) || $type === 7) continue; // sin campo o cuadrícula
+    $sub = $it[4][0];
+    $opts = array_values(array_filter(array_map(fn($o) => (string)($o[0] ?? ''), (array)($sub[1] ?? [])), fn($x) => $x !== ''));
+    $fields[] = ['entry' => (string)$sub[0], 'title' => trim((string)($it[1] ?? '')), 'help' => trim((string)($it[2] ?? '')),
+      'type' => [0 => 'text', 1 => 'textarea', 2 => 'radio', 3 => 'select', 4 => 'checkbox', 9 => 'date', 10 => 'time', 5 => 'radio'][$type] ?? 'text',
+      'opts' => $opts, 'req' => !empty($sub[2])];
+  }
+  return ['formId' => $id[1], 'title' => (string)($d[1][8] ?? $d[3] ?? 'Formulario'), 'pages' => $pages, 'fields' => $fields, 'at' => time()];
+}
+function form_schema(array $ally): array {
+  if (empty($ally['form'])) return [null, 'Este aliado no tiene formulario de registro'];
+  [$html, $code, $final] = http_req($ally['form']);
+  if ($code >= 400 || $html === '') return [null, "No se pudo abrir el formulario ($code)"];
+  $s = form_schema_from_html($html, $final);
+  return $s ? [$s, ''] : [null, 'No pude leer los campos del formulario (¿pide iniciar sesión en Google?)'];
+}
+function form_submit(array $schema, array $answers): array {
+  $parts = [];
+  foreach ($schema['fields'] as $f) {
+    $v = $answers[$f['entry']] ?? null; if ($v === null || $v === '' || $v === []) continue;
+    foreach ((array)$v as $one) $parts[] = 'entry.' . rawurlencode($f['entry']) . '=' . rawurlencode((string)$one);
+  }
+  $parts[] = 'fvv=1';
+  $parts[] = 'pageHistory=' . implode(',', range(0, (int)$schema['pages']));
+  [$body, $code] = http_req('https://docs.google.com/forms/d/e/' . $schema['formId'] . '/formResponse', implode('&', $parts));
+  if ($code === 200 && stripos($body, 'freebirdFormviewerViewResponseConfirmationMessage') !== false) return [true, 'Registrado en el formulario'];
+  if ($code === 200) return [true, 'Enviado al formulario (respuesta 200)'];
+  return [false, "El formulario respondió $code"];
+}
