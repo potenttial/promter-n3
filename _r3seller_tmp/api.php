@@ -123,6 +123,31 @@ switch ($action) {
     $db['leads'] = $db['leads'] ?? []; array_unshift($db['leads'], $lead); $db['leads'] = array_slice($db['leads'], 0, 3000);
     db_save($db); out(['ok' => true, 'sent' => $res[0], 'msg' => $res[1]]);
 
+  case 'utmState':
+    $mine = $sess['role'] === 'seller' ? find_by($db['sellers'], 'id', $sess['id']) : null;
+    $al = lead_allies($db, $sess);
+    $U = $mine ? array_values(array_filter($db['utms'], fn($u) => norm($u['seller']) === norm($mine['name']))) : $db['utms'];
+    out(['ok' => true, 'me' => $mine ? ['name' => $mine['name'], 'email' => $mine['email']] : ['name' => $db['admin']['name'], 'email' => $db['admin']['email']], 'seller' => (bool)$mine,
+      'allies' => array_map(fn($a) => ['id' => $a['id'], 'name' => $a['name']], $al), 'sellers' => array_map(fn($x) => ['id' => $x['id'], 'name' => $x['name']], $mine ? [$mine] : $db['sellers']), 'utms' => $U]);
+
+  case 'saveUtm':
+    $u = (array)($in['utm'] ?? []); $a = find_by(lead_allies($db, $sess), 'id', (string)($u['ally'] ?? ''));
+    if (!$a || !filter_var($u['link'] ?? '', FILTER_VALIDATE_URL)) fail('Liga o aliado inválido');
+    $mine = $sess['role'] === 'seller' ? find_by($db['sellers'], 'id', $sess['id']) : null;
+    $u = ['t' => (string)round(microtime(true) * 1000), 'ally' => $a['id'], 'link' => (string)$u['link'], 'campaign' => (string)($u['campaign'] ?? ''), 'medium' => (string)($u['medium'] ?? ''), 'seller' => $mine ? $mine['name'] : (string)($u['seller'] ?? '')];
+    $db['utms'][] = $u; $mail = null;
+    if (!empty($in['notify'])) { [$sj, $ht] = utm_html($a, $u); $to = report_recipients($a); $mail = smtp_send($db['settings'], $to, $sj, $ht); log_mail($db, 'UTM · ' . $a['name'], $to, $mail); }
+    db_save($db); out(['ok' => true, 'mail' => $mail]);
+
+  case 'notifyUtm': case 'delUtm':
+    $u = find_by($db['utms'], 't', (string)($in['t'] ?? '')); if (!$u) fail('No encontrada');
+    if ($sess['role'] === 'seller') { $mine = find_by($db['sellers'], 'id', $sess['id']); if (norm($u['seller']) !== norm($mine['name'] ?? '')) fail('Sin permiso', 403); }
+    elseif ($sess['role'] !== 'admin') fail('Sin permiso', 403);
+    if ($action === 'delUtm') { $db['utms'] = array_values(array_filter($db['utms'], fn($x) => $x['t'] !== $u['t'])); db_save($db); out(['ok' => true]); }
+    $a = find_by($db['allies'], 'id', $u['ally']); if (!$a) fail('Aliado no encontrado');
+    [$sj, $ht] = utm_html($a, $u); $to = report_recipients($a); $mail = smtp_send($db['settings'], $to, $sj, $ht); log_mail($db, 'UTM · ' . $a['name'], $to, $mail);
+    db_save($db); out(['ok' => true, 'mail' => $mail]);
+
   case 'myLeads':
     $L = $db['leads'] ?? [];
     if ($sess['role'] === 'seller') $L = array_filter($L, fn($l) => ($l['byId'] ?? '') === $sess['id']);
@@ -178,22 +203,6 @@ switch ($action) {
 
   case 'delSeller':
     $id = (string)($in['id'] ?? ''); $db['sellers'] = array_values(array_filter($db['sellers'], fn($s) => $s['id'] !== $id)); db_save($db); out(['ok' => true]);
-
-  case 'saveUtm':
-    $u = (array)($in['utm'] ?? []); $a = find_by($db['allies'], 'id', (string)($u['ally'] ?? ''));
-    if (!$a || !filter_var($u['link'] ?? '', FILTER_VALIDATE_URL)) fail('Liga o aliado inválido');
-    $u = ['t' => (string)round(microtime(true) * 1000), 'ally' => $a['id'], 'link' => (string)$u['link'], 'campaign' => (string)($u['campaign'] ?? ''), 'medium' => (string)($u['medium'] ?? ''), 'seller' => (string)($u['seller'] ?? '')];
-    $db['utms'][] = $u; $mail = null;
-    if (!empty($in['notify'])) { [$sj, $ht] = utm_html($a, $u); $to = report_recipients($a); $mail = smtp_send($db['settings'], $to, $sj, $ht); log_mail($db, 'UTM · ' . $a['name'], $to, $mail); }
-    db_save($db); out(['ok' => true, 'mail' => $mail]);
-
-  case 'notifyUtm':
-    $u = find_by($db['utms'], 't', (string)($in['t'] ?? '')); $a = $u ? find_by($db['allies'], 'id', $u['ally']) : null; if (!$a) fail('No encontrada');
-    [$sj, $ht] = utm_html($a, $u); $to = report_recipients($a); $mail = smtp_send($db['settings'], $to, $sj, $ht); log_mail($db, 'UTM · ' . $a['name'], $to, $mail);
-    db_save($db); out(['ok' => true, 'mail' => $mail]);
-
-  case 'delUtm':
-    $t = (string)($in['t'] ?? ''); $db['utms'] = array_values(array_filter($db['utms'], fn($u) => $u['t'] !== $t)); db_save($db); out(['ok' => true]);
 
   case 'saveReport':
     $id = (string)($in['id'] ?? ''); $r = (array)($in['report'] ?? []);

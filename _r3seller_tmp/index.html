@@ -72,6 +72,7 @@ h1,h2,h3{margin:0;letter-spacing:-.015em;text-wrap:balance}
 .qrimg svg{width:100%;height:100%;display:block}
 .lead-i{padding:10px 0;border-bottom:1px solid rgb(var(--t) / .08)}.lead-i:last-child{border-bottom:0}.lead-i strong{display:block;font-size:14px}.lead-i small{display:block;color:var(--fg-3);font-size:12.5px}
 .opts2{display:flex;flex-wrap:wrap;gap:8px 14px;padding:4px 0}.opts2 label{display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--fg)}.opts2 input{width:18px;height:18px;accent-color:#e7000b}
+.btn.dis{opacity:.45;pointer-events:none}
 .out{padding:12px;border-radius:12px;background:var(--well);border:1px solid var(--edge);overflow-wrap:anywhere;font-size:13.5px}
 .top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px 16px}
 .top-l,.top-r{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
@@ -278,7 +279,7 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
     <button class="tab reg" role="tab" data-tab="lead" aria-selected="false" data-i="tLead">Registrar lead</button>
     <button class="tab adm" role="tab" data-tab="allies" aria-selected="false">Aliados</button>
     <button class="tab adm" role="tab" data-tab="sellers" aria-selected="false">Vendedores</button>
-    <button class="tab adm" role="tab" data-tab="profile" aria-selected="false">Mi perfil · UTM</button>
+    <button class="tab reg" role="tab" data-tab="profile" aria-selected="false">Ligas UTM</button>
     <button class="tab adm" role="tab" data-tab="reports" aria-selected="false">Reportes semanales</button>
     <button class="tab adm" role="tab" data-tab="source" aria-selected="false">Fuente · Google Sheet</button>
     <button class="tab adm" role="tab" data-tab="settings" aria-selected="false">Ajustes</button>
@@ -351,7 +352,7 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
 
   <!-- PERFIL + UTM -->
   <section data-view="profile" hidden>
-    <div class="bar"><div><h1>Mi perfil</h1><p id="profLine"></p></div></div>
+    <div class="bar"><div><h1 id="profH">Mi perfil</h1><p id="profLine"></p></div></div>
     <div class="grid g2">
       <div class="glass card">
         <h3>Generador de ligas UTM</h3>
@@ -365,10 +366,13 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
         </div>
         <p class="lbl" style="margin:14px 0 6px">Liga resultante · <code>utm_source=potenttial_group</code> siempre</p>
         <div class="out" id="uOut">—</div>
-        <div class="qrbox"><div id="uQr" class="qrimg" aria-label="Código QR de la liga"></div>
+        <div class="row" style="margin-top:12px;align-items:center"><label class="sw"><input type="checkbox" id="uQrOn"><span class="k"></span> Generar también código QR (para eventos)</label></div>
+        <div class="qrbox" id="uQrBox" hidden><div id="uQr" class="qrimg" aria-label="Código QR de la liga"></div>
           <div><strong>Código QR de reseller</strong><p class="sub" style="margin:4px 0 10px">Para eventos: lleva al URL del aliado con tus UTM, así su Google Analytics atribuye cada escaneo a Potenttial Group. Tip: usa medio <code>qr</code> o <code>event</code>.</p>
           <div class="row"><button class="btn ghost sm" type="button" id="uQrPng">Descargar PNG</button><button class="btn ghost sm" type="button" id="uQrSvg">Descargar SVG</button></div></div></div>
-        <div class="row" style="margin-top:12px"><button class="btn ghost" type="button" id="uCopy">Copiar liga</button><button class="btn" type="button" id="uSave">Guardar y avisar al aliado</button></div>
+        <div class="field-row" style="margin-top:14px"><label for="uMsg">Mensaje para el cliente</label><textarea id="uMsg" rows="3"></textarea></div>
+        <div class="row" style="margin-top:10px"><button class="btn ghost" type="button" id="uCopy">Copiar liga</button><a class="btn ghost" id="uWa" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a><a class="btn ghost" id="uMail" href="#">Enviar por correo</a><button class="btn" type="button" id="uSave">Guardar y avisar al aliado</button></div>
+        <p class="lbl" style="margin:8px 0 0">Tip: para el cliente usa medio <code>whatsapp</code> o <code>email</code>; así el aliado distingue en Google Analytics de dónde llegó.</p>
       </div>
       <div class="glass card"><h3>Ligas registradas</h3><p class="sub">El aliado las ve en su dashboard y en su reporte semanal.</p><div id="utmList"></div></div>
     </div>
@@ -565,10 +569,10 @@ function renderViewAs(){if(me.role==='ally'){$('#viewAs').innerHTML='';return}
   const cur=view.type+':'+view.id;const groups={};views.forEach(v=>(groups[v.group]=groups[v.group]||[]).push(v));
   $('#viewAs').innerHTML=Object.entries(groups).map(([g,vs])=>{const o=vs.map(v=>`<option value="${v.type}:${v.id}" ${v.type+':'+v.id===cur?'selected':''}>${esc(v.label||v.type)}</option>`).join('');return g?`<optgroup label="${esc(g)}">${o}</optgroup>`:o}).join('')}
 $('#viewAs').onchange=e=>{const[type,id]=e.target.value.split(':');view={type,id:id||''};roleTag();go('dash')};
-function go(v){if(v!=='dash'&&me?.role!=='admin'&&!(v==='lead'&&me?.role==='seller'))v='dash';
+function go(v){if(v!=='dash'&&me?.role!=='admin'&&!(['lead','profile'].includes(v)&&me?.role==='seller'))v='dash';
   $$('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===v));$$('[data-view]').forEach(s=>s.hidden=s.dataset.view!==v);
   ({dash:renderDash,lead:renderLead,allies:renderAllies,sellers:renderSellers,profile:renderProfile,reports:renderReports,source:renderSource,settings:renderSettings})[v]()}
-$$('.tab').forEach(b=>b.onclick=async()=>{if(me.role==='admin'&&!['dash','lead'].includes(b.dataset.tab)){try{await loadState()}catch(e){}}go(b.dataset.tab)});
+$$('.tab').forEach(b=>b.onclick=async()=>{if(me.role==='admin'&&!['dash','lead','profile'].includes(b.dataset.tab)){try{await loadState()}catch(e){}}go(b.dataset.tab)});
 
 /* ---------- dashboard ---------- */
 const conv=(n,c)=>c===dispCur?n:(c==='USD'?n*D.fx:n/D.fx);
@@ -691,7 +695,7 @@ $('#delSeller').onclick=async()=>{if(!editS)return;const b=$('#delSeller');if(b.
   b.dataset.sure='';b.textContent='Eliminar vendedor';await api('delSeller',{id:editS.id});$('#mSeller').hidden=true;await loadState();views=(await api('views')).views;renderViewAs();renderSellers();toast('Vendedor eliminado')};
 
 /* ---------- perfil + UTM ---------- */
-function buildUtm(){const raw=$('#uUrl').value.trim();const a=ST.allies.find(x=>x.id===$('#uAlly').value);const sl=ST.sellers.find(x=>x.id===$('#uSeller').value);
+function buildUtm(){const raw=$('#uUrl').value.trim();const a=UT.allies.find(x=>x.id===$('#uAlly').value);const sl=UT.sellers.find(x=>x.id===$('#uSeller').value);
   if(!raw){$('#uOut').textContent='—';return null}
   let u;try{u=new URL(/^https?:\/\//i.test(raw)?raw:'https://'+raw)}catch(e){$('#uOut').textContent='La URL no es válida.';return null}
   ['utm_source','utm_medium','utm_campaign','utm_content'].forEach(k=>u.searchParams.delete(k));
@@ -699,21 +703,22 @@ function buildUtm(){const raw=$('#uUrl').value.trim();const a=ST.allies.find(x=>
   const camp=slug($('#uCamp').value)||('potenttial_'+slug(a?.name||'aliado'));u.searchParams.set('utm_campaign',camp);
   if(sl)u.searchParams.set('utm_content',slug(sl.name));
   $('#uOut').textContent=u.toString();return{ally:a?.id,link:u.toString(),campaign:camp,medium:$('#uMed').value,seller:sl?.name||''}}
-function renderProfile(){$('#profLine').textContent=`${ST.admin.name} · ${ST.admin.email}`;
-  $('#uAlly').innerHTML=ST.allies.map(a=>`<option value="${a.id}" ${view.type==='ally'&&a.id===view.id?'selected':''}>${esc(a.name)}</option>`).join('');
-  $('#uSeller').innerHTML='<option value="">— Sin vendedor —</option>'+ST.sellers.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
-  $('#uCamp').placeholder='potenttial_'+slug(ST.allies.find(a=>a.id===$('#uAlly').value)?.name||'');
-  ['#uUrl','#uAlly','#uSeller','#uMed','#uCamp'].forEach(s=>$(s).oninput=$(s).onchange=drawUtmQr);drawUtmQr();renderUtmList()}
-function renderUtmList(){$('#utmList').innerHTML=ST.utms.slice().reverse().map(u=>{const a=ST.allies.find(x=>x.id===u.ally);return `<div class="utm"><div class="row" style="justify-content:space-between"><strong>${esc(a?.name||'—')} · ${esc(u.campaign)}</strong><span class="chip">${esc(u.medium)}${u.seller?' · '+esc(u.seller):''}</span></div><code>${esc(u.link)}</code>
+let UT=null;
+async function renderProfile(){try{UT=await api('utmState')}catch(e){toast(e.message);return}$('#profH').textContent=UT.seller?'Mis ligas UTM':'Mi perfil';$('#profLine').textContent=`${UT.me.name} · ${UT.me.email}`;
+  $('#uAlly').innerHTML=UT.allies.map(a=>`<option value="${a.id}" ${view.type==='ally'&&a.id===view.id?'selected':''}>${esc(a.name)}</option>`).join('');
+  $('#uSeller').disabled=UT.seller;$('#uSeller').innerHTML=(UT.seller?'':'<option value="">— Sin vendedor —</option>')+UT.sellers.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  $('#uCamp').placeholder='potenttial_'+slug(UT.allies.find(a=>a.id===$('#uAlly').value)?.name||'');
+  ['#uUrl','#uAlly','#uSeller','#uMed','#uCamp','#uQrOn','#uMsg'].forEach(s=>$(s).oninput=$(s).onchange=drawUtmQr);drawUtmQr();renderUtmList()}
+function renderUtmList(){$('#utmList').innerHTML=UT.utms.slice().reverse().map(u=>{const a=UT.allies.find(x=>x.id===u.ally);return `<div class="utm"><div class="row" style="justify-content:space-between"><strong>${esc(a?.name||'—')} · ${esc(u.campaign)}</strong><span class="chip">${esc(u.medium)}${u.seller?' · '+esc(u.seller):''}</span></div><code>${esc(u.link)}</code>
   <div class="row"><button class="btn ghost sm" type="button" data-uq="${u.t}">QR</button><button class="btn ghost sm" type="button" data-uc="${u.t}">Copiar</button><button class="btn ghost sm" type="button" data-un="${u.t}">Avisar al aliado</button><button class="btn ghost sm" type="button" data-ud="${u.t}">Quitar</button></div></div>`}).join('')||'<div class="empty">Aún no hay ligas.</div>';
-  $$('[data-uq]').forEach(b=>b.onclick=()=>openQr(ST.utms.find(u=>u.t===b.dataset.uq)));
-  $$('[data-uc]').forEach(b=>b.onclick=()=>copy(ST.utms.find(u=>u.t===b.dataset.uc).link));
+  $$('[data-uq]').forEach(b=>b.onclick=()=>openQr(UT.utms.find(u=>u.t===b.dataset.uq)));
+  $$('[data-uc]').forEach(b=>b.onclick=()=>copy(UT.utms.find(u=>u.t===b.dataset.uc).link));
   $$('[data-un]').forEach(b=>b.onclick=async()=>{try{mailToast(await api('notifyUtm',{t:b.dataset.un}),'Aviso procesado')}catch(e){toast(e.message)}});
-  $$('[data-ud]').forEach(b=>b.onclick=async()=>{await api('delUtm',{t:b.dataset.ud});await loadState();renderUtmList()})}
+  $$('[data-ud]').forEach(b=>b.onclick=async()=>{await api('delUtm',{t:b.dataset.ud});UT=await api('utmState');renderUtmList()})}
 async function copy(s){try{await navigator.clipboard.writeText(s);toast('Liga copiada')}catch(e){toast('No se pudo copiar')}}
 $('#uCopy').onclick=()=>{const u=buildUtm();if(u)copy(u.link);else toast('Pega primero la URL de referencia')};
 $('#uSave').onclick=async()=>{const u=buildUtm();if(!u){toast('Pega primero la URL de referencia');return}
-  try{const r=await api('saveUtm',{utm:u,notify:true});await loadState();renderUtmList();mailToast(r,'Liga guardada')}catch(e){toast(e.message)}};
+  try{const r=await api('saveUtm',{utm:u,notify:true});UT=await api('utmState');renderUtmList();mailToast(r,'Liga guardada')}catch(e){toast(e.message)}};
 
 /* ---------- QR ---------- */
 function qrMake(text){const q=qrcode(0,'M');q.addData(unescape(encodeURIComponent(text)));q.make();return q}
@@ -729,10 +734,13 @@ function dl(href,name){const a=document.createElement('a');a.href=href;a.downloa
 function qrFiles(u,allyName){const base=`qr_${slug(allyName||'aliado')}_${slug(u.campaign)}${u.seller?'_'+slug(u.seller):''}`;
   return{png:()=>dl(qrPng(u.link,allyName||'',`Potenttial Group${u.seller?' · '+u.seller:''} · sales is hunting`),base+'.png'),
     svg:()=>dl(URL.createObjectURL(new Blob([qrSvg(u.link)],{type:'image/svg+xml'})),base+'.svg')}}
-function drawUtmQr(){const u=buildUtm();const a=ST.allies.find(x=>x.id===$('#uAlly').value);
+function shareUtm(u,a){const msg=($('#uMsg').value.trim()||`Te comparto información de ${a?.name||''}:`)+(u?' '+u.link:'');
+  $('#uWa').href=u?'https://wa.me/?text='+encodeURIComponent(msg):'#';$('#uMail').href=u?'mailto:?subject='+encodeURIComponent(a?.name||'Información')+'&body='+encodeURIComponent(msg):'#';
+  $('#uWa').classList.toggle('dis',!u);$('#uMail').classList.toggle('dis',!u)}
+function drawUtmQr(){const u=buildUtm();const a=UT.allies.find(x=>x.id===$('#uAlly').value);shareUtm(u,a);$('#uQrBox').hidden=!$('#uQrOn').checked;
   $('#uQr').innerHTML=u?qrSvg(u.link):'';$('#uQrPng').disabled=$('#uQrSvg').disabled=!u;
   if(u){const f=qrFiles(u,a?.name);$('#uQrPng').onclick=f.png;$('#uQrSvg').onclick=f.svg}}
-function openQr(u){const a=ST.allies.find(x=>x.id===u.ally);$('#mqS').textContent=`${a?.name||''} · ${u.campaign}${u.seller?' · '+u.seller:''}`;
+function openQr(u){const a=UT.allies.find(x=>x.id===u.ally);$('#mqS').textContent=`${a?.name||''} · ${u.campaign}${u.seller?' · '+u.seller:''}`;
   $('#mqImg').innerHTML=qrSvg(u.link);$('#mqL').textContent=u.link;const f=qrFiles(u,a?.name);$('#mqPng').onclick=f.png;$('#mqSvg').onclick=f.svg;$('#mqCopy').onclick=()=>copy(u.link);$('#mQr').hidden=false}
 
 /* ---------- reportes ---------- */
