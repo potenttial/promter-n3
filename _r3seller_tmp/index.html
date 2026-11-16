@@ -622,13 +622,32 @@ $('#q').oninput=e=>{q=e.target.value;if(D)draw()};
 $$('[data-cur]').forEach(b=>b.onclick=()=>{dispCur=b.dataset.cur;LS.set('dcur',dispCur);if(D)draw()});
 
 /* ---------- registrar lead ---------- */
-let LA=[],SC=null;
-async function renderLead(){try{LA=(await api('leadAllies')).allies}catch(e){toast(e.message);return}
+let LA=[],SC=null,CAT={},MEDIA=[],STG=[];
+async function renderLead(){try{const r=await api('leadAllies');LA=r.allies;CAT=r.catalog;MEDIA=r.media;STG=r.stages}catch(e){toast(e.message);return}
   const withF=LA.filter(a=>a.hasForm);
   $('#lAlly').innerHTML=withF.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('')||'<option value="">— Ningún aliado tiene formulario —</option>';
   if(view.type==='ally'&&withF.some(a=>a.id===view.id))$('#lAlly').value=view.id;
   loadForm(false);loadMyLeads()}
-async function loadForm(refresh){const id=$('#lAlly').value;$('#lFields').innerHTML='';$('#lErr').textContent='';SC=null;
+function renderInternal(){SC=null;$('#lRefresh').hidden=true;$('#lSend').disabled=false;
+  $('#lInfo').textContent='Venta de productos de Potenttial Group: entra directo a tu pipeline. Los marcados con * son obligatorios.';
+  const opt=(arr,ph)=>`<option value="">${ph}</option>`+arr.map(o=>`<option>${esc(o)}</option>`).join('');
+  $('#lFields').innerHTML=`<div class="field-row"><label class="req" for="p_brand">Empresa / marca</label><input type="text" id="p_brand"></div>
+   <div class="field-row"><label class="req" for="p_contact">Nombre del contacto</label><input type="text" id="p_contact"></div>
+   <div class="field-row"><label for="p_email">Email</label><input type="email" id="p_email"></div>
+   <div class="field-row"><label for="p_phone">Teléfono / WhatsApp</label><input type="text" id="p_phone"></div>
+   <div class="field-row"><label class="req" for="p_div">División</label><select id="p_div">${opt(Object.keys(CAT),'— Elige división —')}</select></div>
+   <div class="field-row" id="p_prodRow"><label class="req" for="p_prod">Producto</label><select id="p_prod"><option value="">— Primero elige división —</option></select></div>
+   <div class="field-row full" id="p_mediaRow" hidden><label>Medios de la pauta</label><div class="opts2">${MEDIA.map(m=>`<label><input type="checkbox" name="p_media" value="${esc(m)}"> ${esc(m)}</label>`).join('')}</div></div>
+   <div class="field-row"><label for="p_amount">Monto estimado</label><input type="text" id="p_amount" inputmode="decimal" placeholder="0"></div>
+   <div class="field-row"><label for="p_cur">Moneda</label><select id="p_cur"><option>MXN</option><option>USD</option></select></div>
+   <div class="field-row"><label for="p_status">Status</label><select id="p_status">${STG.map(x=>`<option>${esc(x)}</option>`).join('')}</select></div>
+   <div class="field-row"><label for="p_next">Next step</label><input type="text" id="p_next"></div>
+   <div class="field-row full"><label for="p_notes">Notas</label><textarea id="p_notes"></textarea></div>`;
+  $('#p_div').onchange=()=>{const d=$('#p_div').value,list=CAT[d]||[],row=$('#p_prodRow');
+    row.innerHTML=`<label class="req" for="p_prod">Producto</label>`+(list.length?`<select id="p_prod">${opt(list,'— Elige producto —')}</select>`:`<input type="text" id="p_prod" placeholder="Describe el producto o servicio">`);
+    $('#p_mediaRow').hidden=true;if($('#p_prod').tagName==='SELECT')$('#p_prod').onchange=()=>$('#p_mediaRow').hidden=$('#p_prod').value!=='Pauta en Medios'}}
+async function loadForm(refresh){const id=$('#lAlly').value;$('#lFields').innerHTML='';$('#lErr').textContent='';SC=null;$('#lRefresh').hidden=false;
+  if(id==='pg'){renderInternal();return}
   if(!id){$('#lInfo').textContent='Agrega la liga del Google Form en Aliados → Editar.';$('#lSend').disabled=true;return}
   $('#lInfo').textContent='Leyendo el formulario…';$('#lSend').disabled=true;
   try{SC=(await api('formSchema',{id,refresh})).schema}catch(e){$('#lInfo').textContent='⚠ '+e.message;return}
@@ -641,7 +660,12 @@ async function loadForm(refresh){const id=$('#lAlly').value;$('#lFields').innerH
     else{const ty=f.type==='date'?'date':f.type==='time'?'time':/mail/i.test(f.title)?'email':/url|web|sitio/i.test(f.title)?'url':'text';inp=`<input type="${ty}" id="${id}" name="${f.entry}">`}
     return `<div class="field-row${full}">${lab}${f.help?`<small class="lbl">${esc(f.help)}</small>`:''}${inp}</div>`}).join('')}
 $('#lAlly').onchange=()=>loadForm(false);$('#lRefresh').onclick=()=>loadForm(true);
-$('#leadForm').onsubmit=async e=>{e.preventDefault();if(!SC)return;$('#lErr').textContent='';
+$('#leadForm').onsubmit=async e=>{e.preventDefault();$('#lErr').textContent='';
+  if($('#lAlly').value==='pg'){const g=id=>($('#'+id)?.value||'').trim();
+    const lead={brand:g('p_brand'),contact:g('p_contact'),email:g('p_email'),phone:g('p_phone'),division:g('p_div'),product:g('p_prod'),media:[...$$('input[name=p_media]:checked')].map(i=>i.value),amount:g('p_amount'),cur:g('p_cur'),status:g('p_status'),next:g('p_next'),notes:g('p_notes')};
+    if(!lead.brand||!lead.contact||!lead.division||!lead.product){$('#lErr').textContent='Completa empresa, contacto, división y producto.';return}
+    const b=$('#lSend');b.disabled=true;try{await api('registerInternal',{lead});toast('Lead agregado al pipeline de Potenttial Group ✓');renderInternal();loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}return}
+  if(!SC)return;
   const ans={};for(const f of SC.fields){if(f.type==='checkbox')ans[f.entry]=[...$$(`#lFields input[name="${f.entry}"]:checked`)].map(i=>i.value);
     else if(f.type==='radio')ans[f.entry]=($(`#lFields input[name="${f.entry}"]:checked`)||{}).value||'';else ans[f.entry]=($(`#f_${f.entry}`)?.value||'').trim();
     const v=ans[f.entry];if(f.req&&(!v||(Array.isArray(v)&&!v.length))){$('#lErr').textContent='Falta: '+f.title;return}}
@@ -649,7 +673,8 @@ $('#leadForm').onsubmit=async e=>{e.preventDefault();if(!SC)return;$('#lErr').te
   b.dataset.sure='';b.textContent='Registrar en el formulario';b.disabled=true;
   try{const r=await api('registerLead',{id:$('#lAlly').value,answers:ans});toast(r.sent?'Lead registrado ✓':'No se registró: '+r.msg);if(r.sent)$('#leadForm').reset();loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}};
 $('#lClear').onclick=()=>{$('#lSend').dataset.sure='';$('#lSend').textContent='Registrar en el formulario'};
-async function loadMyLeads(){try{const L=(await api('myLeads')).leads;$('#lList').innerHTML=L.length?L.map(l=>`<div class="lead-i"><strong>${esc(l.sum||'—')}</strong><small>${esc(l.ally)} · ${new Date(l.t).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'})} · ${esc(l.by)}</small><span class="chip ${l.ok?'good':''}" ${l.ok?'':'style="color:var(--crit)"'}>${esc(l.msg)}</span></div>`).join(''):'<div class="empty">Aún no registras leads.</div>'}catch(e){}}
+async function loadMyLeads(){try{const L=(await api('myLeads')).leads;$('#lList').innerHTML=L.length?L.map(l=>`<div class="lead-i"><strong>${esc(l.sum||'—')}</strong><small>${esc(l.ally)} · ${new Date(l.t).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'})} · ${esc(l.by)}</small>${l.pg?`<div class="row" style="margin-top:6px;align-items:center"><select data-lt="${esc(l.t)}" style="min-height:36px;padding:4px 10px;width:auto">${STG.map(x=>`<option ${x===l.pg.status?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="lbl">${esc(l.pg.cur)} ${Number(l.pg.amount||0).toLocaleString('es-MX')}</span></div>`:`<span class="chip ${l.ok?'good':''}" ${l.ok?'':'style="color:var(--crit)"'}>${esc(l.msg)}</span>`}</div>`).join(''):'<div class="empty">Aún no registras leads.</div>';
+  $$('[data-lt]').forEach(sel=>sel.onchange=async()=>{try{await api('updateLead',{t:sel.dataset.lt,set:{status:sel.value}});toast('Status actualizado')}catch(e){toast(e.message)}})}catch(e){}}
 
 /* ---------- aliados ---------- */
 function genPass(){const c='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';crypto.getRandomValues(new Uint32Array(10)).forEach(x=>s+=c[x%c.length]);return s}

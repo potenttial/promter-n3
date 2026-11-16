@@ -143,9 +143,35 @@ function rows_for_ally(array $db, array $a): array {
 }
 
 /* ---------- permisos (el servidor decide qué filas recibe cada perfil) ---------- */
+/* ---------- Productos de Potenttial Group (pipeline propio) ---------- */
+const PG_ID = 'pg';
+const PG_CATALOG = [
+  'Neurona Digital' => ['Curso', 'Taller', 'Capacitación', 'Mentoría'],
+  'Space Talent' => ['Conferencia', 'Taller', 'Syllabus de evento'],
+  'MediaScience' => ['Campaña de Branding', 'Estrategia de Marketing', 'Pauta en Medios', 'Formatos (Prompter Ads)'],
+  'N3 Labs' => ['Estrategia GEO', 'G3olink', 'Desarrollo'],
+  'Banshee' => ['Publicación', 'Creación de libro', 'Otro'],
+  'Space Marketing' => [],
+  'Long3vity' => ['Mentoría', 'Seguros caninos', 'Seguros humanos', 'Consulta'],
+  'Otro' => [],
+];
+const PG_MEDIA = ['Google', 'Meta', 'ChatGPT', 'LinkedIn', 'TikTok', 'Programmatic'];
+function internal_rows(array $db, ?string $byId = null): array {
+  $out = [];
+  foreach ($db['leads'] ?? [] as $l) {
+    if (($l['ally'] ?? '') !== PG_ID || empty($l['pg'])) continue;
+    if ($byId !== null && ($l['byId'] ?? '') !== $byId) continue;
+    $p = $l['pg'];
+    $prod = trim(($p['product'] ?? '') . (!empty($p['media']) ? ' (' . implode(', ', $p['media']) . ')' : ''));
+    $out[] = ['ally' => 'Potenttial Group', 'brand' => $p['brand'], 'category' => $p['division'] . ($prod !== '' ? ' · ' . $prod : ''), 'contact' => $p['contact'],
+      'status' => in_array($p['status'] ?? '', STAGES, true) ? $p['status'] : 'Interesado', 'next' => $p['next'] ?? '', 'amount' => (float)($p['amount'] ?? 0),
+      'cur' => ($p['cur'] ?? 'MXN') === 'USD' ? 'USD' : 'MXN', 'seller' => (string)($l['by'] ?? ''), 'notes' => $p['notes'] ?? '', 'src' => 'pg', 'id' => $l['t']];
+  }
+  return $out;
+}
 function can_view(array $sess, array $db, array $v): bool {
   $role = $sess['role'] ?? '';
-  if ($role === 'admin') return in_array($v['type'], ['admin', 'ally', 'seller'], true);
+  if ($role === 'admin') return in_array($v['type'], ['admin', 'ally', 'seller', 'internal'], true);
   if ($role === 'ally') return $v['type'] === 'ally' && ($v['id'] ?? '') === $sess['id'];
   if ($role === 'seller') {
     $me = find_by($db['sellers'], 'id', $sess['id']); if (!$me) return false;
@@ -160,10 +186,11 @@ function scope(array $db, array $v): array {
   if ($v['type'] === 'seller') {
     $s = find_by($db['sellers'], 'id', $v['id']); if (!$s) return [];
     foreach ($db['allies'] as $a) if (in_array($a['id'], $s['allies'], true)) foreach (rows_for_ally($db, $a) as $r) if (norm($r['seller']) === norm($s['name'])) $rows[] = $r;
-    return $rows;
+    return array_merge($rows, internal_rows($db, $s['id']));
   }
+  if ($v['type'] === 'internal') return internal_rows($db);
   foreach ($db['allies'] as $a) $rows = array_merge($rows, rows_for_ally($db, $a));
-  return $rows;
+  return array_merge($rows, internal_rows($db));
 }
 function public_seller(array $s): array { return ['name' => $s['name'], 'kind' => $s['kind'] ?? 'empleado', 'company' => ($s['kind'] ?? 'empleado') === 'aliada' ? ($s['company'] ?? '') : 'Potenttial Group', 'role' => $s['role'] ?? '', 'email' => $s['email'] ?? '', 'phone' => $s['phone'] ?? '']; }
 
