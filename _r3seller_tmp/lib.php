@@ -125,7 +125,8 @@ function rows_for_ally(array $db, array $a): array {
     if (norm($g($r, 'ally')) !== norm($a['code'])) continue;
     $out[] = ['ally' => $a['name'], 'brand' => $g($r, 'brand'), 'category' => $g($r, 'category') ?: '—', 'contact' => $g($r, 'contact'),
       'status' => stage_of($g($r, 'status')), 'next' => $g($r, 'next'), 'amount' => num($g($r, 'amount')),
-      'cur' => preg_match('/mxn|peso|\bmn\b/i', $g($r, 'currency')) ? 'MXN' : 'USD', 'seller' => $g($r, 'seller'), 'notes' => $g($r, 'notes')];
+      'cur' => preg_match('/mxn|peso|\bmn\b/i', $g($r, 'currency')) ? 'MXN' : 'USD', 'seller' => $g($r, 'seller'), 'notes' => $g($r, 'notes'),
+      'src' => 'sheet', 'key' => 'sheet:' . $a['id'] . ':' . norm($g($r, 'brand')), 'allyId' => $a['id']];
   }
   // Leads registrados desde R3seller entran al pipeline como "Interesado" (si la marca no está ya en el Sheet)
   $have = array_flip(array_map(fn($r) => norm($r['brand']), $out));
@@ -137,9 +138,18 @@ function rows_for_ally(array $db, array $a): array {
     $have[norm($brand)] = 1;
     $out[] = ['ally' => $a['name'], 'brand' => $brand, 'category' => $pick('/industr|categor|sector|giro/') ?: '—', 'contact' => $pick('/full name|nombre|name|contact/', '/compan|empresa/'),
       'status' => 'Interesado', 'next' => 'Registrado en el formulario del aliado · ' . substr((string)$l['t'], 0, 10), 'amount' => 0.0, 'cur' => 'USD',
-      'seller' => (string)($l['by'] ?? ''), 'notes' => $pick('/detail|nota|coment|additional/'), 'src' => 'lead'];
+      'seller' => (string)($l['by'] ?? ''), 'notes' => $pick('/detail|nota|coment|additional/'), 'src' => 'lead', 'key' => 'lead:' . $l['t'], 'allyId' => $a['id']];
   }
-  return $out;
+  return apply_ov($db, $out);
+}
+/* Ajustes hechos desde el CRM (status, next step, monto) se aplican sobre cualquier fuente */
+function apply_ov(array $db, array $rows): array {
+  foreach ($rows as &$r) { $o = $db['crm'][$r['key'] ?? ''] ?? null; if (!$o) continue;
+    if (!empty($o['status']) && in_array($o['status'], STAGES, true)) $r['status'] = $o['status'];
+    if (isset($o['next']) && $o['next'] !== '') $r['next'] = $o['next'];
+    if (isset($o['amount']) && $o['amount'] !== '') { $r['amount'] = (float)$o['amount']; $r['cur'] = ($o['cur'] ?? $r['cur']) === 'MXN' ? 'MXN' : 'USD'; }
+  } unset($r);
+  return $rows;
 }
 
 /* ---------- permisos (el servidor decide qué filas recibe cada perfil) ---------- */
@@ -165,9 +175,10 @@ function internal_rows(array $db, ?string $byId = null): array {
     $prod = trim(($p['product'] ?? '') . (!empty($p['media']) ? ' (' . implode(', ', $p['media']) . ')' : ''));
     $out[] = ['ally' => 'Potenttial Group', 'brand' => $p['brand'], 'category' => $p['division'] . ($prod !== '' ? ' · ' . $prod : ''), 'contact' => $p['contact'],
       'status' => in_array($p['status'] ?? '', STAGES, true) ? $p['status'] : 'Interesado', 'next' => $p['next'] ?? '', 'amount' => (float)($p['amount'] ?? 0),
-      'cur' => ($p['cur'] ?? 'MXN') === 'USD' ? 'USD' : 'MXN', 'seller' => (string)($l['by'] ?? ''), 'notes' => $p['notes'] ?? '', 'src' => 'pg', 'id' => $l['t']];
+      'cur' => ($p['cur'] ?? 'MXN') === 'USD' ? 'USD' : 'MXN', 'seller' => (string)($l['by'] ?? ''), 'notes' => $p['notes'] ?? '', 'src' => 'pg', 'id' => $l['t'], 'key' => 'pg:' . $l['t'], 'allyId' => PG_ID,
+      'division' => $p['division'], 'product' => $prod, 'agency' => $p['agency'] ?? '', 'margin' => $p['margin'] ?? null];
   }
-  return $out;
+  return apply_ov($db, $out);
 }
 function can_view(array $sess, array $db, array $v): bool {
   $role = $sess['role'] ?? '';
@@ -322,4 +333,19 @@ function form_submit(array $schema, array $answers): array {
   if ($code === 200 && stripos($body, 'freebirdFormviewerViewResponseConfirmationMessage') !== false) return [true, 'Registrado en el formulario'];
   if ($code === 200) return [true, 'Enviado al formulario (respuesta 200)'];
   return [false, "El formulario respondió $code"];
+}
+
+/* ---------- CRM interno (solo admin) ---------- */
+function crm_rows(array $db): array {
+  $rows = scope($db, ['type' => 'admin', 'id' => '']);
+  $out = [];
+  foreach ($rows as $r) {
+    $o = $db['crm'][$r['key']] ?? [];
+    $a = ($r['allyId'] ?? '') !== PG_ID ? find_by($db['allies'], 'id', $r['allyId'] ?? '') : null;
+    $origin = ($r['src'] ?? '') === 'pg' ? ($r['division'] ?? 'Potenttial Group') : ($a['name'] ?? $r['ally']);
+    $product = ($o['product'] ?? '') !== '' ? $o['product'] : (($r['src'] ?? '') === 'pg' ? ($r['product'] ?? '') : ($a['name'] ?? ''));
+    $margin = isset($o['margin']) && $o['margin'] !== '' ? (float)$o['margin'] : (isset($r['margin']) && $r['margin'] !== null && $r['margin'] !== '' ? (float)$r['margin'] : (float)($a['commission'] ?? 0));
+    $out[] = $r + ['origin' => $origin, 'productX' => $product, 'agencyX' => ($o['agency'] ?? '') !== '' ? $o['agency'] : ($r['agency'] ?? ''), 'marginX' => $margin, 'edited' => !empty($o)];
+  }
+  return $out;
 }

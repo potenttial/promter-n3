@@ -105,7 +105,7 @@ switch ($action) {
     $email = $tr('email'); if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) fail('Revisa el email');
     $media = $prod === 'Pauta en Medios' ? array_values(array_intersect((array)($x['media'] ?? []), PG_MEDIA)) : [];
     $pg = ['brand' => $tr('brand'), 'contact' => $tr('contact'), 'email' => $email, 'phone' => $tr('phone'), 'division' => $div, 'product' => $prod, 'media' => $media,
-      'amount' => max(0, num($x['amount'] ?? 0)), 'cur' => $tr('cur') === 'USD' ? 'USD' : 'MXN', 'status' => in_array($tr('status'), STAGES, true) ? $tr('status') : 'Interesado', 'next' => $tr('next'), 'notes' => $tr('notes')];
+      'amount' => max(0, num($x['amount'] ?? 0)), 'cur' => $tr('cur') === 'USD' ? 'USD' : 'MXN', 'agency' => $tr('agency'), 'margin' => $tr('margin') === '' ? null : max(0, min(100, num($x['margin']))), 'status' => in_array($tr('status'), STAGES, true) ? $tr('status') : 'Interesado', 'next' => $tr('next'), 'notes' => $tr('notes')];
     $me = me_info($db, $sess);
     $lead = ['t' => date('c') . '-' . bin2hex(random_bytes(2)), 'ally' => PG_ID, 'by' => $me['name'] ?? '', 'byId' => $sess['id'] ?? 'admin', 'sum' => $pg['brand'] . ' · ' . $div . ' · ' . $prod,
       'answers' => ['Empresa' => $pg['brand'], 'Contacto' => $pg['contact'], 'División' => $div, 'Producto' => $prod], 'ok' => true, 'msg' => 'En el pipeline de Potenttial Group', 'pg' => $pg];
@@ -122,6 +122,22 @@ switch ($action) {
       $found = true;
     } unset($l);
     if (!$found) fail('No encontrado'); db_save($db); out(['ok' => true]);
+
+  case 'crm':
+    if ($sess['role'] !== 'admin') fail('Sin permiso', 403);
+    sync_sheet($db); db_save($db);
+    out(['ok' => true, 'rows' => crm_rows($db), 'fx' => (float)$db['settings']['fx'], 'stages' => STAGES, 'sync' => (int)$db['cache']['at']]);
+
+  case 'crmSave':
+    if ($sess['role'] !== 'admin') fail('Sin permiso', 403);
+    $key = (string)($in['key'] ?? ''); if ($key === '' || !preg_match('/^(sheet|lead|pg):/', $key)) fail('Registro inválido');
+    $u = (array)($in['set'] ?? []); $o = $db['crm'][$key] ?? [];
+    if (isset($u['status'])) $o['status'] = in_array($u['status'], STAGES, true) ? $u['status'] : '';
+    foreach (['next', 'agency', 'product'] as $k) if (isset($u[$k])) $o[$k] = trim((string)$u[$k]);
+    if (isset($u['amount'])) $o['amount'] = trim((string)$u['amount']) === '' ? '' : max(0, num($u['amount']));
+    if (isset($u['cur'])) $o['cur'] = $u['cur'] === 'MXN' ? 'MXN' : 'USD';
+    if (isset($u['margin'])) $o['margin'] = trim((string)$u['margin']) === '' ? '' : max(0, min(100, num($u['margin'])));
+    $db['crm'][$key] = $o; db_save($db); out(['ok' => true]);
 
   case 'formSchema':
     $a = find_by(lead_allies($db, $sess), 'id', (string)($in['id'] ?? '')); if (!$a) fail('Sin permiso para este aliado', 403);
@@ -203,7 +219,7 @@ switch ($action) {
     $idx = null; foreach ($db['allies'] as $i => $o) if ($o['id'] === $id) $idx = $i;
     $base = $idx !== null ? $db['allies'][$idx] : ['id' => 'a' . bin2hex(random_bytes(4)), 'hash' => '', 'report' => ['on' => false, 'day' => '1', 'hour' => '08:00', 'to' => '', 'last' => '']];
     $a = array_merge($base, ['name' => trim($x['name']), 'code' => trim($x['code']), 'contact' => trim((string)($x['contact'] ?? '')), 'email' => trim((string)($x['email'] ?? '')),
-      'user' => $user, 'lang' => ($x['lang'] ?? 'es') === 'en' ? 'en' : 'es', 'form' => trim((string)($x['form'] ?? ''))]);
+      'user' => $user, 'lang' => ($x['lang'] ?? 'es') === 'en' ? 'en' : 'es', 'form' => trim((string)($x['form'] ?? '')), 'commission' => max(0, min(100, num($x['commission'] ?? 0)))]);
     $pass = trim((string)($in['pass'] ?? '')); if ($pass !== '') $a['hash'] = password_hash($pass, PASSWORD_DEFAULT);
     if ($idx === null) { if (!$a['report']['to']) $a['report']['to'] = $a['email']; $db['allies'][] = $a; } else $db['allies'][$idx] = $a;
     $mail = null;
