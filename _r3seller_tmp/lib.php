@@ -5,8 +5,8 @@ date_default_timezone_set('America/Mexico_City');
 const DATA_DIR = __DIR__ . '/data';
 const DB_FILE = DATA_DIR . '/db.json';
 const APP_URL = 'https://r3seller.potenttial.com';
-const STAGES = ['Interesado', 'RFP', 'Presentada', 'Followup', 'Cierre'];
-const STAGES_EN = ['Interesado' => 'Interested', 'RFP' => 'RFP', 'Presentada' => 'Presented', 'Followup' => 'Follow-up', 'Cierre' => 'Closed'];
+const STAGES = ['Prospectado', 'Interesado', 'RFP', 'Presentada', 'Followup', 'Cierre'];
+const STAGES_EN = ['Prospectado' => 'Prospected', 'Interesado' => 'Interested', 'RFP' => 'RFP', 'Presentada' => 'Presented', 'Followup' => 'Follow-up', 'Cierre' => 'Closed'];
 
 function default_db(): array {
   return [
@@ -57,7 +57,7 @@ const COLS = [
   'category' => ['categ', 'category', 'industria', 'sector'], 'contact' => ['contacto', 'contact'],
   'status' => ['status', 'estatus', 'etapa', 'stage'], 'next' => ['next', 'siguiente', 'proximo'],
   'amount' => ['monto', 'amount', 'valor', 'importe'], 'currency' => ['moneda', 'currency', 'divisa'],
-  'seller' => ['vendedor', 'seller', 'ejecutivo', 'owner', 'responsable'], 'notes' => ['nota', 'notes', 'coment'],
+  'seller' => ['vendedor', 'seller', 'ejecutivo', 'owner', 'responsable'], 'notes' => ['nota', 'notes', 'coment'], 'country' => ['pais', 'country'],
 ];
 function sheet_csv_url(string $url, string $tab): ?string {
   if (!preg_match('~/spreadsheets/d/([\w-]+)~', $url, $m)) return null;
@@ -114,6 +114,7 @@ function stage_of(string $v): string {
   if (preg_match('/follow|seguim/', $n)) return 'Followup';
   if (preg_match('/present/', $n)) return 'Presentada';
   if (preg_match('/rfp|propuesta|cotiz/', $n)) return 'RFP';
+  if (preg_match('/prospect/', $n)) return 'Prospectado';
   return 'Interesado';
 }
 function num($v): float { $n = preg_replace('/[^0-9.\-]/', '', (string)$v); return is_numeric($n) ? (float)$n : 0.0; }
@@ -125,7 +126,7 @@ function rows_for_ally(array $db, array $a): array {
     if (norm($g($r, 'ally')) !== norm($a['code'])) continue;
     $out[] = ['ally' => $a['name'], 'brand' => $g($r, 'brand'), 'category' => $g($r, 'category') ?: '—', 'contact' => $g($r, 'contact'),
       'status' => stage_of($g($r, 'status')), 'next' => $g($r, 'next'), 'amount' => num($g($r, 'amount')),
-      'cur' => preg_match('/mxn|peso|\bmn\b/i', $g($r, 'currency')) ? 'MXN' : 'USD', 'seller' => $g($r, 'seller'), 'notes' => $g($r, 'notes'),
+      'cur' => preg_match('/mxn|peso|\bmn\b/i', $g($r, 'currency')) ? 'MXN' : 'USD', 'seller' => $g($r, 'seller'), 'notes' => $g($r, 'notes'), 'country' => $g($r, 'country'),
       'src' => 'sheet', 'key' => 'sheet:' . $a['id'] . ':' . norm($g($r, 'brand')), 'allyId' => $a['id']];
   }
   // Leads registrados desde R3seller entran al pipeline como "Interesado" (si la marca no está ya en el Sheet)
@@ -135,7 +136,7 @@ function rows_for_ally(array $db, array $a): array {
     if (!empty($l['pg'])) { $p = $l['pg']; if (isset($have[norm($p['brand'])])) continue; $have[norm($p['brand'])] = 1;
       $out[] = ['ally' => $a['name'], 'brand' => $p['brand'], 'category' => ($p['product'] ?? '') ?: '—', 'contact' => $p['contact'],
         'status' => in_array($p['status'] ?? '', STAGES, true) ? $p['status'] : 'Interesado', 'next' => $p['next'] ?? '', 'amount' => (float)($p['amount'] ?? 0),
-        'cur' => ($p['cur'] ?? 'MXN') === 'USD' ? 'USD' : 'MXN', 'seller' => (string)($l['by'] ?? ''), 'notes' => $p['notes'] ?? '', 'src' => 'lead', 'key' => 'lead:' . $l['t'], 'allyId' => $a['id'],
+        'cur' => ($p['cur'] ?? 'MXN') === 'USD' ? 'USD' : 'MXN', 'seller' => (string)($l['by'] ?? ''), 'notes' => $p['notes'] ?? '', 'src' => 'lead', 'key' => 'lead:' . $l['t'], 'allyId' => $a['id'], 'country' => $p['country'] ?? '',
         'product' => $p['product'] ?? '', 'agency' => $p['agency'] ?? '', 'margin' => $p['margin'] ?? null];
       continue; }
     $pick = function (string $re, string $not = '') use ($l) { foreach ((array)$l['answers'] as $k => $v) { $n = norm($k); if (preg_match($re, $n) && ($not === '' || !preg_match($not, $n))) return (string)$v; } return ''; };
@@ -144,7 +145,7 @@ function rows_for_ally(array $db, array $a): array {
     $have[norm($brand)] = 1;
     $out[] = ['ally' => $a['name'], 'brand' => $brand, 'category' => $pick('/industr|categor|sector|giro/') ?: '—', 'contact' => $pick('/full name|nombre|name|contact/', '/compan|empresa/'),
       'status' => 'Interesado', 'next' => 'Registrado en el formulario del aliado · ' . substr((string)$l['t'], 0, 10), 'amount' => 0.0, 'cur' => 'USD',
-      'seller' => (string)($l['by'] ?? ''), 'notes' => $pick('/detail|nota|coment|additional/'), 'src' => 'lead', 'key' => 'lead:' . $l['t'], 'allyId' => $a['id']];
+      'seller' => (string)($l['by'] ?? ''), 'notes' => $pick('/detail|nota|coment|additional/'), 'src' => 'lead', 'key' => 'lead:' . $l['t'], 'allyId' => $a['id'], 'country' => (string)($l['country'] ?? '')];
   }
   return apply_ov($db, $out);
 }
@@ -188,7 +189,7 @@ function internal_rows(array $db, ?string $byId = null): array {
     $prod = trim(($p['product'] ?? '') . (!empty($p['media']) ? ' (' . implode(', ', $p['media']) . ')' : ''));
     $out[] = ['ally' => 'Potenttial Group', 'brand' => $p['brand'], 'category' => $p['division'] . ($prod !== '' ? ' · ' . $prod : ''), 'contact' => $p['contact'],
       'status' => in_array($p['status'] ?? '', STAGES, true) ? $p['status'] : 'Interesado', 'next' => $p['next'] ?? '', 'amount' => (float)($p['amount'] ?? 0),
-      'cur' => ($p['cur'] ?? 'MXN') === 'USD' ? 'USD' : 'MXN', 'seller' => (string)($l['by'] ?? ''), 'notes' => $p['notes'] ?? '', 'src' => 'pg', 'id' => $l['t'], 'key' => 'pg:' . $l['t'], 'allyId' => PG_ID,
+      'cur' => ($p['cur'] ?? 'MXN') === 'USD' ? 'USD' : 'MXN', 'seller' => (string)($l['by'] ?? ''), 'notes' => $p['notes'] ?? '', 'src' => 'pg', 'id' => $l['t'], 'key' => 'pg:' . $l['t'], 'allyId' => PG_ID, 'country' => $p['country'] ?? '',
       'division' => $p['division'], 'product' => $prod, 'agency' => $p['agency'] ?? '', 'margin' => $p['margin'] ?? null];
   }
   return apply_ov($db, $out);

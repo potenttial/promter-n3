@@ -22,7 +22,7 @@
   --edge:rgba(0,0,0,.12);--edge-hi:rgba(0,0,0,.2);--shadow:0 16px 36px -26px rgba(0,0,0,.35);
   --fg:#111;--fg-2:#4A4A4A;--fg-3:#6E6E6E;
   --red:#D2322A;
-  --st1:#8A8F98;--st2:#2A78D6;--st3:#7A5AF8;--st4:#EB6834;--st5:#0E8058;
+  --st0:#B08D57;--st1:#8A8F98;--st2:#2A78D6;--st3:#7A5AF8;--st4:#EB6834;--st5:#0E8058;
   --good:#0E8058;--warn:#9A6200;--crit:#C22B24;
   --warnbg:#FFF7E6;--warnfg:#6F4700;--toastbg:#111;--toastfg:#fff;
   --font:"Helvetica Neue",Helvetica,"Nimbus Sans","Liberation Sans",Arial,sans-serif;
@@ -33,7 +33,7 @@
   --glass:rgba(255,255,255,.055);--glass-2:rgba(255,255,255,.12);--sheen1:rgba(255,255,255,.09);--sheen2:rgba(255,255,255,.015);
   --edge:rgba(255,255,255,.16);--edge-hi:rgba(255,255,255,.34);--shadow:0 18px 44px -22px rgba(0,0,0,.9);
   --fg:#fff;--fg-2:#C4C4C4;--fg-3:#9A9A9A;
-  --st1:#9AA0AA;--st2:#3987E5;--st3:#9B82FF;--st4:#D95926;--st5:#37C995;
+  --st0:#C9A46B;--st1:#9AA0AA;--st2:#3987E5;--st3:#9B82FF;--st4:#D95926;--st5:#37C995;
   --good:#37C995;--warn:#E9AE3A;--crit:#EE5A5A;
   --warnbg:rgba(233,174,58,.1);--warnfg:#FFE3A8;--toastbg:#fff;--toastfg:#000;
 }
@@ -346,7 +346,7 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
       <div class="tools"><input type="search" id="cQ" placeholder="Buscar marca, agencia, persona, producto…">
         <select id="cOrigin" style="width:auto;min-height:40px"></select><select id="cSeller" style="width:auto;min-height:40px"></select>
         <div class="seg" id="cStF" role="group"></div></div>
-      <div class="tw"><table style="min-width:1180px"><thead><tr><th>Marca</th><th>Agencia</th><th>Persona clave</th><th>Producto ofertado</th><th>Origen</th><th class="num">Monto propuesta</th><th>Status</th><th>Siguiente paso</th><th class="num">Ganancia %</th><th class="num">Ganancia</th><th>Vendedor</th><th></th></tr></thead><tbody id="cBody"></tbody></table></div>
+      <div class="tw"><table style="min-width:1180px"><thead><tr><th>Marca</th><th>Agencia</th><th>Persona clave</th><th>País</th><th>Producto ofertado</th><th>Origen</th><th class="num">Monto propuesta</th><th>Status</th><th>Siguiente paso</th><th class="num">Ganancia %</th><th class="num">Ganancia</th><th>Vendedor</th><th></th></tr></thead><tbody id="cBody"></tbody></table></div>
     </div>
   </section>
 
@@ -437,8 +437,8 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
       </div>
       <div class="glass card">
         <h3>Encabezados esperados</h3>
-        <p class="sub">La columna <code>Aliado</code> decide quién ve cada fila. Status acepta: Interesado, RFP, Presentada, Followup, Cierre.</p>
-        <p style="margin:0 0 12px;line-height:2"><code>Aliado</code> <code>Marca</code> <code>Categoría</code> <code>Nombre contacto</code> <code>Status</code> <code>Next step</code> <code>Monto</code> <code>Moneda</code> <code>Vendedor</code> <code>Notas</code></p>
+        <p class="sub">La columna <code>Aliado</code> decide quién ve cada fila. Status acepta: Prospectado, Interesado, RFP, Presentada, Followup, Cierre.</p>
+        <p style="margin:0 0 12px;line-height:2"><code>Aliado</code> <code>Marca</code> <code>Categoría</code> <code>Nombre contacto</code> <code>Status</code> <code>Next step</code> <code>Monto</code> <code>Moneda</code> <code>Vendedor</code> <code>País</code> <code>Notas</code></p>
         <p class="sub" style="margin:0 0 12px"><code>Moneda</code> acepta MXN o USD (si va vacía se toma USD).</p>
         <div class="field-row" style="margin-bottom:12px;max-width:260px"><label for="fx">Tipo de cambio · 1 USD = ? MXN</label><input type="text" id="fx" inputmode="decimal"></div>
         <div class="row"><button class="btn ghost sm" type="button" id="copyHead">Copiar encabezados</button><button class="btn ghost sm" type="button" id="syncNow">Sincronizar ahora</button></div>
@@ -508,6 +508,7 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
   </form>
 </div>
 
+<datalist id="countries"><option>México</option><option>Estados Unidos</option><option>Canadá</option><option>Guatemala</option><option>El Salvador</option><option>Honduras</option><option>Costa Rica</option><option>Panamá</option><option>Colombia</option><option>Ecuador</option><option>Perú</option><option>Chile</option><option>Argentina</option><option>Brasil</option><option>República Dominicana</option><option>España</option><option>Alemania</option><option>Reino Unido</option></datalist>
 <!-- modal Compass -->
 <div class="modal" id="mCrm" hidden role="dialog" aria-modal="true" aria-labelledby="mcT">
   <form class="glass modal-box" id="crmForm" novalidate>
@@ -597,8 +598,8 @@ const LS={get(k,d){try{const v=localStorage.getItem('r3s:'+k);return v?JSON.pars
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
 const slug=s=>norm(s).replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
-const STAGES=[{k:'Interesado',c:'--st1',en:'Interested'},{k:'RFP',c:'--st2',en:'RFP'},{k:'Presentada',c:'--st3',en:'Presented'},{k:'Followup',c:'--st4',en:'Follow-up'},{k:'Cierre',c:'--st5',en:'Closed'}];
-const COLS=[['ally','Aliado',1],['brand','Marca',1],['category','Categoría'],['contact','Nombre contacto'],['status','Status',1],['next','Next step'],['amount','Monto',1],['currency','Moneda'],['seller','Vendedor'],['notes','Notas']];
+const STAGES=[{k:'Prospectado',c:'--st0',en:'Prospected'},{k:'Interesado',c:'--st1',en:'Interested'},{k:'RFP',c:'--st2',en:'RFP'},{k:'Presentada',c:'--st3',en:'Presented'},{k:'Followup',c:'--st4',en:'Follow-up'},{k:'Cierre',c:'--st5',en:'Closed'}];
+const COLS=[['ally','Aliado',1],['brand','Marca',1],['category','Categoría'],['contact','Nombre contacto'],['status','Status',1],['next','Next step'],['amount','Monto',1],['currency','Moneda'],['seller','Vendedor'],['notes','Notas'],['country','País']];
 const DAYS=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
 const I={es:{loginLead:'Dashboard de ventas para aliados comerciales de Potenttial Group.',user:'Usuario o email',pass:'Contraseña',enter:'Entrar',madeWith:'Hecho con tecnología N3 Labs · Potenttial Group',madeWith2:'Hecho con tecnología N3 Labs',light:'Claro',dark:'Oscuro',logout:'Salir',tDash:'Dashboard',
@@ -713,7 +714,7 @@ function drawCrm(){const all=C.rows.map(r=>{const val=cConv(r.amount,r.cur);retu
   $('#cStF').innerHTML=['all',...C.stages].map(s=>`<button type="button" data-cst="${s}" aria-pressed="${cF.st===s}">${s==='all'?'Todas':esc(s)}</button>`).join('');
   $$('[data-cst]').forEach(b=>b.onclick=()=>{cF.st=b.dataset.cst;drawCrm()});
   let L=all;if(cF.or)L=L.filter(r=>r.origin===cF.or);if(cF.se)L=L.filter(r=>r.seller===cF.se);
-  if(cF.q){const q=norm(cF.q);L=L.filter(r=>norm([r.brand,r.agencyX,r.contact,r.productX,r.origin,r.next,r.seller].join(' ')).includes(q))}
+  if(cF.q){const q=norm(cF.q);L=L.filter(r=>norm([r.brand,r.agencyX,r.contact,r.country,r.productX,r.origin,r.next,r.seller].join(' ')).includes(q))}
   const Lc=L;if(cF.st!=='all')L=L.filter(r=>r.status===cF.st);
   const sum=(arr,k)=>arr.reduce((s,x)=>s+x[k],0);const tot=sum(Lc,'val'),gain=sum(Lc,'gain'),won=Lc.filter(r=>r.status==='Cierre'),open=Lc.filter(r=>r.status!=='Cierre');
   const k=(l,v,e,c='')=>`<div class="glass kpi"><span>${l}</span><strong ${c?`style="color:${c}"`:''}>${v}</strong><em>${e}</em></div>`;
@@ -727,11 +728,11 @@ function drawCrm(){const all=C.rows.map(r=>{const val=cConv(r.amount,r.cur);retu
   bars('#cOrig',grp('origin','g').map(([kk,o])=>[kk,o.g,`de ${cm(o.v)}`]),cm);
   bars('#cSel',grp('seller','v').map(([kk,o])=>[kk,o.v,`${o.n} opp`]),cm);
   const order=Object.fromEntries(C.stages.map((s,i)=>[s,i]));L=[...L].sort((x,y)=>order[y.status]-order[x.status]||y.val-x.val);
-  $('#cBody').innerHTML=L.length?L.map(r=>`<tr><td><strong>${esc(r.brand)}</strong>${r.edited?'<span class="cur">editado en Compass</span>':''}</td><td>${esc(r.agencyX||'—')}</td><td>${esc(r.contact||'—')}</td><td>${esc(r.productX||'—')}</td><td>${esc(r.origin)}</td>
+  $('#cBody').innerHTML=L.length?L.map(r=>`<tr><td><strong>${esc(r.brand)}</strong>${r.edited?'<span class="cur">editado en Compass</span>':''}</td><td>${esc(r.agencyX||'—')}</td><td>${esc(r.contact||'—')}</td><td>${esc(r.country||'—')}</td><td>${esc(r.productX||'—')}</td><td>${esc(r.origin)}</td>
      <td class="num">${cm(r.amount,r.cur)}${r.cur!==cCur?`<span class="cur">≈ ${cm(r.val)}</span>`:''}</td><td><span class="chip" style="--c:${stColor(r.status)}"><i></i>${esc(r.status)}</span></td><td>${esc(r.next||'—')}</td>
      <td class="num">${(r.marginX||0).toLocaleString('es-MX')}%</td><td class="num">${cm(r.gain)}</td><td>${esc(r.seller||'—')}</td><td><button class="btn ghost sm" type="button" data-ck="${esc(r.key)}">Editar</button></td></tr>`).join('')
-    +`<tr class="t"><td colspan="5">${L.length} oportunidades</td><td class="num"><strong>${cm(sum(L,'val'))}</strong></td><td colspan="3"></td><td class="num"><strong>${cm(sum(L,'gain'))}</strong></td><td colspan="2"></td></tr>`
-    :'<tr><td colspan="12"><div class="empty">No hay oportunidades con estos filtros.</div></td></tr>';
+    +`<tr class="t"><td colspan="6">${L.length} oportunidades</td><td class="num"><strong>${cm(sum(L,'val'))}</strong></td><td colspan="3"></td><td class="num"><strong>${cm(sum(L,'gain'))}</strong></td><td colspan="2"></td></tr>`
+    :'<tr><td colspan="13"><div class="empty">No hay oportunidades con estos filtros.</div></td></tr>';
   $$('[data-ck]').forEach(b=>b.onclick=()=>openCrm(C.rows.find(r=>r.key===b.dataset.ck)));
   $('#cSub').textContent=`Todo tu pipeline: aliados, productos propios y Google Sheet · ${C.rows.length} oportunidades`}
 function openCrm(r){cEdit=r;$('#mcT').textContent=r.brand;$('#mcS').textContent=`${r.origin} · ${r.contact||''}`;
@@ -743,8 +744,8 @@ $('#crmForm').onsubmit=async e=>{e.preventDefault();if(!cEdit)return;
   try{await api('crmSave',{key:cEdit.key,set});$('#mCrm').hidden=true;toast('Oportunidad actualizada');renderCrm()}catch(err){toast(err.message)}};
 $$('[data-ccur]').forEach(b=>b.onclick=()=>{cCur=b.dataset.ccur;LS.set('ccur',cCur);if(C)drawCrm()});
 $('#cQ').oninput=e=>{cF.q=e.target.value;if(C)drawCrm()};$('#cOrigin').onchange=e=>{cF.or=e.target.value;drawCrm()};$('#cSeller').onchange=e=>{cF.se=e.target.value;drawCrm()};
-$('#cCsv').onclick=()=>{if(!C)return;const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;const h=['Marca','Agencia','Persona clave','Producto','Origen','Monto','Moneda','Status','Siguiente paso','Ganancia %','Ganancia ('+cCur+')','Vendedor'];
-  const rows=C.rows.map(r=>{const v=cConv(r.amount,r.cur);return[r.brand,r.agencyX,r.contact,r.productX,r.origin,r.amount,r.cur,r.status,r.next,r.marginX,Math.round(v*(r.marginX||0)/100),r.seller].map(q).join(',')});
+$('#cCsv').onclick=()=>{if(!C)return;const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;const h=['Marca','Agencia','Persona clave','País','Producto','Origen','Monto','Moneda','Status','Siguiente paso','Ganancia %','Ganancia ('+cCur+')','Vendedor'];
+  const rows=C.rows.map(r=>{const v=cConv(r.amount,r.cur);return[r.brand,r.agencyX,r.contact,r.country,r.productX,r.origin,r.amount,r.cur,r.status,r.next,r.marginX,Math.round(v*(r.marginX||0)/100),r.seller].map(q).join(',')});
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+[h.join(','),...rows].join('\n')],{type:'text/csv'}));a.download='r3seller-crm.csv';document.body.appendChild(a);a.click();a.remove()};
 
 /* ---------- Innovación ---------- */
@@ -802,6 +803,7 @@ function renderInternal(allyObj){INT_ALLY=allyObj?allyObj.id:'pg';SC=null;$('#lR
   const opt=(arr,ph)=>`<option value="">${ph}</option>`+arr.map(o=>`<option>${esc(o)}</option>`).join('');
   $('#lFields').innerHTML=`<div class="field-row"><label class="req" for="p_brand">Empresa / marca</label><input type="text" id="p_brand"></div>
    <div class="field-row"><label class="req" for="p_contact">Nombre del contacto</label><input type="text" id="p_contact"></div>
+   <div class="field-row"><label for="p_country">País</label><input type="text" id="p_country" list="countries" value="México"></div>
    <div class="field-row"><label for="p_email">Email</label><input type="email" id="p_email"></div>
    <div class="field-row"><label for="p_phone">Teléfono / WhatsApp</label><input type="text" id="p_phone"></div>
    <div class="field-row"><label class="req" for="p_div">División</label><select id="p_div">${opt(Object.keys(CAT),'— Elige división —')}</select></div>
@@ -824,7 +826,7 @@ async function loadForm(refresh){const id=$('#lAlly').value;INT_ALLY=null;$('#lF
   $('#lInfo').textContent='Leyendo el formulario…';$('#lSend').disabled=true;
   try{SC=(await api('formSchema',{id,refresh})).schema}catch(e){$('#lInfo').textContent='⚠ '+e.message;return}
   $('#lInfo').textContent=`${SC.title} · ${SC.fields.length} campos · los marcados con * son obligatorios`;$('#lSend').disabled=false;
-  $('#lFields').innerHTML=SC.fields.map(f=>{const id='f_'+f.entry,lab=`<label class="${f.req?'req':''}" for="${id}">${esc(f.title)}</label>`,full=['textarea','checkbox','radio'].includes(f.type)||f.title.length>50?' full':'';
+  $('#lFields').innerHTML=`<div class="field-row"><label for="f_country">País <small class="lbl">(solo en R3seller)</small></label><input type="text" id="f_country" list="countries" value="México"></div>`+SC.fields.map(f=>{const id='f_'+f.entry,lab=`<label class="${f.req?'req':''}" for="${id}">${esc(f.title)}</label>`,full=['textarea','checkbox','radio'].includes(f.type)||f.title.length>50?' full':'';
     let inp;
     if(f.type==='textarea')inp=`<textarea id="${id}" name="${f.entry}"></textarea>`;
     else if(f.type==='select')inp=`<select id="${id}" name="${f.entry}"><option value="">— Elige —</option>${f.opts.map(o=>`<option>${esc(o)}</option>`).join('')}</select>`;
@@ -834,7 +836,7 @@ async function loadForm(refresh){const id=$('#lAlly').value;INT_ALLY=null;$('#lF
 $('#lAlly').onchange=()=>loadForm(false);$('#lRefresh').onclick=()=>loadForm(true);
 $('#leadForm').onsubmit=async e=>{e.preventDefault();$('#lErr').textContent='';
   if($('#lAlly').value==='pg'||INT_ALLY===$('#lAlly').value){const g=id=>($('#'+id)?.value||'').trim();const isPg=$('#lAlly').value==='pg';
-    const lead={brand:g('p_brand'),contact:g('p_contact'),email:g('p_email'),phone:g('p_phone'),division:g('p_div'),product:g('p_prod'),media:[...$$('input[name=p_media]:checked')].map(i=>i.value),amount:g('p_amount'),cur:g('p_cur'),agency:g('p_agency'),margin:g('p_margin'),status:g('p_status'),next:g('p_next'),notes:g('p_notes')};
+    const lead={country:g('p_country'),brand:g('p_brand'),contact:g('p_contact'),email:g('p_email'),phone:g('p_phone'),division:g('p_div'),product:g('p_prod'),media:[...$$('input[name=p_media]:checked')].map(i=>i.value),amount:g('p_amount'),cur:g('p_cur'),agency:g('p_agency'),margin:g('p_margin'),status:g('p_status'),next:g('p_next'),notes:g('p_notes')};
     lead.ally=$('#lAlly').value;
     if(!lead.brand||!lead.contact||(isPg&&(!lead.division||!lead.product))){$('#lErr').textContent=isPg?'Completa empresa, contacto, división y producto.':'Completa empresa y contacto.';return}
     const b=$('#lSend');b.disabled=true;try{await api('registerInternal',{lead});toast('Lead agregado al pipeline de '+$('#lAlly').selectedOptions[0].textContent.replace(' · productos propios','')+' ✓');loadForm(false);loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}return}
@@ -844,7 +846,7 @@ $('#leadForm').onsubmit=async e=>{e.preventDefault();$('#lErr').textContent='';
     const v=ans[f.entry];if(f.req&&(!v||(Array.isArray(v)&&!v.length))){$('#lErr').textContent='Falta: '+f.title;return}}
   const b=$('#lSend');if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='¿Enviar a '+$('#lAlly').selectedOptions[0].textContent+'? Toca otra vez';return}
   b.dataset.sure='';b.textContent='Registrar en el formulario';b.disabled=true;
-  try{const r=await api('registerLead',{id:$('#lAlly').value,answers:ans});toast(r.sent?'Lead registrado ✓':'No se registró: '+r.msg);if(r.sent)$('#leadForm').reset();loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}};
+  try{const r=await api('registerLead',{id:$('#lAlly').value,answers:ans,country:($('#f_country')?.value||'').trim()});toast(r.sent?'Lead registrado ✓':'No se registró: '+r.msg);if(r.sent)$('#leadForm').reset();loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}};
 $('#lClear').onclick=()=>{$('#lSend').dataset.sure='';$('#lSend').textContent='Registrar en el formulario'};
 async function loadMyLeads(){try{const L=(await api('myLeads')).leads;$('#lList').innerHTML=L.length?L.map(l=>`<div class="lead-i"><strong>${esc(l.sum||'—')}</strong><small>${esc(l.ally)} · ${new Date(l.t).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'})} · ${esc(l.by)}</small>${l.pg?`<div class="row" style="margin-top:6px;align-items:center"><select data-lt="${esc(l.t)}" style="min-height:36px;padding:4px 10px;width:auto">${STG.map(x=>`<option ${x===l.pg.status?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="lbl">${esc(l.pg.cur)} ${Number(l.pg.amount||0).toLocaleString('es-MX')}</span></div>`:`<span class="chip ${l.ok?'good':''}" ${l.ok?'':'style="color:var(--crit)"'}>${esc(l.msg)}</span>`}</div>`).join(''):'<div class="empty">Aún no registras leads.</div>';
   $$('[data-lt]').forEach(sel=>sel.onchange=async()=>{try{await api('updateLead',{t:sel.dataset.lt,set:{status:sel.value}});toast('Status actualizado')}catch(e){toast(e.message)}})}catch(e){}}

@@ -110,7 +110,7 @@ switch ($action) {
     $email = $tr('email'); if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) fail('Revisa el email');
     $media = $prod === 'Pauta en Medios' ? array_values(array_intersect((array)($x['media'] ?? []), PG_MEDIA)) : [];
     $pg = ['brand' => $tr('brand'), 'contact' => $tr('contact'), 'email' => $email, 'phone' => $tr('phone'), 'division' => $div, 'product' => $prod, 'media' => $media,
-      'amount' => max(0, num($x['amount'] ?? 0)), 'cur' => $tr('cur') === 'USD' ? 'USD' : 'MXN', 'agency' => $tr('agency'), 'margin' => $tr('margin') === '' ? null : max(0, min(100, num($x['margin']))), 'status' => in_array($tr('status'), STAGES, true) ? $tr('status') : 'Interesado', 'next' => $tr('next'), 'notes' => $tr('notes')];
+      'amount' => max(0, num($x['amount'] ?? 0)), 'cur' => $tr('cur') === 'USD' ? 'USD' : 'MXN', 'agency' => $tr('agency'), 'country' => $tr('country'), 'margin' => $tr('margin') === '' ? null : max(0, min(100, num($x['margin']))), 'status' => in_array($tr('status'), STAGES, true) ? $tr('status') : 'Interesado', 'next' => $tr('next'), 'notes' => $tr('notes')];
     $me = me_info($db, $sess);
     $lead = ['t' => date('c') . '-' . bin2hex(random_bytes(2)), 'ally' => $allyId, 'by' => $me['name'] ?? '', 'byId' => $sess['id'] ?? 'admin', 'sum' => implode(' · ', array_filter([$pg['brand'], $div, $prod])),
       'answers' => ['Empresa' => $pg['brand'], 'Contacto' => $pg['contact'], 'División' => $div, 'Producto' => $prod], 'ok' => true, 'msg' => $isPg ? 'En el pipeline de Potenttial Group' : 'En el pipeline de ' . $ally['name'], 'pg' => $pg];
@@ -216,7 +216,7 @@ switch ($action) {
     if (!$clean) fail('El formulario está vacío');
     $res = form_submit($sc, $clean);
     $me = me_info($db, $sess);
-    $lead = ['t' => date('c'), 'ally' => $a['id'], 'by' => $me['name'] ?? '', 'byId' => $sess['id'] ?? 'admin', 'sum' => implode(' · ', array_slice(array_values(array_filter($named, fn($x) => mb_strlen($x) < 80)), 0, 3)),
+    $lead = ['t' => date('c'), 'country' => trim((string)($in['country'] ?? '')), 'ally' => $a['id'], 'by' => $me['name'] ?? '', 'byId' => $sess['id'] ?? 'admin', 'sum' => implode(' · ', array_slice(array_values(array_filter($named, fn($x) => mb_strlen($x) < 80)), 0, 3)),
       'answers' => $named, 'ok' => $res[0], 'msg' => $res[1]];
     $db['leads'] = $db['leads'] ?? []; array_unshift($db['leads'], $lead); $db['leads'] = array_slice($db['leads'], 0, 3000);
     db_save($db); out(['ok' => true, 'sent' => $res[0], 'msg' => $res[1]]);
