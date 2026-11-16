@@ -155,6 +155,7 @@ function apply_ov(array $db, array $rows): array {
 /* ---------- permisos (el servidor decide qué filas recibe cada perfil) ---------- */
 /* ---------- Productos de Potenttial Group (pipeline propio) ---------- */
 const PG_ID = 'pg';
+const INNOV_STAGES = ['Idea', 'En desarrollo', 'Piloto', 'Listo'];
 const PG_CATALOG = [
   'Neurona Digital' => ['Curso', 'Taller', 'Capacitación', 'Mentoría'],
   'Space Talent' => ['Conferencia', 'Taller', 'Syllabus de evento'],
@@ -165,6 +166,12 @@ const PG_CATALOG = [
   'Long3vity' => ['Mentoría', 'Seguros caninos', 'Seguros humanos', 'Consulta'],
   'Otro' => [],
 ];
+function pg_catalog(array $db): array {
+  $c = PG_CATALOG;
+  foreach ((array)($db['catalogExtra'] ?? []) as $div => $list) { $c[$div] = array_values(array_unique(array_merge($c[$div] ?? [], (array)$list))); }
+  if (isset($c['Otro'])) { $o = $c['Otro']; unset($c['Otro']); $c['Otro'] = $o; }
+  return $c;
+}
 const PG_MEDIA = ['Google', 'Meta', 'ChatGPT', 'LinkedIn', 'TikTok', 'Programmatic'];
 function internal_rows(array $db, ?string $byId = null): array {
   $out = [];

@@ -93,14 +93,15 @@ function lead_public(array $l, array $db): array {
 }
 switch ($action) {
   case 'leadAllies':
-    out(['ok' => true, 'catalog' => PG_CATALOG, 'media' => PG_MEDIA, 'stages' => STAGES, 'allies' => array_merge([['id' => PG_ID, 'name' => 'Potenttial Group · productos propios', 'hasForm' => true, 'internal' => true]], array_map(fn($a) => ['id' => $a['id'], 'name' => $a['name'], 'hasForm' => !empty($a['form'])], lead_allies($db, $sess)))]);
+    out(['ok' => true, 'catalog' => pg_catalog($db), 'media' => PG_MEDIA, 'stages' => STAGES, 'allies' => array_merge([['id' => PG_ID, 'name' => 'Potenttial Group · productos propios', 'hasForm' => true, 'internal' => true]], array_map(fn($a) => ['id' => $a['id'], 'name' => $a['name'], 'hasForm' => !empty($a['form'])], lead_allies($db, $sess)))]);
 
   case 'registerInternal':
     if (!in_array($sess['role'], ['admin', 'seller'], true)) fail('Sin permiso', 403);
     $x = (array)($in['lead'] ?? []); $tr = fn($k) => trim((string)($x[$k] ?? ''));
-    $div = $tr('division'); if (!array_key_exists($div, PG_CATALOG)) fail('Elige la división');
-    $prod = $tr('product'); if (PG_CATALOG[$div] && !in_array($prod, PG_CATALOG[$div], true)) fail('Elige el producto');
-    if (!PG_CATALOG[$div] && $prod === '') fail('Describe el producto o servicio');
+    $CAT = pg_catalog($db);
+    $div = $tr('division'); if (!array_key_exists($div, $CAT)) fail('Elige la división');
+    $prod = $tr('product'); if ($CAT[$div] && !in_array($prod, $CAT[$div], true)) fail('Elige el producto');
+    if (!$CAT[$div] && $prod === '') fail('Describe el producto o servicio');
     if ($tr('brand') === '' || $tr('contact') === '') fail('Faltan empresa/marca o contacto');
     $email = $tr('email'); if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) fail('Revisa el email');
     $media = $prod === 'Pauta en Medios' ? array_values(array_intersect((array)($x['media'] ?? []), PG_MEDIA)) : [];
@@ -127,6 +128,53 @@ switch ($action) {
     if ($sess['role'] !== 'admin') fail('Sin permiso', 403);
     sync_sheet($db); db_save($db);
     out(['ok' => true, 'rows' => crm_rows($db), 'fx' => (float)$db['settings']['fx'], 'stages' => STAGES, 'sync' => (int)$db['cache']['at']]);
+
+  case 'innovList':
+    if ($sess['role'] !== 'admin') fail('Sin permiso', 403);
+    out(['ok' => true, 'items' => array_values($db['innov'] ?? []), 'divisions' => array_keys(pg_catalog($db)), 'stages' => INNOV_STAGES]);
+
+  case 'innovSave':
+    if ($sess['role'] !== 'admin') fail('Sin permiso', 403);
+    $x = (array)($in['item'] ?? []); $tr = fn($k) => trim((string)($x[$k] ?? ''));
+    if ($tr('name') === '' || $tr('partner') === '' || $tr('offer') === '' || $tr('target') === '') fail('Completa proyecto, alianza, qué vendes y a quién');
+    $db['innov'] = $db['innov'] ?? []; $id = $tr('id'); $idx = null;
+    foreach ($db['innov'] as $i => $o) if ($o['id'] === $id) $idx = $i;
+    $base = $idx !== null ? $db['innov'][$idx] : ['id' => 'i' . bin2hex(random_bytes(4)), 'created' => date('c'), 'approved' => false];
+    $stage = in_array($tr('stage'), INNOV_STAGES, true) ? $tr('stage') : 'Idea';
+    if (!empty($base['approved'])) $stage = 'Listo';
+    $item = array_merge($base, ['name' => $tr('name'), 'partner' => $tr('partner'), 'offer' => $tr('offer'), 'target' => $tr('target'), 'division' => $tr('division'),
+      'stage' => $stage, 'amount' => max(0, num($x['amount'] ?? 0)), 'cur' => $tr('cur') === 'USD' ? 'USD' : 'MXN', 'notes' => $tr('notes'), 'updated' => date('c')]);
+    if ($idx === null) array_unshift($db['innov'], $item); else $db['innov'][$idx] = $item;
+    db_save($db); out(['ok' => true, 'id' => $item['id']]);
+
+  case 'innovDel':
+    if ($sess['role'] !== 'admin') fail('Sin permiso', 403);
+    $id = (string)($in['id'] ?? ''); $db['innov'] = array_values(array_filter($db['innov'] ?? [], fn($o) => $o['id'] !== $id || !empty($o['approved'])));
+    db_save($db); out(['ok' => true]);
+
+  case 'innovApprove':
+    if ($sess['role'] !== 'admin') fail('Sin permiso', 403);
+    $id = (string)($in['id'] ?? ''); $div = trim((string)($in['division'] ?? '')); $prod = trim((string)($in['product'] ?? ''));
+    if ($div === '' || $prod === '') fail('Elige la división y el nombre del producto');
+    $ok = false;
+    foreach ($db['innov'] as &$o) if ($o['id'] === $id) {
+      if ($o['stage'] !== 'Listo') fail('Marca el proyecto como “Listo” antes de darle OK');
+      $o['approved'] = true; $o['approvedAt'] = date('c'); $o['productDiv'] = $div; $o['productName'] = $prod; $ok = true;
+    } unset($o);
+    if (!$ok) fail('No encontrado');
+    $db['catalogExtra'][$div] = array_values(array_unique(array_merge((array)($db['catalogExtra'][$div] ?? []), [$prod])));
+    db_save($db); out(['ok' => true]);
+
+  case 'innovRevoke':
+    if ($sess['role'] !== 'admin') fail('Sin permiso', 403);
+    $id = (string)($in['id'] ?? '');
+    foreach ($db['innov'] as &$o) if ($o['id'] === $id && !empty($o['approved'])) {
+      $d = $o['productDiv']; $p = $o['productName'];
+      $db['catalogExtra'][$d] = array_values(array_filter((array)($db['catalogExtra'][$d] ?? []), fn($x) => $x !== $p));
+      if (!$db['catalogExtra'][$d]) unset($db['catalogExtra'][$d]);
+      $o['approved'] = false; unset($o['approvedAt']);
+    } unset($o);
+    db_save($db); out(['ok' => true]);
 
   case 'crmSave':
     if ($sess['role'] !== 'admin') fail('Sin permiso', 403);

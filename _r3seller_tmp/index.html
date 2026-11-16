@@ -279,7 +279,8 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
 
   <nav class="glass tabs" role="tablist" id="tabs">
     <button class="tab" role="tab" data-tab="dash" aria-selected="true" data-i="tDash">Dashboard</button>
-    <button class="tab adm" role="tab" data-tab="crm" aria-selected="false">CRM</button>
+    <button class="tab adm" role="tab" data-tab="crm" aria-selected="false">Compass</button>
+    <button class="tab adm" role="tab" data-tab="innov" aria-selected="false">Innovación</button>
     <button class="tab reg" role="tab" data-tab="lead" aria-selected="false" data-i="tLead">Registrar lead</button>
     <button class="tab adm" role="tab" data-tab="allies" aria-selected="false">Aliados</button>
     <button class="tab adm" role="tab" data-tab="sellers" aria-selected="false">Vendedores</button>
@@ -327,7 +328,7 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
   <!-- CRM -->
   <section data-view="crm" hidden>
     <div class="bar">
-      <div><h1>CRM · Ventas potenciales</h1><p id="cSub">Todo tu pipeline: aliados, productos propios y Google Sheet.</p></div>
+      <div><h1>Compass · Ventas potenciales</h1><p id="cSub">Todo tu pipeline: aliados, productos propios y Google Sheet.</p></div>
       <div class="row" style="align-items:center"><div class="seg" role="group" aria-label="Moneda"><button type="button" data-ccur="USD">USD</button><button type="button" data-ccur="MXN">MXN</button></div>
         <span class="lbl" id="cFx"></span><button class="btn ghost sm" type="button" id="cCsv">Descargar CSV</button></div>
     </div>
@@ -345,6 +346,14 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
         <div class="seg" id="cStF" role="group"></div></div>
       <div class="tw"><table style="min-width:1180px"><thead><tr><th>Marca</th><th>Agencia</th><th>Persona clave</th><th>Producto ofertado</th><th>Origen</th><th class="num">Monto propuesta</th><th>Status</th><th>Siguiente paso</th><th class="num">Ganancia %</th><th class="num">Ganancia</th><th>Vendedor</th><th></th></tr></thead><tbody id="cBody"></tbody></table></div>
     </div>
+  </section>
+
+  <!-- INNOVACIÓN -->
+  <section data-view="innov" hidden>
+    <div class="bar"><div><h1>Innovación</h1><p>Proyectos por vender en alianza. Cuando estén listos, les das OK y entran a los productos de Potenttial Group.</p></div>
+      <button class="btn" type="button" id="iNew">Nuevo proyecto</button></div>
+    <div class="grid ck" id="iKpis"></div>
+    <div class="glass card" style="margin-top:14px"><div class="tools"><input type="search" id="iQ" placeholder="Buscar proyecto, alianza, cliente…"><div class="seg" id="iStF" role="group"></div></div><div id="iList"></div></div>
   </section>
 
   <!-- REGISTRAR LEAD -->
@@ -497,7 +506,7 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
   </form>
 </div>
 
-<!-- modal CRM -->
+<!-- modal Compass -->
 <div class="modal" id="mCrm" hidden role="dialog" aria-modal="true" aria-labelledby="mcT">
   <form class="glass modal-box" id="crmForm" novalidate>
     <div class="modal-head"><div><h2 id="mcT">Editar oportunidad</h2><span class="lbl" id="mcS"></span></div><button class="btn ghost sm" type="button" data-close>Cerrar</button></div>
@@ -512,6 +521,26 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
     </div>
     <p class="lbl" id="mcNote" style="margin:10px 0 0"></p>
     <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" type="submit">Guardar</button></div>
+  </form>
+</div>
+
+<!-- modal innovación -->
+<div class="modal" id="mInnov" hidden role="dialog" aria-modal="true" aria-labelledby="miT">
+  <form class="glass modal-box" id="innovForm" novalidate>
+    <div class="modal-head"><h2 id="miT">Nuevo proyecto de innovación</h2><button class="btn ghost sm" type="button" data-close>Cerrar</button></div>
+    <div class="form2">
+      <div class="field-row full"><label class="req" for="iName">Nombre del proyecto</label><input type="text" id="iName"></div>
+      <div class="field-row"><label class="req" for="iPartner">¿Con quién haces la alianza?</label><input type="text" id="iPartner" placeholder="Empresa o persona aliada"></div>
+      <div class="field-row"><label for="iDiv">División de Potenttial (si aplica)</label><select id="iDiv"></select></div>
+      <div class="field-row full"><label class="req" for="iOffer">¿Qué vas a vender?</label><textarea id="iOffer" rows="2" placeholder="Producto, servicio o solución"></textarea></div>
+      <div class="field-row full"><label class="req" for="iTarget">¿A quién se lo vas a vender?</label><textarea id="iTarget" rows="2" placeholder="Cliente, industria o segmento"></textarea></div>
+      <div class="field-row"><label for="iStage">Etapa</label><select id="iStage"></select></div>
+      <div class="field-row"><label for="iAmt">Monto estimado por venta</label><input type="text" id="iAmt" inputmode="decimal"></div>
+      <div class="field-row"><label for="iCur">Moneda</label><select id="iCur"><option>MXN</option><option>USD</option></select></div>
+      <div class="field-row full"><label for="iNotes">Notas</label><textarea id="iNotes"></textarea></div>
+    </div>
+    <div class="err" id="iErr" role="alert"></div>
+    <div class="row" style="justify-content:space-between"><button class="btn ghost" type="button" id="iDel">Eliminar</button><button class="btn" type="submit">Guardar</button></div>
   </form>
 </div>
 
@@ -621,8 +650,8 @@ function renderViewAs(){if(me.role==='ally'){$('#viewAs').innerHTML='';return}
 $('#viewAs').onchange=e=>{const[type,id]=e.target.value.split(':');view={type,id:id||''};roleTag();go('dash')};
 function go(v){if(v!=='dash'&&me?.role!=='admin'&&!(['lead','profile'].includes(v)&&me?.role==='seller'))v='dash';
   $$('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===v));$$('[data-view]').forEach(s=>s.hidden=s.dataset.view!==v);
-  ({dash:renderDash,crm:renderCrm,lead:renderLead,allies:renderAllies,sellers:renderSellers,profile:renderProfile,reports:renderReports,source:renderSource,settings:renderSettings})[v]()}
-$$('.tab').forEach(b=>b.onclick=async()=>{if(me.role==='admin'&&!['dash','lead','profile','crm'].includes(b.dataset.tab)){try{await loadState()}catch(e){}}go(b.dataset.tab)});
+  ({dash:renderDash,crm:renderCrm,innov:renderInnov,lead:renderLead,allies:renderAllies,sellers:renderSellers,profile:renderProfile,reports:renderReports,source:renderSource,settings:renderSettings})[v]()}
+$$('.tab').forEach(b=>b.onclick=async()=>{if(me.role==='admin'&&!['dash','lead','profile','crm','innov'].includes(b.dataset.tab)){try{await loadState()}catch(e){}}go(b.dataset.tab)});
 
 /* ---------- dashboard ---------- */
 const conv=(n,c)=>c===dispCur?n:(c==='USD'?n*D.fx:n/D.fx);
@@ -670,7 +699,7 @@ $$('[data-cur]').forEach(b=>b.onclick=()=>{dispCur=b.dataset.cur;LS.set('dcur',d
 
 /* ---------- CRM ---------- */
 let C=null,cCur=LS.get('ccur','MXN'),cF={q:'',st:'all',or:'',se:''},cEdit=null;
-async function renderCrm(){$('#allyPill').textContent='CRM interno';try{C=await api('crm')}catch(e){toast(e.message);return}drawCrm()}
+async function renderCrm(){$('#allyPill').textContent='Compass';try{C=await api('crm')}catch(e){toast(e.message);return}drawCrm()}
 const cConv=(n,c)=>c===cCur?n:(c==='USD'?n*C.fx:n/C.fx);
 const cm=(n,c=cCur)=>new Intl.NumberFormat('es-MX',{style:'currency',currency:c,currencyDisplay:'code',maximumFractionDigits:0}).format(n);
 function bars(el,list,fmt){const max=Math.max(1,...list.map(x=>x[1]));$(el).innerHTML=list.length?list.map(([k,v,extra])=>`<div class="hb"><span title="${esc(k)}">${esc(k)}</span><div class="track"><div class="fill" style="width:${v/max*100}%"></div></div><b>${fmt(v)}${extra?`<small style="display:block;color:var(--fg-3);font-size:11.5px">${extra}</small>`:''}</b></div>`).join(''):'<div class="empty">Sin datos todavía.</div>'}
@@ -696,7 +725,7 @@ function drawCrm(){const all=C.rows.map(r=>{const val=cConv(r.amount,r.cur);retu
   bars('#cOrig',grp('origin','g').map(([kk,o])=>[kk,o.g,`de ${cm(o.v)}`]),cm);
   bars('#cSel',grp('seller','v').map(([kk,o])=>[kk,o.v,`${o.n} opp`]),cm);
   const order=Object.fromEntries(C.stages.map((s,i)=>[s,i]));L=[...L].sort((x,y)=>order[y.status]-order[x.status]||y.val-x.val);
-  $('#cBody').innerHTML=L.length?L.map(r=>`<tr><td><strong>${esc(r.brand)}</strong>${r.edited?'<span class="cur">editado en CRM</span>':''}</td><td>${esc(r.agencyX||'—')}</td><td>${esc(r.contact||'—')}</td><td>${esc(r.productX||'—')}</td><td>${esc(r.origin)}</td>
+  $('#cBody').innerHTML=L.length?L.map(r=>`<tr><td><strong>${esc(r.brand)}</strong>${r.edited?'<span class="cur">editado en Compass</span>':''}</td><td>${esc(r.agencyX||'—')}</td><td>${esc(r.contact||'—')}</td><td>${esc(r.productX||'—')}</td><td>${esc(r.origin)}</td>
      <td class="num">${cm(r.amount,r.cur)}${r.cur!==cCur?`<span class="cur">≈ ${cm(r.val)}</span>`:''}</td><td><span class="chip" style="--c:${stColor(r.status)}"><i></i>${esc(r.status)}</span></td><td>${esc(r.next||'—')}</td>
      <td class="num">${(r.marginX||0).toLocaleString('es-MX')}%</td><td class="num">${cm(r.gain)}</td><td>${esc(r.seller||'—')}</td><td><button class="btn ghost sm" type="button" data-ck="${esc(r.key)}">Editar</button></td></tr>`).join('')
     +`<tr class="t"><td colspan="5">${L.length} oportunidades</td><td class="num"><strong>${cm(sum(L,'val'))}</strong></td><td colspan="3"></td><td class="num"><strong>${cm(sum(L,'gain'))}</strong></td><td colspan="2"></td></tr>`
@@ -715,6 +744,48 @@ $('#cQ').oninput=e=>{cF.q=e.target.value;if(C)drawCrm()};$('#cOrigin').onchange=
 $('#cCsv').onclick=()=>{if(!C)return;const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;const h=['Marca','Agencia','Persona clave','Producto','Origen','Monto','Moneda','Status','Siguiente paso','Ganancia %','Ganancia ('+cCur+')','Vendedor'];
   const rows=C.rows.map(r=>{const v=cConv(r.amount,r.cur);return[r.brand,r.agencyX,r.contact,r.productX,r.origin,r.amount,r.cur,r.status,r.next,r.marginX,Math.round(v*(r.marginX||0)/100),r.seller].map(q).join(',')});
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+[h.join(','),...rows].join('\n')],{type:'text/csv'}));a.download='r3seller-crm.csv';document.body.appendChild(a);a.click();a.remove()};
+
+/* ---------- Innovación ---------- */
+let IN=null,iF={q:'',st:'all'},iEdit=null;const iColor={'Idea':'--st1','En desarrollo':'--st2','Piloto':'--st3','Listo':'--st5'};
+async function renderInnov(){$('#allyPill').textContent='Innovación';try{IN=await api('innovList')}catch(e){toast(e.message);return}drawInnov()}
+function drawInnov(){const all=IN.items;const fx=(C&&C.fx)||18.5;
+  const k=(l,v,e)=>`<div class="glass kpi"><span>${l}</span><strong>${v}</strong><em>${e}</em></div>`;
+  $('#iKpis').innerHTML=k('Proyectos',all.length,`${all.filter(i=>i.stage!=='Listo').length} en camino`)+k('Listos por aprobar',all.filter(i=>i.stage==='Listo'&&!i.approved).length,'Esperan tu OK')
+    +k('Ya en productos',all.filter(i=>i.approved).length,'Se pueden vender')+k('Alianzas',new Set(all.map(i=>i.partner)).size,'Socios distintos');
+  $('#iStF').innerHTML=['all',...IN.stages,'Aprobados'].map(s=>`<button type="button" data-ist="${esc(s)}" aria-pressed="${iF.st===s}">${s==='all'?'Todos':esc(s)}</button>`).join('');
+  $$('[data-ist]').forEach(b=>b.onclick=()=>{iF.st=b.dataset.ist;drawInnov()});
+  let L=all;if(iF.st==='Aprobados')L=L.filter(i=>i.approved);else if(iF.st!=='all')L=L.filter(i=>i.stage===iF.st&&!(iF.st==='Listo'&&i.approved));
+  if(iF.q){const q=norm(iF.q);L=L.filter(i=>norm([i.name,i.partner,i.offer,i.target,i.division,i.notes].join(' ')).includes(q))}
+  const divOpts=sel=>IN.divisions.map(d=>`<option ${d===sel?'selected':''}>${esc(d)}</option>`).join('')+`<option ${sel==='Innovación'?'selected':''}>Innovación</option>`;
+  $('#iList').innerHTML=L.length?L.map(i=>`<div class="lead-i" style="padding:16px 4px">
+    <div class="row" style="justify-content:space-between;align-items:center"><strong style="font-size:16px">${esc(i.name)}</strong>
+      <div class="row" style="gap:6px;align-items:center">${i.approved?`<span class="chip good">En productos · ${esc(i.productDiv)} → ${esc(i.productName)}</span>`:`<span class="chip" style="--c:var(${iColor[i.stage]||'--st1'})"><i></i>${esc(i.stage)}</span>`}<button class="btn ghost sm" type="button" data-ied="${i.id}">Editar</button></div></div>
+    <small>Alianza con <b style="color:var(--fg)">${esc(i.partner)}</b>${i.division?' · '+esc(i.division):''}${i.amount?` · ${esc(i.cur)} ${Number(i.amount).toLocaleString('es-MX')} por venta`:''}</small>
+    <div class="grid g2" style="gap:10px;margin-top:8px"><div><span class="lbl">Qué vendes</span><div>${esc(i.offer)}</div></div><div><span class="lbl">A quién</span><div>${esc(i.target)}</div></div></div>
+    ${i.notes?`<p class="lbl" style="margin:8px 0 0">${esc(i.notes)}</p>`:''}
+    ${i.stage==='Listo'&&!i.approved?`<div class="banner" style="margin-top:12px"><strong>¿Lo metemos a los productos de Potenttial Group?</strong><div class="row" style="margin-top:8px;align-items:end">
+       <div class="field-row"><label>División</label><select data-idv="${i.id}">${divOpts(i.division||'Innovación')}</select></div>
+       <div class="field-row"><label>Nombre del producto</label><input type="text" data-ipn="${i.id}" value="${esc(i.name)}"></div>
+       <button class="btn sm" type="button" data-iok="${i.id}">Dar OK</button></div></div>`:''}
+    ${i.approved?`<button class="btn ghost sm" type="button" data-irv="${i.id}" style="margin-top:10px">Quitar de productos</button>`:''}
+  </div>`).join(''):'<div class="empty">Aún no hay proyectos. Toca “Nuevo proyecto”.</div>';
+  $$('[data-ied]').forEach(b=>b.onclick=()=>openInnov(IN.items.find(i=>i.id===b.dataset.ied)));
+  $$('[data-iok]').forEach(b=>b.onclick=async()=>{const id=b.dataset.iok;if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Confirmar OK';return}
+    try{await api('innovApprove',{id,division:$(`[data-idv="${id}"]`).value,product:$(`[data-ipn="${id}"]`).value});toast('Listo: ya aparece en Registrar lead → Potenttial Group');renderInnov()}catch(e){toast(e.message)}});
+  $$('[data-irv]').forEach(b=>b.onclick=async()=>{if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Confirmar: quitar del catálogo';return}try{await api('innovRevoke',{id:b.dataset.irv});toast('Quitado de productos');renderInnov()}catch(e){toast(e.message)}})}
+function openInnov(i){iEdit=i||null;$('#miT').textContent=i?'Editar proyecto':'Nuevo proyecto de innovación';$('#iErr').textContent='';$('#iDel').hidden=!i||i.approved;
+  const v=i||{name:'',partner:'',offer:'',target:'',division:'',stage:'Idea',amount:'',cur:'MXN',notes:''};
+  $('#iDiv').innerHTML='<option value="">— Ninguna / por definir —</option>'+IN.divisions.map(d=>`<option ${d===v.division?'selected':''}>${esc(d)}</option>`).join('');
+  $('#iStage').innerHTML=IN.stages.map(s=>`<option ${s===v.stage?'selected':''}>${esc(s)}</option>`).join('');$('#iStage').disabled=!!(i&&i.approved);
+  $('#iName').value=v.name;$('#iPartner').value=v.partner;$('#iOffer').value=v.offer;$('#iTarget').value=v.target;$('#iAmt').value=v.amount||'';$('#iCur').value=v.cur;$('#iNotes').value=v.notes;
+  $('#mInnov').hidden=false;$('#iName').focus()}
+$('#iNew').onclick=()=>openInnov();
+$('#innovForm').onsubmit=async e=>{e.preventDefault();$('#iErr').textContent='';
+  const item={id:iEdit?.id||'',name:$('#iName').value,partner:$('#iPartner').value,offer:$('#iOffer').value,target:$('#iTarget').value,division:$('#iDiv').value,stage:$('#iStage').value,amount:$('#iAmt').value,cur:$('#iCur').value,notes:$('#iNotes').value};
+  try{await api('innovSave',{item});$('#mInnov').hidden=true;toast(item.stage==='Listo'?'Guardado · ya puedes darle OK para meterlo a productos':'Proyecto guardado');renderInnov()}catch(err){$('#iErr').textContent=err.message}};
+$('#iDel').onclick=async()=>{if(!iEdit)return;const b=$('#iDel');if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='Toca otra vez para eliminar';return}b.dataset.sure='';b.textContent='Eliminar';
+  await api('innovDel',{id:iEdit.id});$('#mInnov').hidden=true;renderInnov()};
+$('#iQ').oninput=e=>{iF.q=e.target.value;if(IN)drawInnov()};
 
 /* ---------- registrar lead ---------- */
 let LA=[],SC=null,CAT={},MEDIA=[],STG=[];
