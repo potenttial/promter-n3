@@ -76,7 +76,7 @@ switch ($action) {
     $utms = $a ? array_filter($db['utms'], fn($u) => $u['ally'] === $a['id']) : ($s ? array_filter($db['utms'], fn($u) => norm($u['seller']) === norm($s['name'])) : $db['utms']);
     $formsFrom = $a ? [$a] : ($s ? array_filter($db['allies'], fn($x) => in_array($x['id'], $s['allies'], true)) : []);
     out(['ok' => true, 'view' => $v, 'label' => $a['name'] ?? ($s['name'] ?? ($isInt ? 'Potenttial Group' : '')), 'rows' => scope($db, $v),
-      'team' => array_map('public_seller', array_values($team)), 'utms' => array_values(array_map(fn($u) => array_intersect_key($u, array_flip(['campaign', 'medium', 'seller', 'link'])), $utms)),
+      'team' => array_map('public_seller', array_values($team)), 'utms' => array_values(array_map(fn($u) => array_intersect_key($u, array_flip(['campaign', 'medium', 'seller', 'link', 'client'])), $utms)),
       'forms' => array_values(array_map(fn($x) => ['name' => $x['name'], 'url' => $x['form']], array_filter($formsFrom, fn($x) => !empty($x['form'])))),
       'leads' => array_values(array_map(fn($l) => lead_public($l, $db), array_slice(array_values(array_filter($db['leads'] ?? [], fn($l) => $isInt ? ($l['ally'] === PG_ID) : ($a ? ($l['ally'] === $a['id'] && ($sess['role'] !== 'ally' || $l['ok'])) : ($s ? (($l['byId'] ?? '') === $s['id']) : true)))), 0, 50))),
       'fx' => (float)$db['settings']['fx'], 'sync' => (int)$db['cache']['at'], 'error' => $sess['role'] === 'admin' ? $db['cache']['error'] : '']);
@@ -158,13 +158,14 @@ switch ($action) {
     $al = lead_allies($db, $sess);
     $U = $mine ? array_values(array_filter($db['utms'], fn($u) => norm($u['seller']) === norm($mine['name']))) : $db['utms'];
     out(['ok' => true, 'me' => $mine ? ['name' => $mine['name'], 'email' => $mine['email']] : ['name' => $db['admin']['name'], 'email' => $db['admin']['email']], 'seller' => (bool)$mine,
-      'allies' => array_map(fn($a) => ['id' => $a['id'], 'name' => $a['name']], $al), 'sellers' => array_map(fn($x) => ['id' => $x['id'], 'name' => $x['name']], $mine ? [$mine] : $db['sellers']), 'utms' => $U]);
+      'allies' => array_map(fn($a) => ['id' => $a['id'], 'name' => $a['name']], $al), 'sellers' => array_map(fn($x) => ['id' => $x['id'], 'name' => $x['name']], $mine ? [$mine] : $db['sellers']), 'utms' => $U,
+      'clients' => array_values(array_unique(array_filter(array_map(fn($r) => trim($r['brand']), scope($db, $mine ? ['type' => 'seller', 'id' => $mine['id']] : ['type' => 'admin', 'id' => '']))))) ]);
 
   case 'saveUtm':
     $u = (array)($in['utm'] ?? []); $a = find_by(lead_allies($db, $sess), 'id', (string)($u['ally'] ?? ''));
     if (!$a || !filter_var($u['link'] ?? '', FILTER_VALIDATE_URL)) fail('Liga o aliado inválido');
     $mine = $sess['role'] === 'seller' ? find_by($db['sellers'], 'id', $sess['id']) : null;
-    $u = ['t' => (string)round(microtime(true) * 1000), 'ally' => $a['id'], 'link' => (string)$u['link'], 'campaign' => (string)($u['campaign'] ?? ''), 'medium' => (string)($u['medium'] ?? ''), 'seller' => $mine ? $mine['name'] : (string)($u['seller'] ?? '')];
+    $u = ['t' => (string)round(microtime(true) * 1000), 'ally' => $a['id'], 'link' => (string)$u['link'], 'campaign' => (string)($u['campaign'] ?? ''), 'client' => trim((string)($u['client'] ?? '')), 'medium' => (string)($u['medium'] ?? ''), 'seller' => $mine ? $mine['name'] : (string)($u['seller'] ?? '')];
     $db['utms'][] = $u; $mail = null;
     if (!empty($in['notify'])) { [$sj, $ht] = utm_html($a, $u); $to = report_recipients($a); $mail = smtp_send($db['settings'], $to, $sj, $ht); log_mail($db, 'UTM · ' . $a['name'], $to, $mail); }
     db_save($db); out(['ok' => true, 'mail' => $mail]);

@@ -271,7 +271,7 @@ function utm_html(array $a, array $u): array {
   $en = ($a['lang'] ?? 'es') === 'en';
   $in = '<p>' . ($en ? 'Hi ' : 'Hola ') . h($a['contact'] ?: $a['name']) . ',</p><p>' . ($en ? 'We are sending visits to your site through this link. In your analytics, every session with <b>utm_source=potenttial_group</b> comes from Potenttial Group.' : 'Estamos enviando visitas a tu sitio con esta liga. En tu analítica, toda sesión con <b>utm_source=potenttial_group</b> viene de Potenttial Group.') . '</p>'
     . '<p style="background:#f5f5f5;border-radius:10px;padding:12px;word-break:break-all;font-size:12.5px">' . h($u['link']) . '</p>'
-    . '<p style="font-size:13px;line-height:1.7">utm_source = potenttial_group<br>utm_medium = ' . h($u['medium']) . '<br>utm_campaign = ' . h($u['campaign']) . ($u['seller'] ? '<br>utm_content = ' . h(slug($u['seller'])) . ' (' . h($u['seller']) . ')' : '') . '</p>'
+    . '<p style="font-size:13px;line-height:1.7">utm_source = potenttial_group<br>utm_medium = ' . h($u['medium']) . '<br>utm_campaign = ' . h($u['campaign']) . (!empty($u['client']) ? '<br>utm_term = ' . h(slug($u['client'])) . ' (' . h($u['client']) . ')' : '') . ($u['seller'] ? '<br>utm_content = ' . h(slug($u['seller'])) . ' (' . h($u['seller']) . ')' : '') . '</p>'
     . '<p><a href="' . APP_URL . '" style="color:#D2322A">r3seller.potenttial.com</a></p>';
   return [($en ? 'Potenttial Group traffic is on its way · ' : 'Tráfico de Potenttial Group en camino · ') . $u['campaign'], shell($in, $en)];
 }

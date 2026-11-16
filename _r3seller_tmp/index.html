@@ -360,6 +360,7 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
         <div class="form2">
           <div class="field-row full"><label class="req" for="uUrl">URL de referencia</label><input type="url" id="uUrl" placeholder="https://www.geosurge.ai/…"></div>
           <div class="field-row"><label for="uAlly">Aliado</label><select id="uAlly"></select></div>
+          <div class="field-row full"><label for="uClient">Cliente (utm_term)</label><input type="text" id="uClient" list="uClients" placeholder="Nombre del cliente, p. ej. Berlitz"><datalist id="uClients"></datalist></div>
           <div class="field-row"><label for="uSeller">Vendedor (utm_content)</label><select id="uSeller"></select></div>
           <div class="field-row"><label for="uMed">Medio (utm_medium)</label><select id="uMed"><option>referral</option><option>partner</option><option>email</option><option>social</option><option>event</option><option>qr</option><option>whatsapp</option></select></div>
           <div class="field-row"><label for="uCamp">Campaña (utm_campaign)</label><input type="text" id="uCamp"></div>
@@ -606,7 +607,7 @@ function draw(){const isAlly=view.type==='ally',isSel=view.type==='seller';
   $('#cats').innerHTML=S.cat.map(([c,v])=>`<div class="hb"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${v/maxC*100}%"></div></div><b>${money(v)}</b></div>`).join('')||`<div class="empty">${t('noData')}</div>`;
   $('#team').innerHTML=D.team.map(s=>{const mine=L.filter(x=>norm(x.seller)===norm(s.name));return `<div><span class="av">${esc(s.name.split(' ').map(w=>w[0]).slice(0,2).join(''))}</span><div><strong>${esc(s.name)}</strong><small>${esc(s.company||'Potenttial Group')}${s.role?' · '+esc(s.role):''}${s.email?' · '+esc(s.email):''}${s.phone?' · '+esc(s.phone):''}</small></div><b>${mine.length} · ${money(mine.reduce((q,x)=>q+x.val,0))}</b></div>`}).join('')||`<div class="empty">${t('noTeam')}</div>`;
   $('#trafSub').textContent=t('trafSub');
-  $('#traf').innerHTML=D.utms.map(u=>`<div class="utm"><div class="row" style="justify-content:space-between"><strong>${esc(u.campaign)}</strong><span class="chip">${esc(u.medium)}${u.seller?' · '+esc(u.seller):''}</span></div><code>${esc(u.link)}</code></div>`).join('')||`<div class="empty">${t('noTraf')}</div>`;
+  $('#traf').innerHTML=D.utms.map(u=>`<div class="utm"><div class="row" style="justify-content:space-between"><strong>${u.client?esc(u.client)+' · ':''}${esc(u.campaign)}</strong><span class="chip">${esc(u.medium)}${u.seller?' · '+esc(u.seller):''}</span></div><code>${esc(u.link)}</code></div>`).join('')||`<div class="empty">${t('noTraf')}</div>`;
   $('#stFilter').innerHTML=[`<button type="button" data-st="all" aria-pressed="${stF==='all'}">${t('all')}</button>`].concat(STAGES.map(s=>`<button type="button" data-st="${s.k}" aria-pressed="${stF===s.k}">${esc(stName(s.k))}</button>`)).join('');
   $$('#stFilter button').forEach(b=>b.onclick=()=>{stF=b.dataset.st;draw()});
   let V=L;if(stF!=='all')V=V.filter(x=>x.status===stF);if(q)V=V.filter(x=>norm([x.brand,x.contact,x.notes,x.category,x.next,x.seller,x.ally].join(' ')).includes(norm(q)));
@@ -731,18 +732,19 @@ $('#delSeller').onclick=async()=>{if(!editS)return;const b=$('#delSeller');if(b.
 function buildUtm(){const raw=$('#uUrl').value.trim();const a=UT.allies.find(x=>x.id===$('#uAlly').value);const sl=UT.sellers.find(x=>x.id===$('#uSeller').value);
   if(!raw){$('#uOut').textContent='—';return null}
   let u;try{u=new URL(/^https?:\/\//i.test(raw)?raw:'https://'+raw)}catch(e){$('#uOut').textContent='La URL no es válida.';return null}
-  ['utm_source','utm_medium','utm_campaign','utm_content'].forEach(k=>u.searchParams.delete(k));
+  ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].forEach(k=>u.searchParams.delete(k));
   u.searchParams.set('utm_source','potenttial_group');u.searchParams.set('utm_medium',$('#uMed').value);
   const camp=slug($('#uCamp').value)||('potenttial_'+slug(a?.name||'aliado'));u.searchParams.set('utm_campaign',camp);
   if(sl)u.searchParams.set('utm_content',slug(sl.name));
-  $('#uOut').textContent=u.toString();return{ally:a?.id,link:u.toString(),campaign:camp,medium:$('#uMed').value,seller:sl?.name||''}}
+  const cl=$('#uClient').value.trim();if(cl)u.searchParams.set('utm_term',slug(cl));
+  $('#uOut').textContent=u.toString();return{ally:a?.id,link:u.toString(),campaign:camp,medium:$('#uMed').value,seller:sl?.name||'',client:cl}}
 let UT=null;
-async function renderProfile(){try{UT=await api('utmState')}catch(e){toast(e.message);return}$('#profH').textContent=UT.seller?'Mis ligas UTM':'Mi perfil';$('#profLine').textContent=`${UT.me.name} · ${UT.me.email}`;
+async function renderProfile(){try{UT=await api('utmState')}catch(e){toast(e.message);return}$('#uClients').innerHTML=(UT.clients||[]).map(c=>`<option value="${esc(c)}">`).join('');$('#profH').textContent=UT.seller?'Mis ligas UTM':'Mi perfil';$('#profLine').textContent=`${UT.me.name} · ${UT.me.email}`;
   $('#uAlly').innerHTML=UT.allies.map(a=>`<option value="${a.id}" ${view.type==='ally'&&a.id===view.id?'selected':''}>${esc(a.name)}</option>`).join('');
   $('#uSeller').disabled=UT.seller;$('#uSeller').innerHTML=(UT.seller?'':'<option value="">— Sin vendedor —</option>')+UT.sellers.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
   $('#uCamp').placeholder='potenttial_'+slug(UT.allies.find(a=>a.id===$('#uAlly').value)?.name||'');
-  ['#uUrl','#uAlly','#uSeller','#uMed','#uCamp','#uQrOn','#uMsg'].forEach(s=>$(s).oninput=$(s).onchange=drawUtmQr);drawUtmQr();renderUtmList()}
-function renderUtmList(){$('#utmList').innerHTML=UT.utms.slice().reverse().map(u=>{const a=UT.allies.find(x=>x.id===u.ally);return `<div class="utm"><div class="row" style="justify-content:space-between"><strong>${esc(a?.name||'—')} · ${esc(u.campaign)}</strong><span class="chip">${esc(u.medium)}${u.seller?' · '+esc(u.seller):''}</span></div><code>${esc(u.link)}</code>
+  ['#uUrl','#uAlly','#uClient','#uSeller','#uMed','#uCamp','#uQrOn','#uMsg'].forEach(s=>$(s).oninput=$(s).onchange=drawUtmQr);drawUtmQr();renderUtmList()}
+function renderUtmList(){$('#utmList').innerHTML=UT.utms.slice().reverse().map(u=>{const a=UT.allies.find(x=>x.id===u.ally);return `<div class="utm"><div class="row" style="justify-content:space-between"><strong>${u.client?esc(u.client)+' · ':''}${esc(a?.name||'—')} · ${esc(u.campaign)}</strong><span class="chip">${esc(u.medium)}${u.seller?' · '+esc(u.seller):''}</span></div><code>${esc(u.link)}</code>
   <div class="row"><button class="btn ghost sm" type="button" data-uq="${u.t}">QR</button><button class="btn ghost sm" type="button" data-uc="${u.t}">Copiar</button><button class="btn ghost sm" type="button" data-un="${u.t}">Avisar al aliado</button><button class="btn ghost sm" type="button" data-ud="${u.t}">Quitar</button></div></div>`}).join('')||'<div class="empty">Aún no hay ligas.</div>';
   $$('[data-uq]').forEach(b=>b.onclick=()=>openQr(UT.utms.find(u=>u.t===b.dataset.uq)));
   $$('[data-uc]').forEach(b=>b.onclick=()=>copy(UT.utms.find(u=>u.t===b.dataset.uc).link));
@@ -767,7 +769,7 @@ function dl(href,name){const a=document.createElement('a');a.href=href;a.downloa
 function qrFiles(u,allyName){const base=`qr_${slug(allyName||'aliado')}_${slug(u.campaign)}${u.seller?'_'+slug(u.seller):''}`;
   return{png:()=>dl(qrPng(u.link,allyName||'',`Potenttial Group${u.seller?' · '+u.seller:''} · sales is hunting`),base+'.png'),
     svg:()=>dl(URL.createObjectURL(new Blob([qrSvg(u.link)],{type:'image/svg+xml'})),base+'.svg')}}
-function shareUtm(u,a){const msg=($('#uMsg').value.trim()||`Te comparto información de ${a?.name||''}:`)+(u?' '+u.link:'');
+function shareUtm(u,a){const cl=$('#uClient').value.trim();const msg=($('#uMsg').value.trim()||`Hola${cl?' '+cl:''}, te comparto información de ${a?.name||''}:`)+(u?' '+u.link:'');
   $('#uWa').href=u?'https://wa.me/?text='+encodeURIComponent(msg):'#';$('#uMail').href=u?'mailto:?subject='+encodeURIComponent(a?.name||'Información')+'&body='+encodeURIComponent(msg):'#';
   $('#uWa').classList.toggle('dis',!u);$('#uMail').classList.toggle('dis',!u)}
 function drawUtmQr(){const u=buildUtm();const a=UT.allies.find(x=>x.id===$('#uAlly').value);shareUtm(u,a);$('#uQrBox').hidden=!$('#uQrOn').checked;
