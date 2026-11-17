@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Travelytix</title>
+<meta name="description" content="Smart travel for US &amp; Canada: trip planner, costs in USD and CAD, best time to go and travel requirements for Mexico and the Caribbean.">
+<link rel="alternate" hreflang="es" href="https://www.travelytix.net/es/">
+<link rel="alternate" hreflang="en" href="https://www.travelytix.net/en/">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "NewsMediaOrganization", "name": "Travelytix", "url": "https://www.travelytix.net/", "logo": "https://www.travelytix.net/logo.png", "inLanguage": ["en", "es"]}, {"@type": "WebSite", "name": "Travelytix", "url": "https://www.travelytix.net/"}]}</script>
+<style>
+*{box-sizing:border-box} body{margin:0} img{max-width:100%;display:block} a{color:inherit;text-decoration:none}
+.lang{display:inline-flex;gap:2px} .lang button{font:inherit;cursor:pointer;border:1px solid currentColor;background:transparent;color:inherit;padding:4px 9px;opacity:.55}
+.lang button[aria-pressed=true]{opacity:1}
+.demo-tag{position:fixed;right:12px;bottom:12px;z-index:50;font:500 11px/1 system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;background:#111;color:#fff;padding:7px 10px;border-radius:2px;opacity:.8}
+
+:root{--blue:#1E5AA8;--red:#D6363E;--bg:#F3F5F8;--ink:#1B2333;--line:#dde3ec;--mute:#5d6878}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.55 "Source Sans 3",Arial,sans-serif}
+.wrap{max-width:1200px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left))}
+header{background:#fff;border-bottom:1px solid var(--line)}
+header .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-block:14px}
+header img{height:52px;width:auto}
+.r{display:flex;gap:14px;align-items:center;font:600 12px Montserrat,sans-serif;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+nav.main{background:#fff;border-bottom:1px solid var(--line)}
+nav.main .wrap{display:flex;gap:22px;flex-wrap:wrap;padding-block:10px;font:600 14px Montserrat,sans-serif}
+nav.main a:hover{color:var(--red)}
+nav.sub{display:flex;gap:10px;flex-wrap:wrap;padding:12px 0}
+nav.sub a{background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:13px}
+.planner{background:var(--blue);color:#fff;border-radius:12px;padding:24px;margin:18px 0}
+.planner h1{font:700 clamp(26px,3.4vw,40px)/1.1 Montserrat,sans-serif;margin:0 0 6px;text-wrap:balance}
+.form{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;margin-top:16px}
+.form div{background:#fff;color:var(--ink);border-radius:8px;padding:10px 12px;font-size:14px}
+.form small{display:block;color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.form button{background:var(--red);color:#fff;border:0;border-radius:8px;font:700 15px Montserrat;padding:0 22px;cursor:pointer}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:8px 0 26px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.tile .top{height:96px;background:linear-gradient(120deg,#1E5AA8,#7ca6dc)}
+.tile:nth-child(2) .top{background:linear-gradient(120deg,#0e8a8a,#7fd0c8)}.tile:nth-child(3) .top{background:linear-gradient(120deg,#c0623a,#efb27d)}
+.tile .b{padding:14px 16px}
+.tile h3{font:700 19px Montserrat,sans-serif;margin:0 0 8px}
+.m{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;font-size:13px}
+.m b{display:block;font:700 18px Montserrat;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;font:700 11px Montserrat;padding:2px 8px;border-radius:999px;background:#e5f4ea;color:#1c7a3e}
+.badge.w{background:#fff3df;color:#9a5b00}
+h2{font:700 22px Montserrat,sans-serif;margin:26px 0 12px}
+.best{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;overflow-x:auto;margin-bottom:26px}
+.best table{border-collapse:collapse;width:100%;min-width:720px;font-size:13px}
+.best th,.best td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--line)}
+.best th:first-child,.best td:first-child{text-align:left;font-weight:600}
+.g{background:#d5ecdc}.y{background:#fdf0cf}.r{}
+.cell-r{background:#f7d6d8}
+.list{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:36px}
+.list article{background:#fff;border-left:4px solid var(--red);padding:14px 16px;border-radius:0 10px 10px 0}
+.list h3{font:700 17px/1.3 Montserrat;margin:4px 0}
+.kick{font:700 11px Montserrat;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
+footer{background:var(--ink);color:#c9d1dd;padding:24px 0;font-size:13px}
+@media(max-width:860px){.form{grid-template-columns:1fr 1fr}.tiles,.list{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body data-site="travelytix" data-first="en">
+<header><div class="wrap"><a href="#"><img src="logo.png" alt="Travelytix — Smart travel for US & Canada"></a>
+<div class="r"><span data-es="Miércoles 18:00 y sábados 9:00 ET" data-en="Wed 6 pm &amp; Sat 9 am ET">Miércoles 18:00 y sábados 9:00 ET</span><div class="lang"><button data-l="en">EN</button><button data-l="es">ES</button></div></div></div></header>
+<nav class="main"><div class="wrap"><a href="#"><span data-es="Destinos" data-en="Destinations">Destinos</span></a><a href="#"><span data-es="TravelSmart Planner" data-en="TravelSmart Planner">TravelSmart Planner</span></a><a href="#"><span data-es="Ofertas y vuelos" data-en="Deals &amp; Flights">Ofertas y vuelos</span></a><a href="#"><span data-es="Mejor época" data-en="Best Time to Go">Mejor época</span></a><a href="#"><span data-es="Requisitos de viaje" data-en="Travel Requirements">Requisitos de viaje</span></a></div></nav>
+<main class="wrap">
+<nav class="sub" aria-label="Subcanales"><a href="#"><span data-es="Dinero y tipo de cambio" data-en="Money &amp; Exchange Rates">Dinero y tipo de cambio</span></a><a href="#"><span data-es="Seguro de viaje" data-en="Travel Insurance">Seguro de viaje</span></a><a href="#"><span data-es="Comida y bebida" data-en="Food &amp; Drink">Comida y bebida</span></a><a href="#"><span data-es="Compras y ofertas" data-en="Shopping &amp; Deals">Compras y ofertas</span></a><a href="#"><span data-es="Celular y datos" data-en="Phone &amp; Data Abroad">Celular y datos</span></a><a href="#"><span data-es="Salud, wellness y belleza" data-en="Health, Wellness &amp; Beauty">Salud, wellness y belleza</span></a><a href="#"><span data-es="Estudiar fuera" data-en="Study Abroad">Estudiar fuera</span></a><a href="#"><span data-es="Road trips y renta" data-en="Road Trips &amp; Rentals">Road trips y renta</span></a><a href="#"><span data-es="Estilo de vida" data-en="Lifestyle">Estilo de vida</span></a><a href="#"><span data-es="Calendario de eventos" data-en="Events Calendar">Calendario de eventos</span></a></nav>
+<section class="planner"><h1><span data-es="Planea tu viaje a México con datos reales" data-en="Plan your Mexico trip with real numbers">Planea tu viaje a México con datos reales</span></h1>
+<p><span data-es="Costo diario, clima, vuelos y seguridad en un solo lugar, en USD o CAD." data-en="Daily cost, weather, flights and safety in one place, in USD or CAD.">Costo diario, clima, vuelos y seguridad en un solo lugar, en USD o CAD.</span></p>
+<div class="form"><div><small><span data-es="Desde" data-en="From">Desde</span></small>Toronto (YYZ)</div><div><small><span data-es="Destino" data-en="To">Destino</span></small>Cancún</div><div><small><span data-es="Fechas" data-en="Dates">Fechas</span></small>Feb 12 – 19</div><button>TravelSmart</button></div></section>
+<section class="tiles"><article class="tile"><div class="top"></div><div class="b"><h3>Cancún</h3><div class="m"><div><span data-es="Costo diario" data-en="Daily cost">Costo diario</span><b>US$185 · C$252</b></div><div><span data-es="Clima feb" data-en="Feb weather">Clima feb</span><b>82°F / 28°C</b></div><div><span data-es="Vuelo desde" data-en="Flight from">Vuelo desde</span><b>US$389</b></div><div><span data-es="Seguridad" data-en="Safety">Seguridad</span><br><span class="badge "><span data-es="Buena" data-en="Good">Buena</span></span></div></div></div></article><article class="tile"><div class="top"></div><div class="b"><h3>Puerto Vallarta</h3><div class="m"><div><span data-es="Costo diario" data-en="Daily cost">Costo diario</span><b>US$140 · C$190</b></div><div><span data-es="Clima feb" data-en="Feb weather">Clima feb</span><b>81°F / 27°C</b></div><div><span data-es="Vuelo desde" data-en="Flight from">Vuelo desde</span><b>US$412</b></div><div><span data-es="Seguridad" data-en="Safety">Seguridad</span><br><span class="badge "><span data-es="Buena" data-en="Good">Buena</span></span></div></div></div></article><article class="tile"><div class="top"></div><div class="b"><h3>Oaxaca</h3><div class="m"><div><span data-es="Costo diario" data-en="Daily cost">Costo diario</span><b>US$95 · C$129</b></div><div><span data-es="Clima feb" data-en="Feb weather">Clima feb</span><b>77°F / 25°C</b></div><div><span data-es="Vuelo desde" data-en="Flight from">Vuelo desde</span><b>US$455</b></div><div><span data-es="Seguridad" data-en="Safety">Seguridad</span><br><span class="badge w"><span data-es="Precaución" data-en="Caution">Precaución</span></span></div></div></div></article></section>
+<h2><span data-es="Mejor época para ir" data-en="Best time to go">Mejor época para ir</span></h2>
+<div class="best"><table><thead><tr><th><span data-es="Destino" data-en="Destination">Destino</span></th><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>May</th><th>Jun</th><th>Jul</th><th>Aug</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th></tr></thead><tbody><tr><td>Cancún</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="y"></td><td class="y"></td><td class="cell-r"></td><td class="cell-r"></td><td class="cell-r"></td><td class="cell-r"></td><td class="y"></td><td class="y"></td><td class="g">★</td></tr><tr><td>Cabo San Lucas</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="y"></td><td class="y"></td><td class="y"></td><td class="cell-r"></td><td class="cell-r"></td><td class="y"></td><td class="y"></td><td class="g">★</td></tr><tr><td>Mexico City</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="y"></td><td class="y"></td><td class="y"></td><td class="y"></td><td class="g">★</td><td class="g">★</td><td class="g">★</td></tr><tr><td>Puerto Vallarta</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="y"></td><td class="y"></td><td class="cell-r"></td><td class="cell-r"></td><td class="y"></td><td class="g">★</td><td class="g">★</td></tr><tr><td>Oaxaca</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="g">★</td><td class="y"></td><td class="y"></td><td class="y"></td><td class="y"></td><td class="y"></td><td class="g">★</td><td class="g">★</td><td class="g">★</td></tr></tbody></table></div>
+<section class="list"><article><div class="kick"><span data-es="Dinero y tipo de cambio" data-en="Money &amp; Exchange Rates">Dinero y tipo de cambio</span></div><h3><span data-es="Pesos, dólares o tarjeta: cómo pagar en México" data-en="Pesos, dollars or card: how to pay in Mexico">Pesos, dólares o tarjeta: cómo pagar en México</span></h3></article><article><div class="kick"><span data-es="Road trips y renta" data-en="Road Trips &amp; Rentals">Road trips y renta</span></div><h3><span data-es="Road trip por Baja California: millas, gasolina y seguro" data-en="Baja road trip: miles, gas and insurance">Road trip por Baja California: millas, gasolina y seguro</span></h3></article><article><div class="kick"><span data-es="Requisitos de viaje" data-en="Travel Requirements">Requisitos de viaje</span></div><h3><span data-es="Lo que necesitan los canadienses para entrar a México en 2027" data-en="What Canadians need to enter Mexico in 2027">Lo que necesitan los canadienses para entrar a México en 2027</span></h3></article></section>
+</main>
+<footer><div class="wrap"><span data-es="Travelytix · Viaje inteligente para EE.UU. y Canadá · EN / ES" data-en="Travelytix · Smart travel for US &amp; Canada · EN / ES">Travelytix · Viaje inteligente para EE.UU. y Canadá · EN / ES</span></div></footer>
+<div class="demo-tag">Demo · Preview</div>
+<script>
+(function(){
+  var KEY='lang-'+document.body.dataset.site, first=document.body.dataset.first;
+  var lang; try{lang=localStorage.getItem(KEY)}catch(e){}
+  lang=lang||first;
+  function apply(l){
+    document.documentElement.lang=l;
+    document.querySelectorAll('[data-es]').forEach(function(n){n.textContent=n.getAttribute('data-'+l)});
+    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.l===l)});
+    try{localStorage.setItem(KEY,l)}catch(e){}
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){apply(b.dataset.l)})});
+  apply(lang);
+})();
+</script>
+</body>
+</html>
