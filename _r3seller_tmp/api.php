@@ -78,7 +78,7 @@ switch ($action) {
     out(['ok' => true, 'view' => $v, 'label' => $a['name'] ?? ($s['name'] ?? ($isInt ? 'Potenttial Group' : '')), 'rows' => $sess['role'] === 'ally' ? array_map(fn($r) => array_diff_key($r, array_flip(['margin', 'agency', 'division'])), scope($db, $v)) : scope($db, $v),
       'team' => array_map(fn($x) => ($sess['role'] === 'ally' && ($x['kind'] ?? 'empleado') === 'aliada') ? ['name' => $x['name'], 'kind' => '', 'company' => '', 'role' => '', 'email' => '', 'phone' => ''] : public_seller($x), array_values($team)), 'utms' => array_values(array_map(fn($u) => array_intersect_key($u, array_flip(['campaign', 'medium', 'seller', 'link', 'client'])), $utms)),
       'forms' => array_values(array_map(fn($x) => ['name' => $x['name'], 'url' => $x['form']], array_filter($formsFrom, fn($x) => !empty($x['form'])))),
-      'leads' => array_values(array_map(fn($l) => lead_public($l, $db), array_slice(array_values(array_filter($db['leads'] ?? [], fn($l) => $isInt ? ($l['ally'] === PG_ID) : ($a ? ($l['ally'] === $a['id'] && ($sess['role'] !== 'ally' || $l['ok'])) : ($s ? (($l['byId'] ?? '') === $s['id']) : true)))), 0, 50))),
+      'leads' => array_values(array_map(fn($l) => $sess['role'] === 'ally' ? array_intersect_key(lead_public($l, $db), array_flip(['t', 'ally', 'by', 'sum', 'ok'])) : lead_public($l, $db), array_slice(array_values(array_filter($db['leads'] ?? [], fn($l) => $isInt ? ($l['ally'] === PG_ID) : ($a ? ($l['ally'] === $a['id'] && ($sess['role'] !== 'ally' || $l['ok'])) : ($s ? (($l['byId'] ?? '') === $s['id']) : true)))), 0, 50))),
       'fx' => (float)$db['settings']['fx'], 'sync' => (int)$db['cache']['at'], 'error' => $sess['role'] === 'admin' ? $db['cache']['error'] : '']);
 }
 
@@ -89,7 +89,7 @@ function lead_allies(array $db, array $sess): array {
 }
 function lead_public(array $l, array $db): array {
   $a = find_by($db['allies'], 'id', $l['ally']);
-  return ['t' => $l['t'], 'pg' => $l['pg'] ?? null, 'mine' => true, 'ally' => $l['ally'] === PG_ID ? 'Potenttial Group' : ($a['name'] ?? '—'), 'by' => $l['by'], 'sum' => $l['sum'], 'answers' => $l['answers'], 'ok' => $l['ok'], 'msg' => $l['msg']];
+  return ['t' => $l['t'], 'allyId' => $l['ally'], 'country' => $l['country'] ?? ($l['pg']['country'] ?? ''), 'pg' => $l['pg'] ?? null, 'mine' => true, 'ally' => $l['ally'] === PG_ID ? 'Potenttial Group' : ($a['name'] ?? '—'), 'by' => $l['by'], 'sum' => $l['sum'], 'answers' => $l['answers'], 'ok' => $l['ok'], 'msg' => $l['msg']];
 }
 switch ($action) {
   case 'leadAllies':
@@ -115,6 +115,40 @@ switch ($action) {
     $lead = ['t' => date('c') . '-' . bin2hex(random_bytes(2)), 'ally' => $allyId, 'by' => $me['name'] ?? '', 'byId' => $sess['id'] ?? 'admin', 'sum' => implode(' · ', array_filter([$pg['brand'], $div, $prod])),
       'answers' => ['Empresa' => $pg['brand'], 'Contacto' => $pg['contact'], 'División' => $div, 'Producto' => $prod], 'ok' => true, 'msg' => $isPg ? 'En el pipeline de Potenttial Group' : 'En el pipeline de ' . $ally['name'], 'pg' => $pg];
     $db['leads'] = $db['leads'] ?? []; array_unshift($db['leads'], $lead); db_save($db); out(['ok' => true]);
+
+  case 'editLead':
+    if (!in_array($sess['role'], ['admin', 'seller'], true)) fail('Sin permiso', 403);
+    $t = (string)($in['t'] ?? ''); $x = (array)($in['set'] ?? []); $tr = fn($k) => trim((string)($x[$k] ?? '')); $done = false;
+    foreach ($db['leads'] as &$l) {
+      if ($l['t'] !== $t) continue;
+      if ($sess['role'] !== 'admin' && ($l['byId'] ?? '') !== ($sess['id'] ?? '')) fail('Solo puedes editar tus leads', 403);
+      $key = (!empty($l['pg']) && $l['ally'] === PG_ID ? 'pg:' : 'lead:') . $l['t'];
+      if (!empty($l['pg'])) {
+        if ($tr('brand') === '' || $tr('contact') === '') fail('Faltan empresa/marca o contacto');
+        $email = $tr('email'); if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) fail('Revisa el email');
+        $p = $l['pg']; $div = $p['division'] ?? ''; $prod = $tr('product');
+        if ($l['ally'] === PG_ID) {
+          $CAT = pg_catalog($db); $div = $tr('division');
+          if (!array_key_exists($div, $CAT)) fail('Elige la división');
+          if ($CAT[$div] && !in_array($prod, $CAT[$div], true)) fail('Elige el producto');
+          if (!$CAT[$div] && $prod === '') fail('Describe el producto o servicio');
+        }
+        $l['pg'] = array_merge($p, ['brand' => $tr('brand'), 'contact' => $tr('contact'), 'email' => $email, 'phone' => $tr('phone'), 'country' => $tr('country'),
+          'division' => $div, 'product' => $prod, 'media' => $prod === 'Pauta en Medios' ? array_values(array_intersect((array)($x['media'] ?? []), PG_MEDIA)) : [],
+          'agency' => $tr('agency'), 'margin' => $tr('margin') === '' ? null : max(0, min(100, num($x['margin']))), 'amount' => max(0, num($x['amount'] ?? 0)),
+          'cur' => $tr('cur') === 'USD' ? 'USD' : 'MXN', 'status' => in_array($tr('status'), STAGES, true) ? $tr('status') : ($p['status'] ?? 'Interesado'), 'next' => $tr('next'), 'notes' => $tr('notes')]);
+        $l['sum'] = implode(' · ', array_filter([$l['pg']['brand'], $div, $prod]));
+        $l['answers'] = array_merge((array)$l['answers'], ['Empresa' => $l['pg']['brand'], 'Contacto' => $l['pg']['contact'], 'Producto' => $prod]);
+        if (isset($db['crm'][$key])) { foreach (['status', 'amount', 'cur', 'next'] as $k) unset($db['crm'][$key][$k]); }
+      } else {
+        $ans = (array)($x['answers'] ?? []); $new = [];
+        foreach ((array)$l['answers'] as $k => $v) $new[$k] = array_key_exists($k, $ans) ? trim((string)$ans[$k]) : $v;
+        $l['answers'] = $new; $l['country'] = $tr('country'); $l['editedLocal'] = date('c');
+        $l['sum'] = implode(' · ', array_slice(array_values(array_filter($new, fn($v) => $v !== '' && mb_strlen((string)$v) < 80)), 0, 3));
+      }
+      $l['updated'] = date('c'); $done = true;
+    } unset($l);
+    if (!$done) fail('No encontrado'); db_save($db); out(['ok' => true]);
 
   case 'updateLead':
     $t = (string)($in['t'] ?? ''); $found = false;

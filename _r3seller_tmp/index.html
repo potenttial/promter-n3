@@ -509,6 +509,17 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
 </div>
 
 <datalist id="countries"><option>México</option><option>Estados Unidos</option><option>Canadá</option><option>Guatemala</option><option>El Salvador</option><option>Honduras</option><option>Costa Rica</option><option>Panamá</option><option>Colombia</option><option>Ecuador</option><option>Perú</option><option>Chile</option><option>Argentina</option><option>Brasil</option><option>República Dominicana</option><option>España</option><option>Alemania</option><option>Reino Unido</option></datalist>
+<!-- modal editar lead -->
+<div class="modal" id="mLead" hidden role="dialog" aria-modal="true" aria-labelledby="mlT">
+  <form class="glass modal-box" id="leadEditForm" novalidate>
+    <div class="modal-head"><div><h2 id="mlT">Editar lead</h2><span class="lbl" id="mlS"></span></div><button class="btn ghost sm" type="button" data-close>Cerrar</button></div>
+    <div class="form2" id="leFields"></div>
+    <p class="banner" id="leNote" hidden style="margin-top:12px"></p>
+    <div class="err" id="leErr" role="alert"></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn" type="submit">Guardar cambios</button></div>
+  </form>
+</div>
+
 <!-- modal Compass -->
 <div class="modal" id="mCrm" hidden role="dialog" aria-modal="true" aria-labelledby="mcT">
   <form class="glass modal-box" id="crmForm" novalidate>
@@ -523,6 +534,7 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
       <div class="field-row"><label for="cMarE">Ganancia %</label><input type="text" id="cMarE" inputmode="decimal"></div>
     </div>
     <p class="lbl" id="mcNote" style="margin:10px 0 0"></p>
+    <button class="btn ghost sm" type="button" id="mcFull" hidden style="margin-top:10px">Editar todos los datos del lead</button>
     <div class="row" style="justify-content:flex-end;margin-top:12px"><button class="btn" type="submit">Guardar</button></div>
   </form>
 </div>
@@ -735,13 +747,14 @@ function drawCrm(){const all=C.rows.map(r=>{const val=cConv(r.amount,r.cur);retu
     :'<tr><td colspan="13"><div class="empty">No hay oportunidades con estos filtros.</div></td></tr>';
   $$('[data-ck]').forEach(b=>b.onclick=()=>openCrm(C.rows.find(r=>r.key===b.dataset.ck)));
   $('#cSub').textContent=`Todo tu pipeline: aliados, productos propios y Google Sheet · ${C.rows.length} oportunidades`}
-function openCrm(r){cEdit=r;$('#mcT').textContent=r.brand;$('#mcS').textContent=`${r.origin} · ${r.contact||''}`;
+function openCrm(r){cEdit=r;$('#mcFull').hidden=!['lead','pg'].includes(r.src);$('#mcT').textContent=r.brand;$('#mcS').textContent=`${r.origin} · ${r.contact||''}`;
   $('#cStatusE').innerHTML=C.stages.map(s=>`<option ${s===r.status?'selected':''}>${esc(s)}</option>`).join('');
   $('#cNextE').value=r.next||'';$('#cAmtE').value=r.amount||'';$('#cCurE').value=r.cur;$('#cAgE').value=r.agencyX||'';$('#cProdE').value=r.productX||'';$('#cMarE').value=r.marginX||'';
   $('#mcNote').textContent=r.src==='sheet'?'Viene de tu Google Sheet: lo que cambies aquí tiene prioridad sobre el Sheet en R3seller.':'';$('#mCrm').hidden=false}
 $('#crmForm').onsubmit=async e=>{e.preventDefault();if(!cEdit)return;
   const set={status:$('#cStatusE').value,next:$('#cNextE').value,amount:$('#cAmtE').value,cur:$('#cCurE').value,agency:$('#cAgE').value,product:$('#cProdE').value,margin:$('#cMarE').value};
   try{await api('crmSave',{key:cEdit.key,set});$('#mCrm').hidden=true;toast('Oportunidad actualizada');renderCrm()}catch(err){toast(err.message)}};
+$('#mcFull').onclick=async()=>{if(!cEdit)return;const t=cEdit.key.replace(/^(lead|pg):/,'');if(!ML.length){try{ML=(await api('myLeads')).leads}catch(e){}}const l=ML.find(x=>x.t===t);if(!l){toast('No encontré el lead');return}$('#mCrm').hidden=true;openLeadEdit(l)};
 $$('[data-ccur]').forEach(b=>b.onclick=()=>{cCur=b.dataset.ccur;LS.set('ccur',cCur);if(C)drawCrm()});
 $('#cQ').oninput=e=>{cF.q=e.target.value;if(C)drawCrm()};$('#cOrigin').onchange=e=>{cF.or=e.target.value;drawCrm()};$('#cSeller').onchange=e=>{cF.se=e.target.value;drawCrm()};
 $('#cCsv').onclick=()=>{if(!C)return;const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;const h=['Marca','Agencia','Persona clave','País','Producto','Origen','Monto','Moneda','Status','Siguiente paso','Ganancia %','Ganancia ('+cCur+')','Vendedor'];
@@ -848,8 +861,43 @@ $('#leadForm').onsubmit=async e=>{e.preventDefault();$('#lErr').textContent='';
   b.dataset.sure='';b.textContent='Registrar en el formulario';b.disabled=true;
   try{const r=await api('registerLead',{id:$('#lAlly').value,answers:ans,country:($('#f_country')?.value||'').trim()});toast(r.sent?'Lead registrado ✓':'No se registró: '+r.msg);if(r.sent)$('#leadForm').reset();loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}};
 $('#lClear').onclick=()=>{$('#lSend').dataset.sure='';$('#lSend').textContent='Registrar en el formulario'};
-async function loadMyLeads(){try{const L=(await api('myLeads')).leads;$('#lList').innerHTML=L.length?L.map(l=>`<div class="lead-i"><strong>${esc(l.sum||'—')}</strong><small>${esc(l.ally)} · ${new Date(l.t).toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'})} · ${esc(l.by)}</small>${l.pg?`<div class="row" style="margin-top:6px;align-items:center"><select data-lt="${esc(l.t)}" style="min-height:36px;padding:4px 10px;width:auto">${STG.map(x=>`<option ${x===l.pg.status?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="lbl">${esc(l.pg.cur)} ${Number(l.pg.amount||0).toLocaleString('es-MX')}</span></div>`:`<span class="chip ${l.ok?'good':''}" ${l.ok?'':'style="color:var(--crit)"'}>${esc(l.msg)}</span>`}</div>`).join(''):'<div class="empty">Aún no registras leads.</div>';
-  $$('[data-lt]').forEach(sel=>sel.onchange=async()=>{try{await api('updateLead',{t:sel.dataset.lt,set:{status:sel.value}});toast('Status actualizado')}catch(e){toast(e.message)}})}catch(e){}}
+let ML=[];
+const ldate=t=>{const d=new Date(String(t).slice(0,25));return isNaN(d)?'':d.toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'})};
+async function loadMyLeads(){try{ML=(await api('myLeads')).leads;const L=ML;$('#lList').innerHTML=L.length?L.map(l=>`<div class="lead-i"><div class="row" style="justify-content:space-between;align-items:center"><strong>${esc(l.sum||'—')}</strong><button class="btn ghost sm" type="button" data-le="${esc(l.t)}">Editar</button></div><small>${esc(l.ally)}${l.country?' · '+esc(l.country):''} · ${ldate(l.t)} · ${esc(l.by)}</small>${l.pg?`<div class="row" style="margin-top:6px;align-items:center"><select data-lt="${esc(l.t)}" style="min-height:36px;padding:4px 10px;width:auto">${STG.map(x=>`<option ${x===l.pg.status?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="lbl">${esc(l.pg.cur)} ${Number(l.pg.amount||0).toLocaleString('es-MX')}</span></div>`:`<span class="chip ${l.ok?'good':''}" ${l.ok?'':'style="color:var(--crit)"'}>${esc(l.msg)}</span>`}</div>`).join(''):'<div class="empty">Aún no registras leads.</div>';
+  $$('[data-lt]').forEach(sel=>sel.onchange=async()=>{try{await api('updateLead',{t:sel.dataset.lt,set:{status:sel.value}});toast('Status actualizado')}catch(e){toast(e.message)}});
+  $$('[data-le]').forEach(b=>b.onclick=()=>openLeadEdit(ML.find(l=>l.t===b.dataset.le)))}catch(e){}}
+let LE=null;
+async function openLeadEdit(l){if(!l)return;LE=l;$('#leErr').textContent='';$('#mlT').textContent='Editar lead';$('#mlS').textContent=`${l.ally} · ${ldate(l.t)} · ${l.by}`;
+  if(!Object.keys(CAT).length||!STG.length){try{const r=await api('leadAllies');CAT=r.catalog;MEDIA=r.media;STG=r.stages}catch(e){}}
+  const v=(x)=>esc(x??'');const F=$('#leFields');
+  if(l.pg){const p=l.pg,isPg=l.allyId==='pg';const opt=(arr,sel,ph)=>`<option value="">${ph}</option>`+arr.map(o=>`<option ${o===sel?'selected':''}>${esc(o)}</option>`).join('');
+    F.innerHTML=`<div class="field-row"><label class="req" for="e_brand">Empresa / marca</label><input type="text" id="e_brand" value="${v(p.brand)}"></div>
+     <div class="field-row"><label class="req" for="e_contact">Nombre del contacto</label><input type="text" id="e_contact" value="${v(p.contact)}"></div>
+     <div class="field-row"><label for="e_country">País</label><input type="text" id="e_country" list="countries" value="${v(p.country)}"></div>
+     <div class="field-row"><label for="e_email">Email</label><input type="email" id="e_email" value="${v(p.email)}"></div>
+     <div class="field-row"><label for="e_phone">Teléfono / WhatsApp</label><input type="text" id="e_phone" value="${v(p.phone)}"></div>
+     ${isPg?`<div class="field-row"><label class="req" for="e_div">División</label><select id="e_div">${opt(Object.keys(CAT),p.division,'— Elige división —')}</select></div>`:''}
+     <div class="field-row" id="e_prodRow"></div>
+     <div class="field-row full" id="e_mediaRow" hidden><label>Medios de la pauta</label><div class="opts2">${MEDIA.map(m=>`<label><input type="checkbox" name="e_media" value="${esc(m)}" ${(p.media||[]).includes(m)?'checked':''}> ${esc(m)}</label>`).join('')}</div></div>
+     <div class="field-row"><label for="e_agency">Agencia (si aplica)</label><input type="text" id="e_agency" value="${v(p.agency)}"></div>
+     <div class="field-row"><label for="e_margin">Ganancia estimada %</label><input type="text" id="e_margin" inputmode="decimal" value="${p.margin??''}"></div>
+     <div class="field-row"><label for="e_amount">Monto</label><input type="text" id="e_amount" inputmode="decimal" value="${p.amount||''}"></div>
+     <div class="field-row"><label for="e_cur">Moneda</label><select id="e_cur"><option ${p.cur==='MXN'?'selected':''}>MXN</option><option ${p.cur==='USD'?'selected':''}>USD</option></select></div>
+     <div class="field-row"><label for="e_status">Status</label><select id="e_status">${STG.map(x=>`<option ${x===p.status?'selected':''}>${esc(x)}</option>`).join('')}</select></div>
+     <div class="field-row"><label for="e_next">Siguiente paso</label><input type="text" id="e_next" value="${v(p.next)}"></div>
+     <div class="field-row full"><label for="e_notes">Notas</label><textarea id="e_notes">${v(p.notes)}</textarea></div>`;
+    const drawProd=()=>{const d=isPg?$('#e_div').value:'';const list=isPg?(CAT[d]||[]):[];const cur=$('#e_prod')?.value??p.product;
+      $('#e_prodRow').innerHTML=`<label class="${isPg?'req':''}" for="e_prod">Producto${isPg?'':' / servicio'}</label>`+(list.length?`<select id="e_prod">${opt(list,cur,'— Elige producto —')}</select>`:`<input type="text" id="e_prod" value="${v(cur)}">`);
+      const upd=()=>$('#e_mediaRow').hidden=$('#e_prod').value!=='Pauta en Medios';$('#e_prod').onchange=upd;upd()};
+    if(isPg)$('#e_div').onchange=()=>{$('#e_prod')&&($('#e_prod').value='');drawProd()};drawProd();
+    $('#leNote').hidden=true}
+  else{F.innerHTML=`<div class="field-row"><label for="e_country">País</label><input type="text" id="e_country" list="countries" value="${v(l.country)}"></div>`+Object.entries(l.answers||{}).map(([k,val],i)=>`<div class="field-row${String(val).length>60||k.length>50?' full':''}"><label for="e_a${i}">${esc(k)}</label>${String(val).length>60?`<textarea id="e_a${i}" data-ak="${esc(k)}">${v(val)}</textarea>`:`<input type="text" id="e_a${i}" data-ak="${esc(k)}" value="${v(val)}">`}</div>`).join('');
+    $('#leNote').hidden=false;$('#leNote').textContent=`Este lead ya se envió al formulario de ${l.ally}. Los cambios se guardan en R3seller, pero no se reenvían a su formulario.`}
+  $('#mLead').hidden=false}
+$('#leadEditForm').onsubmit=async e=>{e.preventDefault();if(!LE)return;$('#leErr').textContent='';const g=id=>($('#'+id)?.value||'').trim();let set;
+  if(LE.pg)set={brand:g('e_brand'),contact:g('e_contact'),country:g('e_country'),email:g('e_email'),phone:g('e_phone'),division:g('e_div'),product:g('e_prod'),media:[...$$('input[name=e_media]:checked')].map(i=>i.value),agency:g('e_agency'),margin:g('e_margin'),amount:g('e_amount'),cur:g('e_cur'),status:g('e_status'),next:g('e_next'),notes:g('e_notes')};
+  else{const answers={};$$('#leFields [data-ak]').forEach(i=>answers[i.dataset.ak]=i.value);set={country:g('e_country'),answers}}
+  try{await api('editLead',{t:LE.t,set});$('#mLead').hidden=true;toast('Lead actualizado');loadMyLeads();if(C&&!$('section[data-view=crm]').hidden)renderCrm()}catch(err){$('#leErr').textContent=err.message}};
 
 /* ---------- aliados ---------- */
 function genPass(){const c='abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';crypto.getRandomValues(new Uint32Array(10)).forEach(x=>s+=c[x%c.length]);return s}
