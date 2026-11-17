@@ -134,7 +134,7 @@ function rows_for_ally(array $db, array $a): array {
   foreach ($db['leads'] ?? [] as $l) {
     if (($l['ally'] ?? '') !== $a['id'] || empty($l['ok'])) continue;
     if (!empty($l['pg'])) { $p = $l['pg']; if (isset($have[norm($p['brand'])])) continue; $have[norm($p['brand'])] = 1;
-      $out[] = ['ally' => $a['name'], 'brand' => $p['brand'], 'category' => ($p['product'] ?? '') ?: '—', 'contact' => $p['contact'],
+      $out[] = ['ally' => $a['name'], 'brand' => $p['brand'], 'category' => ($p['category'] ?? '') ?: (($p['product'] ?? '') ?: '—'), 'contact' => $p['contact'],
         'status' => in_array($p['status'] ?? '', STAGES, true) ? $p['status'] : 'Interesado', 'next' => $p['next'] ?? '', 'amount' => (float)($p['amount'] ?? 0),
         'cur' => ($p['cur'] ?? 'MXN') === 'USD' ? 'USD' : 'MXN', 'seller' => (string)($l['by'] ?? ''), 'notes' => $p['notes'] ?? '', 'src' => 'lead', 'key' => 'lead:' . $l['t'], 'allyId' => $a['id'], 'country' => $p['country'] ?? '',
         'product' => $p['product'] ?? '', 'agency' => $p['agency'] ?? '', 'margin' => $p['margin'] ?? null];
@@ -143,7 +143,7 @@ function rows_for_ally(array $db, array $a): array {
     $brand = $pick('/company|empresa|marca|compan|organiza|cuenta/', '/url|web|sitio/');
     if ($brand === '' || isset($have[norm($brand)])) continue;
     $have[norm($brand)] = 1;
-    $out[] = ['ally' => $a['name'], 'brand' => $brand, 'category' => $pick('/industr|categor|sector|giro/') ?: '—', 'contact' => $pick('/full name|nombre|name|contact/', '/compan|empresa/'),
+    $out[] = ['ally' => $a['name'], 'brand' => $brand, 'category' => ($l['category'] ?? '') ?: ($pick('/industr|categor|sector|giro/') ?: '—'), 'contact' => $pick('/full name|nombre|name|contact/', '/compan|empresa/'),
       'status' => 'Interesado', 'next' => 'Registrado en el formulario del aliado · ' . substr((string)$l['t'], 0, 10), 'amount' => 0.0, 'cur' => 'USD',
       'seller' => (string)($l['by'] ?? ''), 'notes' => $pick('/detail|nota|coment|additional/'), 'src' => 'lead', 'key' => 'lead:' . $l['t'], 'allyId' => $a['id'], 'country' => (string)($l['country'] ?? '')];
   }
@@ -179,6 +179,17 @@ function pg_catalog(array $db): array {
   if (isset($c['Otro'])) { $o = $c['Otro']; unset($c['Otro']); $c['Otro'] = $o; }
   return $c;
 }
+function lead_categories(array $db): array {
+  $c = array_map('strval', (array)($db['categories'] ?? []));
+  foreach ($db['leads'] ?? [] as $l) { $x = trim((string)($l['pg']['category'] ?? ($l['category'] ?? ''))); if ($x !== '') $c[] = $x; }
+  $u = []; foreach ($c as $x) { $x = trim($x); if ($x !== '' && !isset($u[norm($x)])) $u[norm($x)] = $x; }
+  $u = array_values($u); natcasesort($u); return array_values($u);
+}
+function add_category(array &$db, string $c): void {
+  $c = trim($c); if ($c === '') return;
+  foreach ((array)($db['categories'] ?? []) as $x) if (norm($x) === norm($c)) return;
+  $db['categories'][] = mb_substr($c, 0, 60);
+}
 const PG_MEDIA = ['Google', 'Meta', 'ChatGPT', 'LinkedIn', 'TikTok', 'Programmatic'];
 function internal_rows(array $db, ?string $byId = null): array {
   $out = [];
@@ -187,7 +198,7 @@ function internal_rows(array $db, ?string $byId = null): array {
     if ($byId !== null && ($l['byId'] ?? '') !== $byId) continue;
     $p = $l['pg'];
     $prod = trim(($p['product'] ?? '') . (!empty($p['media']) ? ' (' . implode(', ', $p['media']) . ')' : ''));
-    $out[] = ['ally' => 'Potenttial Group', 'brand' => $p['brand'], 'category' => $p['division'] . ($prod !== '' ? ' · ' . $prod : ''), 'contact' => $p['contact'],
+    $out[] = ['ally' => 'Potenttial Group', 'brand' => $p['brand'], 'category' => ($p['category'] ?? '') ?: ($p['division'] . ($prod !== '' ? ' · ' . $prod : '')), 'contact' => $p['contact'],
       'status' => in_array($p['status'] ?? '', STAGES, true) ? $p['status'] : 'Interesado', 'next' => $p['next'] ?? '', 'amount' => (float)($p['amount'] ?? 0),
       'cur' => ($p['cur'] ?? 'MXN') === 'USD' ? 'USD' : 'MXN', 'seller' => (string)($l['by'] ?? ''), 'notes' => $p['notes'] ?? '', 'src' => 'pg', 'id' => $l['t'], 'key' => 'pg:' . $l['t'], 'allyId' => PG_ID, 'country' => $p['country'] ?? '',
       'division' => $p['division'], 'product' => $prod, 'agency' => $p['agency'] ?? '', 'margin' => $p['margin'] ?? null];

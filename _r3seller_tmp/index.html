@@ -73,6 +73,10 @@ h1,h2,h3{margin:0;letter-spacing:-.015em;text-wrap:balance}
 .qrimg{width:150px;height:150px;background:#fff;border-radius:12px;padding:8px;border:1px solid var(--edge)}
 .qrimg svg{width:100%;height:100%;display:block}
 .lead-i{padding:10px 0;border-bottom:1px solid rgb(var(--t) / .08)}.lead-i:last-child{border-bottom:0}.lead-i strong{display:block;font-size:14px}.lead-i small{display:block;color:var(--fg-3);font-size:12.5px}
+.multi{margin-top:14px;padding:12px 14px;border:1px solid var(--edge);border-radius:14px;background:var(--glass-2)}.multi h4{margin:0 0 4px;font-size:14px;font-weight:600}.multi .sub{margin:0 0 8px}
+.mx{margin-top:10px;padding-top:10px;border-top:1px solid rgb(var(--t) / .08)}.mx>strong{display:block;font-size:13.5px;margin-bottom:6px}
+.catm{margin-top:8px;padding:10px;border:1px solid var(--edge);border-radius:12px;background:var(--glass-2)}.catm .row{gap:6px;margin-bottom:10px;flex-wrap:wrap}.catm input{min-height:38px;padding:4px 10px;flex:1 1 100%}.catrow .btn{white-space:nowrap}
+.catrow{display:flex;gap:6px;align-items:flex-end}.catrow input{flex:1}
 .opts2{display:flex;flex-wrap:wrap;gap:8px 14px;padding:4px 0}.opts2 label{display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--fg)}.opts2 input{width:18px;height:18px;accent-color:#e7000b}
 .btn.dis{opacity:.45;pointer-events:none}
 .ck{grid-template-columns:repeat(2,minmax(0,1fr))}@media(min-width:900px){.ck{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -367,6 +371,7 @@ code{font-family:ui-monospace,Menlo,monospace!important;font-size:12.5px;backgro
           <button class="btn ghost sm" type="button" id="lRefresh">Actualizar campos</button></div>
         <p class="sub" id="lInfo"></p>
         <form id="leadForm" novalidate><div class="form2" id="lFields"></div>
+          <div id="lMulti"></div>
           <div class="err" id="lErr" role="alert"></div>
           <div class="row" style="justify-content:flex-end;margin-top:6px"><button class="btn ghost" type="reset" id="lClear">Limpiar</button><button class="btn" type="submit" id="lSend">Registrar en el formulario</button></div></form>
       </div>
@@ -804,8 +809,39 @@ $('#iDel').onclick=async()=>{if(!iEdit)return;const b=$('#iDel');if(b.dataset.su
 $('#iQ').oninput=e=>{iF.q=e.target.value;if(IN)drawInnov()};
 
 /* ---------- registrar lead ---------- */
-let LA=[],SC=null,CAT={},MEDIA=[],STG=[];
-async function renderLead(){try{const r=await api('leadAllies');LA=r.allies;CAT=r.catalog;MEDIA=r.media;STG=r.stages}catch(e){toast(e.message);return}
+let LA=[],SC=null,CAT={},MEDIA=[],STG=[],CATS=[],CANCAT=false;
+function setCats(c){CATS=c||[];let d=$('#catList');if(!d){d=document.createElement('datalist');d.id='catList';document.body.appendChild(d)}d.innerHTML=CATS.map(x=>`<option value="${esc(x)}">`).join('')}
+/* campo Categoría con editor en línea (escribir nuevas, renombrar, borrar) */
+function catField(id,val){return `<div class="field-row full"><label for="${id}">Categoría</label><div class="catrow"><input type="text" id="${id}" list="catList" value="${esc(val||'')}" placeholder="Escribe o elige una categoría" autocomplete="off"><button class="btn ghost sm" type="button" data-catm="${id}">Editar categorías</button></div><div class="catm" id="${id}_m" hidden></div></div>`}
+function bindCat(root){root.querySelectorAll('[data-catm]').forEach(b=>b.onclick=()=>{const box=$('#'+b.dataset.catm+'_m');box.hidden=!box.hidden;if(!box.hidden)drawCatMgr(box,b.dataset.catm)})}
+function drawCatMgr(box,inputId){
+  box.innerHTML=`<div class="row"><input type="text" id="${inputId}_new" placeholder="Nueva categoría"><button class="btn sm" type="button" data-cadd>Agregar</button></div>`+
+   (CATS.length?CATS.map((c,i)=>`<div class="row"><input type="text" value="${esc(c)}" data-cold="${esc(c)}" ${CANCAT?'':'disabled'}><button class="btn ghost sm" type="button" data-cuse="${i}">Usar</button>${CANCAT?`<button class="btn ghost sm" type="button" data-cren="${i}">Guardar</button><button class="btn ghost sm" type="button" data-cdel="${i}">Borrar</button>`:''}</div>`).join(''):'<p class="sub">Aún no hay categorías.</p>')+
+   (CANCAT?'':'<p class="sub">Solo el admin puede renombrar o borrar categorías.</p>');
+  const run=async(op,name,to)=>{try{const r=await api('catSave',{op,name,to});setCats(r.categories);drawCatMgr(box,inputId);return true}catch(e){toast(e.message);return false}};
+  box.querySelector('[data-cadd]').onclick=async()=>{const n=$('#'+inputId+'_new').value.trim();if(!n)return;if(await run('add',n)){$('#'+inputId).value=n;toast('Categoría agregada')}};
+  box.querySelectorAll('[data-cuse]').forEach(b=>b.onclick=()=>{$('#'+inputId).value=CATS[+b.dataset.cuse];box.hidden=true});
+  box.querySelectorAll('[data-cren]').forEach(b=>b.onclick=async()=>{const old=CATS[+b.dataset.cren],inp=b.parentNode.querySelector('input'),to=inp.value.trim();if(!to||to===old)return;
+    if(await run('rename',old,to)){if($('#'+inputId).value===old)$('#'+inputId).value=to;toast('Categoría renombrada en todos los leads')}});
+  box.querySelectorAll('[data-cdel]').forEach(b=>b.onclick=async()=>{const old=CATS[+b.dataset.cdel];if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='¿Seguro?';return}
+    if(await run('del',old)){if($('#'+inputId).value===old)$('#'+inputId).value='';toast('Categoría borrada')}})}
+/* registrar el mismo lead para varios aliados: cada uno solo ve su registro y su producto */
+function drawMulti(primary){const box=$('#lMulti');const others=LA.filter(a=>a.id!==primary&&(a.internal||!a.hasForm));
+  if(!others.length){box.innerHTML='';return}
+  box.innerHTML=`<div class="multi"><h4>Registrar también para otros aliados</h4><p class="sub">Cada aliado verá solo su propio registro y el producto que le corresponde; ninguno ve lo que se ofreció a los demás. Evita mencionar otros productos en Notas o Next step.</p>
+    <div class="opts2">${others.map(a=>`<label><input type="checkbox" name="mx_on" value="${a.id}"> ${esc(a.internal?'Potenttial Group':a.name)}</label>`).join('')}</div><div id="mxRows"></div>
+    ${LA.some(a=>a.hasForm&&!a.internal&&a.id!==primary)?'<p class="sub" style="margin-top:8px">Los aliados con Google Form (p. ej. geoSurge) se registran eligiéndolos arriba como aliado principal.</p>':''}</div>`;
+  const opt=(arr,ph)=>`<option value="">${ph}</option>`+arr.map(o=>`<option>${esc(o)}</option>`).join('');
+  const draw=()=>{const keep={};$$('#mxRows [data-mx]').forEach(r=>keep[r.dataset.mx]=r);const ids=[...$$('input[name=mx_on]:checked')].map(i=>i.value);
+    $('#mxRows').innerHTML='';ids.forEach(id=>{if(keep[id]){$('#mxRows').appendChild(keep[id]);return}const a=LA.find(x=>x.id===id),pg=id==='pg';const d=document.createElement('div');d.className='mx form2';d.dataset.mx=id;
+      d.innerHTML=`<strong class="full" style="grid-column:1/-1">${esc(pg?'Potenttial Group':a.name)}</strong>`+(pg?`<div class="field-row"><label class="req">División</label><select data-k="division">${opt(Object.keys(CAT),'— Elige división —')}</select></div><div class="field-row" data-prow><label class="req">Producto</label><select data-k="product"><option value="">— Primero elige división —</option></select></div>`:`<div class="field-row"><label>Producto / servicio para ${esc(a.name)}</label><input type="text" data-k="product" placeholder="Qué le ofreces"></div>`)+
+        `<div class="field-row"><label>Monto</label><input type="text" data-k="amount" inputmode="decimal" placeholder="0"></div><div class="field-row"><label>Moneda</label><select data-k="cur"><option>MXN</option><option>USD</option></select></div>`;
+      if(pg){const dv=d.querySelector('[data-k=division]');dv.onchange=()=>{const list=CAT[dv.value]||[];d.querySelector('[data-prow]').innerHTML='<label class="req">Producto</label>'+(list.length?`<select data-k="product">${opt(list,'— Elige producto —')}</select>`:'<input type="text" data-k="product" placeholder="Describe el producto o servicio">')}}
+      $('#mxRows').appendChild(d)})};
+  $$('input[name=mx_on]').forEach(i=>i.onchange=draw)}
+function readMulti(){const out=[];for(const r of $$('#mxRows [data-mx]')){const e={ally:r.dataset.mx};r.querySelectorAll('[data-k]').forEach(i=>e[i.dataset.k]=i.value.trim());
+  if(e.ally==='pg'&&(!e.division||!e.product))throw new Error('Completa división y producto para Potenttial Group');out.push(e)}return out}
+async function renderLead(){try{const r=await api('leadAllies');LA=r.allies;CAT=r.catalog;MEDIA=r.media;STG=r.stages;setCats(r.categories);CANCAT=!!r.canEditCats}catch(e){toast(e.message);return}
   const withF=LA;
   $('#lAlly').innerHTML=withF.map(a=>`<option value="${a.id}">${esc(a.name)}</option>`).join('')||'<option value="">— Ningún aliado tiene formulario —</option>';
   if(view.type==='ally'&&withF.some(a=>a.id===view.id))$('#lAlly').value=view.id;
@@ -817,6 +853,7 @@ function renderInternal(allyObj){INT_ALLY=allyObj?allyObj.id:'pg';SC=null;$('#lR
   $('#lFields').innerHTML=`<div class="field-row"><label class="req" for="p_brand">Empresa / marca</label><input type="text" id="p_brand"></div>
    <div class="field-row"><label class="req" for="p_contact">Nombre del contacto</label><input type="text" id="p_contact"></div>
    <div class="field-row"><label for="p_country">País</label><input type="text" id="p_country" list="countries" value="México"></div>
+   ${catField('p_cat')}
    <div class="field-row"><label for="p_email">Email</label><input type="email" id="p_email"></div>
    <div class="field-row"><label for="p_phone">Teléfono / WhatsApp</label><input type="text" id="p_phone"></div>
    <div class="field-row"><label class="req" for="p_div">División</label><select id="p_div">${opt(Object.keys(CAT),'— Elige división —')}</select></div>
@@ -831,49 +868,55 @@ function renderInternal(allyObj){INT_ALLY=allyObj?allyObj.id:'pg';SC=null;$('#lR
    <div class="field-row full"><label for="p_notes">Notas</label><textarea id="p_notes"></textarea></div>`;
   $('#p_div').onchange=()=>{const d=$('#p_div').value,list=CAT[d]||[],row=$('#p_prodRow');
     row.innerHTML=`<label class="req" for="p_prod">Producto</label>`+(list.length?`<select id="p_prod">${opt(list,'— Elige producto —')}</select>`:`<input type="text" id="p_prod" placeholder="Describe el producto o servicio">`);
-    $('#p_mediaRow').hidden=true;if($('#p_prod').tagName==='SELECT')$('#p_prod').onchange=()=>$('#p_mediaRow').hidden=$('#p_prod').value!=='Pauta en Medios'}}
-async function loadForm(refresh){const id=$('#lAlly').value;INT_ALLY=null;$('#lFields').innerHTML='';$('#lErr').textContent='';SC=null;$('#lRefresh').hidden=false;
+    $('#p_mediaRow').hidden=true;if($('#p_prod').tagName==='SELECT')$('#p_prod').onchange=()=>$('#p_mediaRow').hidden=$('#p_prod').value!=='Pauta en Medios'};
+  bindCat($('#lFields'));drawMulti(INT_ALLY)}
+async function loadForm(refresh){const id=$('#lAlly').value;INT_ALLY=null;$('#lFields').innerHTML='';$('#lMulti').innerHTML='';$('#lErr').textContent='';SC=null;$('#lRefresh').hidden=false;
   if(id==='pg'){renderInternal();return}
   const al=LA.find(a=>a.id===id);if(al&&!al.hasForm){renderInternal(al);$('#p_div').closest('.field-row').hidden=true;$('#p_prodRow').innerHTML='<label for="p_prod">Producto / servicio</label><input type="text" id="p_prod" placeholder="Qué le ofreces">';return}
   if(!id){$('#lInfo').textContent='Agrega la liga del Google Form en Aliados → Editar.';$('#lSend').disabled=true;return}
   $('#lInfo').textContent='Leyendo el formulario…';$('#lSend').disabled=true;
   try{SC=(await api('formSchema',{id,refresh})).schema}catch(e){$('#lInfo').textContent='⚠ '+e.message;return}
   $('#lInfo').textContent=`${SC.title} · ${SC.fields.length} campos · los marcados con * son obligatorios`;$('#lSend').disabled=false;
-  $('#lFields').innerHTML=`<div class="field-row"><label for="f_country">País <small class="lbl">(solo en R3seller)</small></label><input type="text" id="f_country" list="countries" value="México"></div>`+SC.fields.map(f=>{const id='f_'+f.entry,lab=`<label class="${f.req?'req':''}" for="${id}">${esc(f.title)}</label>`,full=['textarea','checkbox','radio'].includes(f.type)||f.title.length>50?' full':'';
+  $('#lFields').innerHTML=`<div class="field-row"><label for="f_country">País <small class="lbl">(solo en R3seller)</small></label><input type="text" id="f_country" list="countries" value="México"></div>`+catField('f_cat').replace('<label for="f_cat">Categoría</label>','<label for="f_cat">Categoría <small class="lbl">(solo en R3seller)</small></label>')+SC.fields.map(f=>{const id='f_'+f.entry,lab=`<label class="${f.req?'req':''}" for="${id}">${esc(f.title)}</label>`,full=['textarea','checkbox','radio'].includes(f.type)||f.title.length>50?' full':'';
     let inp;
     if(f.type==='textarea')inp=`<textarea id="${id}" name="${f.entry}"></textarea>`;
     else if(f.type==='select')inp=`<select id="${id}" name="${f.entry}"><option value="">— Elige —</option>${f.opts.map(o=>`<option>${esc(o)}</option>`).join('')}</select>`;
     else if(f.type==='radio'||f.type==='checkbox')inp=`<div class="opts2" id="${id}">${f.opts.map(o=>`<label><input type="${f.type}" name="${f.entry}" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>`;
     else{const ty=f.type==='date'?'date':f.type==='time'?'time':/mail/i.test(f.title)?'email':/url|web|sitio/i.test(f.title)?'url':'text';inp=`<input type="${ty}" id="${id}" name="${f.entry}">`}
-    return `<div class="field-row${full}">${lab}${f.help?`<small class="lbl">${esc(f.help)}</small>`:''}${inp}</div>`}).join('')}
+    return `<div class="field-row${full}">${lab}${f.help?`<small class="lbl">${esc(f.help)}</small>`:''}${inp}</div>`}).join('');bindCat($('#lFields'));drawMulti(id)}
 $('#lAlly').onchange=()=>loadForm(false);$('#lRefresh').onclick=()=>loadForm(true);
 $('#leadForm').onsubmit=async e=>{e.preventDefault();$('#lErr').textContent='';
   if($('#lAlly').value==='pg'||INT_ALLY===$('#lAlly').value){const g=id=>($('#'+id)?.value||'').trim();const isPg=$('#lAlly').value==='pg';
     const lead={country:g('p_country'),brand:g('p_brand'),contact:g('p_contact'),email:g('p_email'),phone:g('p_phone'),division:g('p_div'),product:g('p_prod'),media:[...$$('input[name=p_media]:checked')].map(i=>i.value),amount:g('p_amount'),cur:g('p_cur'),agency:g('p_agency'),margin:g('p_margin'),status:g('p_status'),next:g('p_next'),notes:g('p_notes')};
-    lead.ally=$('#lAlly').value;
+    lead.ally=$('#lAlly').value;lead.category=g('p_cat');let extras;try{extras=readMulti()}catch(err){$('#lErr').textContent=err.message;return}
     if(!lead.brand||!lead.contact||(isPg&&(!lead.division||!lead.product))){$('#lErr').textContent=isPg?'Completa empresa, contacto, división y producto.':'Completa empresa y contacto.';return}
-    const b=$('#lSend');b.disabled=true;try{await api('registerInternal',{lead});toast('Lead agregado al pipeline de '+$('#lAlly').selectedOptions[0].textContent.replace(' · productos propios','')+' ✓');loadForm(false);loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}return}
+    const b=$('#lSend');b.disabled=true;try{const r=await api('registerInternal',{lead,extras});toast(r.count>1?`Lead registrado para ${r.count} aliados ✓`:'Lead agregado al pipeline de '+$('#lAlly').selectedOptions[0].textContent.replace(' · productos propios','')+' ✓');loadForm(false);loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}return}
   if(!SC)return;
   const ans={};for(const f of SC.fields){if(f.type==='checkbox')ans[f.entry]=[...$$(`#lFields input[name="${f.entry}"]:checked`)].map(i=>i.value);
     else if(f.type==='radio')ans[f.entry]=($(`#lFields input[name="${f.entry}"]:checked`)||{}).value||'';else ans[f.entry]=($(`#f_${f.entry}`)?.value||'').trim();
     const v=ans[f.entry];if(f.req&&(!v||(Array.isArray(v)&&!v.length))){$('#lErr').textContent='Falta: '+f.title;return}}
+  let extras;try{extras=readMulti()}catch(err){$('#lErr').textContent=err.message;return}
+  const pickF=(re,not)=>{const f=SC.fields.find(f=>re.test(f.title)&&!(not&&not.test(f.title))&&typeof ans[f.entry]==='string');return f?ans[f.entry]:''};
+  const base={brand:pickF(/company|empresa|marca|compañ|organiza|cuenta/i,/url|web|sitio/i),contact:pickF(/full name|nombre|name|contact/i,/compan|empresa|marca/i),email:pickF(/mail/i)};
+  if(extras.length&&(!base.brand||!base.contact)){$('#lErr').textContent='Para registrar en otros aliados llena empresa y nombre del contacto.';return}
   const b=$('#lSend');if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='¿Enviar a '+$('#lAlly').selectedOptions[0].textContent+'? Toca otra vez';return}
   b.dataset.sure='';b.textContent='Registrar en el formulario';b.disabled=true;
-  try{const r=await api('registerLead',{id:$('#lAlly').value,answers:ans,country:($('#f_country')?.value||'').trim()});toast(r.sent?'Lead registrado ✓':'No se registró: '+r.msg);if(r.sent)$('#leadForm').reset();loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}};
-$('#lClear').onclick=()=>{$('#lSend').dataset.sure='';$('#lSend').textContent='Registrar en el formulario'};
+  try{const r=await api('registerLead',{id:$('#lAlly').value,answers:ans,country:($('#f_country')?.value||'').trim(),category:($('#f_cat')?.value||'').trim(),base,extras});toast((r.sent?'Lead registrado ✓':'No se registró en el formulario: '+r.msg)+(r.extras?` · también en ${r.extras} aliado(s)`:''));if(r.extras&&!r.sent)loadForm(false);if(r.sent)$('#leadForm').reset();loadMyLeads()}catch(err){$('#lErr').textContent=err.message}finally{b.disabled=false}};
+$('#lClear').onclick=()=>{$('#lSend').dataset.sure='';if($('#mxRows'))$('#mxRows').innerHTML='';$('#lSend').textContent='Registrar en el formulario'};
 let ML=[];
 const ldate=t=>{const d=new Date(String(t).slice(0,25));return isNaN(d)?'':d.toLocaleString('es-MX',{dateStyle:'medium',timeStyle:'short'})};
-async function loadMyLeads(){try{ML=(await api('myLeads')).leads;const L=ML;$('#lList').innerHTML=L.length?L.map(l=>`<div class="lead-i"><div class="row" style="justify-content:space-between;align-items:center"><strong>${esc(l.sum||'—')}</strong><button class="btn ghost sm" type="button" data-le="${esc(l.t)}">Editar</button></div><small>${esc(l.ally)}${l.country?' · '+esc(l.country):''} · ${ldate(l.t)} · ${esc(l.by)}</small>${l.pg?`<div class="row" style="margin-top:6px;align-items:center"><select data-lt="${esc(l.t)}" style="min-height:36px;padding:4px 10px;width:auto">${STG.map(x=>`<option ${x===l.pg.status?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="lbl">${esc(l.pg.cur)} ${Number(l.pg.amount||0).toLocaleString('es-MX')}</span></div>`:`<span class="chip ${l.ok?'good':''}" ${l.ok?'':'style="color:var(--crit)"'}>${esc(l.msg)}</span>`}</div>`).join(''):'<div class="empty">Aún no registras leads.</div>';
+async function loadMyLeads(){try{ML=(await api('myLeads')).leads;const L=ML;$('#lList').innerHTML=L.length?L.map(l=>`<div class="lead-i"><div class="row" style="justify-content:space-between;align-items:center"><strong>${esc(l.sum||'—')}</strong><button class="btn ghost sm" type="button" data-le="${esc(l.t)}">Editar</button></div><small>${esc(l.ally)}${l.category?' · '+esc(l.category):''}${l.country?' · '+esc(l.country):''} · ${ldate(l.t)} · ${esc(l.by)}</small>${l.group&&ML.filter(x=>x.group===l.group).length>1?`<small>También para: ${esc(ML.filter(x=>x.group===l.group&&x.t!==l.t).map(x=>x.ally).join(', '))}</small>`:''}${l.pg?`<div class="row" style="margin-top:6px;align-items:center"><select data-lt="${esc(l.t)}" style="min-height:36px;padding:4px 10px;width:auto">${STG.map(x=>`<option ${x===l.pg.status?'selected':''}>${esc(x)}</option>`).join('')}</select><span class="lbl">${esc(l.pg.cur)} ${Number(l.pg.amount||0).toLocaleString('es-MX')}</span></div>`:`<span class="chip ${l.ok?'good':''}" ${l.ok?'':'style="color:var(--crit)"'}>${esc(l.msg)}</span>`}</div>`).join(''):'<div class="empty">Aún no registras leads.</div>';
   $$('[data-lt]').forEach(sel=>sel.onchange=async()=>{try{await api('updateLead',{t:sel.dataset.lt,set:{status:sel.value}});toast('Status actualizado')}catch(e){toast(e.message)}});
   $$('[data-le]').forEach(b=>b.onclick=()=>openLeadEdit(ML.find(l=>l.t===b.dataset.le)))}catch(e){}}
 let LE=null;
 async function openLeadEdit(l){if(!l)return;LE=l;$('#leErr').textContent='';$('#mlT').textContent='Editar lead';$('#mlS').textContent=`${l.ally} · ${ldate(l.t)} · ${l.by}`;
-  if(!Object.keys(CAT).length||!STG.length){try{const r=await api('leadAllies');CAT=r.catalog;MEDIA=r.media;STG=r.stages}catch(e){}}
+  if(!Object.keys(CAT).length||!STG.length||!CATS.length){try{const r=await api('leadAllies');CAT=r.catalog;MEDIA=r.media;STG=r.stages;setCats(r.categories);CANCAT=!!r.canEditCats}catch(e){}}
   const v=(x)=>esc(x??'');const F=$('#leFields');
   if(l.pg){const p=l.pg,isPg=l.allyId==='pg';const opt=(arr,sel,ph)=>`<option value="">${ph}</option>`+arr.map(o=>`<option ${o===sel?'selected':''}>${esc(o)}</option>`).join('');
     F.innerHTML=`<div class="field-row"><label class="req" for="e_brand">Empresa / marca</label><input type="text" id="e_brand" value="${v(p.brand)}"></div>
      <div class="field-row"><label class="req" for="e_contact">Nombre del contacto</label><input type="text" id="e_contact" value="${v(p.contact)}"></div>
      <div class="field-row"><label for="e_country">País</label><input type="text" id="e_country" list="countries" value="${v(p.country)}"></div>
+     ${catField('e_cat',p.category)}
      <div class="field-row"><label for="e_email">Email</label><input type="email" id="e_email" value="${v(p.email)}"></div>
      <div class="field-row"><label for="e_phone">Teléfono / WhatsApp</label><input type="text" id="e_phone" value="${v(p.phone)}"></div>
      ${isPg?`<div class="field-row"><label class="req" for="e_div">División</label><select id="e_div">${opt(Object.keys(CAT),p.division,'— Elige división —')}</select></div>`:''}
@@ -891,12 +934,12 @@ async function openLeadEdit(l){if(!l)return;LE=l;$('#leErr').textContent='';$('#
       const upd=()=>$('#e_mediaRow').hidden=$('#e_prod').value!=='Pauta en Medios';$('#e_prod').onchange=upd;upd()};
     if(isPg)$('#e_div').onchange=()=>{$('#e_prod')&&($('#e_prod').value='');drawProd()};drawProd();
     $('#leNote').hidden=true}
-  else{F.innerHTML=`<div class="field-row"><label for="e_country">País</label><input type="text" id="e_country" list="countries" value="${v(l.country)}"></div>`+Object.entries(l.answers||{}).map(([k,val],i)=>`<div class="field-row${String(val).length>60||k.length>50?' full':''}"><label for="e_a${i}">${esc(k)}</label>${String(val).length>60?`<textarea id="e_a${i}" data-ak="${esc(k)}">${v(val)}</textarea>`:`<input type="text" id="e_a${i}" data-ak="${esc(k)}" value="${v(val)}">`}</div>`).join('');
+  else{F.innerHTML=`<div class="field-row"><label for="e_country">País</label><input type="text" id="e_country" list="countries" value="${v(l.country)}"></div>`+catField('e_cat',l.category)+Object.entries(l.answers||{}).map(([k,val],i)=>`<div class="field-row${String(val).length>60||k.length>50?' full':''}"><label for="e_a${i}">${esc(k)}</label>${String(val).length>60?`<textarea id="e_a${i}" data-ak="${esc(k)}">${v(val)}</textarea>`:`<input type="text" id="e_a${i}" data-ak="${esc(k)}" value="${v(val)}">`}</div>`).join('');
     $('#leNote').hidden=false;$('#leNote').textContent=`Este lead ya se envió al formulario de ${l.ally}. Los cambios se guardan en R3seller, pero no se reenvían a su formulario.`}
-  $('#mLead').hidden=false}
+  bindCat(F);$('#mLead').hidden=false}
 $('#leadEditForm').onsubmit=async e=>{e.preventDefault();if(!LE)return;$('#leErr').textContent='';const g=id=>($('#'+id)?.value||'').trim();let set;
-  if(LE.pg)set={brand:g('e_brand'),contact:g('e_contact'),country:g('e_country'),email:g('e_email'),phone:g('e_phone'),division:g('e_div'),product:g('e_prod'),media:[...$$('input[name=e_media]:checked')].map(i=>i.value),agency:g('e_agency'),margin:g('e_margin'),amount:g('e_amount'),cur:g('e_cur'),status:g('e_status'),next:g('e_next'),notes:g('e_notes')};
-  else{const answers={};$$('#leFields [data-ak]').forEach(i=>answers[i.dataset.ak]=i.value);set={country:g('e_country'),answers}}
+  if(LE.pg)set={brand:g('e_brand'),contact:g('e_contact'),country:g('e_country'),email:g('e_email'),phone:g('e_phone'),division:g('e_div'),product:g('e_prod'),media:[...$$('input[name=e_media]:checked')].map(i=>i.value),agency:g('e_agency'),margin:g('e_margin'),amount:g('e_amount'),cur:g('e_cur'),status:g('e_status'),next:g('e_next'),notes:g('e_notes'),category:g('e_cat')};
+  else{const answers={};$$('#leFields [data-ak]').forEach(i=>answers[i.dataset.ak]=i.value);set={country:g('e_country'),category:g('e_cat'),answers}}
   try{await api('editLead',{t:LE.t,set});$('#mLead').hidden=true;toast('Lead actualizado');loadMyLeads();if(C&&!$('section[data-view=crm]').hidden)renderCrm()}catch(err){$('#leErr').textContent=err.message}};
 
 /* ---------- aliados ---------- */
