@@ -1,0 +1,14 @@
+---
+import { catName, paths } from '../data/site.js';
+const { a, lang } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const slug = a.id.split('/').pop();
+---
+<article class="card">
+  <a href={base + paths.article(lang, slug)}>
+    <div class="ph">{a.data.image && <img src={a.data.image} alt={a.data.imageAlt || ''} loading="lazy">}</div>
+    <div class="kick">{catName(a.data.category, lang)}</div>
+    <h3>{a.data.title}</h3>
+  </a>
+  <p>{a.data.description}</p>
+</article>

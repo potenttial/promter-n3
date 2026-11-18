@@ -1,0 +1,32 @@
+# Turisenda
+
+> Escapadas, primeras visitas y rutas por México, EE.UU. y Canadá. Sede del Observatorio Latinoamericano de Sargazo. / Getaways, first visits and road trips across Mexico, the US and Canada. Home of the Latin American Sargassum Observatory.
+
+Revista de viaje bilingüe (español primero, inglés 24 h después). Publica martes y viernes a las 13:00 (hora de CDMX).
+
+## Secciones
+- Escapadas / Getaways: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/escapadas/
+- Primera vez en… / First time in…: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/primera-vez/
+- Rutas / Routes: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/rutas/
+- Hoteles con historia / Hotels with history: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/hoteles/
+- Observatorio de Sargazo / Sargassum Observatory: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/sargazo/
+- Viajar con tu dinero / Travel money: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/dinero/
+- Viaja protegido / Travel safe: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/seguros/
+- Sabores del camino / Flavors on the road: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/sabores/
+- Maleta y compras / Packing & shopping: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/compras/
+- Conectados en ruta / Connected on the road: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/conectados/
+- Bienestar y spa / Wellness & spa: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/bienestar/
+- Aprender viajando / Learn by traveling: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/aprender/
+- Carretera y road trips / Road trips: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/carretera/
+- Vivir viajando / Travel lifestyle: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/estilo/
+- Agenda y festivales / Festivals & events: https://potenttial.github.io/promter-n3/turisenda-astro/seccion/eventos/
+
+## Artículos (ES)
+- [Bacalar sin prisa: la laguna de los siete colores en tres días](https://potenttial.github.io/promter-n3/turisenda-astro/articulos/bacalar-laguna-siete-colores.md): Qué hacer en Bacalar, Quintana Roo: kayak al amanecer, el Cenote Azul, el Fuerte de San Felipe y cómo cuidar los estromatolitos de la laguna.
+- [Primera vez en Oaxaca: 48 horas entre mercados y mezcal](https://potenttial.github.io/promter-n3/turisenda-astro/articulos/primera-vez-oaxaca.md): Guía para tu primera visita a Oaxaca de Juárez: el Templo de Santo Domingo, el Mercado 20 de Noviembre, Monte Albán y dónde probar mezcal.
+- [De San Diego al Valle de Guadalupe en un fin de semana](https://potenttial.github.io/promter-n3/turisenda-astro/articulos/ruta-valle-de-guadalupe.md): Ruta en auto de San Diego a la Ruta del Vino de Baja California: cruce fronterizo, tiempos, paradas en Ensenada y qué considerar del seguro.
+
+## Articles (EN)
+- [Bacalar, unhurried: three days on the Lagoon of Seven Colors](https://potenttial.github.io/promter-n3/turisenda-astro/en/articles/bacalar-lagoon-seven-colors.md): What to do in Bacalar, Quintana Roo: sunrise kayaking, Cenote Azul, San Felipe Fort and how to protect the lagoon's stromatolites.
+- [First time in Oaxaca: 48 hours of markets and mezcal](https://potenttial.github.io/promter-n3/turisenda-astro/en/articles/first-time-oaxaca.md): A first-visit guide to Oaxaca City: Santo Domingo church, 20 de Noviembre Market, Monte Albán and where to taste mezcal.
+- [San Diego to Valle de Guadalupe in a weekend](https://potenttial.github.io/promter-n3/turisenda-astro/en/articles/san-diego-valle-de-guadalupe.md): Driving from San Diego to Baja California's Wine Route: border crossing, timing, Ensenada stops and what to know about car insurance.

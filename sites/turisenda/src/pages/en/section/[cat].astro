@@ -1,0 +1,6 @@
+---
+import Section from '../../../components/Section.astro';
+import { CATS } from '../../../data/site.js';
+export function getStaticPaths() { return CATS.map((c) => ({ params: { cat: c.slug } })); }
+---
+<Section lang="en" cat={Astro.params.cat} />

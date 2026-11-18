@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, T, paths, catName } from '../data/site.js';
+import { counterpart, slugOf, minutes } from '../data/content.js';
+import { render } from 'astro:content';
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data, lang = d.lang;
+const other = await counterpart(entry);
+const alt = other ? paths.article(other.data.lang, slugOf(other)) : undefined;
+const abs = (x) => new URL(import.meta.env.BASE_URL + x, Astro.site).href;
+const url = abs(paths.article(lang, slugOf(entry)));
+const ld = [{
+  '@context': 'https://schema.org', '@type': 'Article', headline: d.title, description: d.description,
+  datePublished: d.date.toISOString(), inLanguage: lang, mainEntityOfPage: url,
+  author: { '@type': 'Person', name: d.author }, publisher: { '@type': 'NewsMediaOrganization', name: SITE.name, logo: abs('img/logo.png') },
+  articleSection: catName(d.category, lang), ...(d.image ? { image: d.image } : {}),
+}];
+if (d.faq.length) ld.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: d.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) });
+const base = import.meta.env.BASE_URL;
+const fmt = d.date.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+<Base lang={lang} title={`${d.title} · ${SITE.name}`} description={d.description} alt={alt} jsonld={ld} ogImage={d.image}>
+  <article class="post">
+    <a class="kick" href={base + paths.section(lang, d.category)}>{catName(d.category, lang)}</a>
+    <h1>{d.title}</h1>
+    <p class="dek">{d.description}</p>
+    <p class="by">{T[lang].by} {d.author} · <time datetime={d.date.toISOString()}>{fmt}</time> · {minutes(entry.body)} {T[lang].minutes}</p>
+    <div class="ph">{d.image && <img src={d.image} alt={d.imageAlt || ''}>}</div>
+    <Content />
+    {d.faq.length > 0 && (
+      <section class="faq"><h2>{T[lang].faq}</h2>{d.faq.map((f) => <details><summary>{f.q}</summary><p>{f.a}</p></details>)}</section>
+    )}
+  </article>
+</Base>

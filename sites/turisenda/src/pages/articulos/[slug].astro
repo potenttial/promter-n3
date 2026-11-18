@@ -1,0 +1,9 @@
+---
+import Post from '../../components/Post.astro';
+import { getCollection } from 'astro:content';
+export async function getStaticPaths() {
+  const all = await getCollection('articulos', (e) => e.data.lang === 'es' && !e.data.draft && e.data.date <= new Date());
+  return all.map((entry) => ({ params: { slug: entry.id.split('/').pop() }, props: { entry } }));
+}
+---
+<Post entry={Astro.props.entry} />

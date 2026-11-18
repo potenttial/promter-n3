@@ -1,0 +1,45 @@
+---
+import '../styles/global.css';
+import { SITE, CATS, T, paths } from '../data/site.js';
+const { lang = 'es', title, description, alt, jsonld = [], ogImage } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const u = (p) => base + p;
+const site = Astro.site.href.replace(/\/$/, '');
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const abs = (x) => new URL(base + x, Astro.site).href;
+const other = lang === 'es' ? 'en' : 'es';
+const org = { '@context': 'https://schema.org', '@type': 'NewsMediaOrganization', name: SITE.name, url: abs(''), logo: abs('img/logo.png'), description: SITE.description[lang] };
+const path = Astro.url.pathname;
+---
+<!doctype html>
+<html lang={lang}>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<meta name="description" content={description}>
+<link rel="canonical" href={canonical}>
+{alt && <link rel="alternate" hreflang={other} href={abs(alt)}>}
+<link rel="alternate" hreflang={lang} href={canonical}>
+<link rel="alternate" type="application/rss+xml" title={SITE.name} href={u(lang === 'es' ? 'rss.xml' : 'en/rss.xml')}>
+<link rel="icon" href={u('img/logo.png')}>
+<meta property="og:title" content={title}><meta property="og:description" content={description}>
+<meta property="og:site_name" content={SITE.name}><meta property="og:locale" content={lang === 'es' ? 'es_MX' : 'en_US'}>
+{ogImage && <meta property="og:image" content={ogImage}>}
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Lora:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@500;600&display=swap">
+<script type="application/ld+json" set:html={JSON.stringify([org, ...jsonld])}></script>
+</head>
+<body>
+<header class="site"><div class="wrap">
+  <div class="top">
+    <a href={u(paths.home(lang))}><img src={u('img/logo.png')} alt={`${SITE.name} — ${SITE.tagline[lang]}`} width="300" height="80"></a>
+    <div class="meta">{SITE.timing[lang]}
+      <span class="lang"><a href={u(lang==='es'?'':(alt||'en/').replace(/^\//,''))} aria-current={lang==='es'?'true':undefined} hreflang="es">ES</a> <a href={u(lang==='en'?path.replace(base,''):(alt||'en/'))} aria-current={lang==='en'?'true':undefined} hreflang="en">EN</a></span>
+    </div>
+  </div>
+  <nav class="main" aria-label={T[lang].sections}>{CATS.filter(c=>c.core).map(c => <a href={u(paths.section(lang, c.slug))}>{c[lang]}</a>)}</nav>
+  <nav class="sub" aria-label={T[lang].more}>{CATS.filter(c=>!c.core).map(c => <a href={u(paths.section(lang, c.slug))}>{c[lang]}</a>)}</nav>
+</div></header>
+<main class="wrap"><slot /></main>
+<footer class="site"><div class="wrap"><span>{SITE.name} · {SITE.tagline[lang]}</span><span>{T[lang].newsletter}</span></div></footer>
+</body></html>

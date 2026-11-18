@@ -1,0 +1,32 @@
+---
+import Base from '../layouts/Base.astro';
+import Card from './Card.astro';
+import { SITE, T, paths, catName } from '../data/site.js';
+import { articles, slugOf } from '../data/content.js';
+const { lang } = Astro.props;
+const list = await articles(lang);
+const lead = list.find((a) => a.data.featured) || list[0];
+const rest = list.filter((a) => a !== lead).slice(0, 9);
+const base = import.meta.env.BASE_URL;
+const ld = [{ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE.name, url: Astro.site.href, inLanguage: lang }];
+---
+<Base lang={lang} title={`${SITE.name} · ${SITE.tagline[lang]}`} description={SITE.description[lang]} alt={lang === 'es' ? 'en/' : ''} jsonld={ld}>
+  {lead && (
+    <section class="cover">
+      <a href={base + paths.article(lang, slugOf(lead))}><div class="ph">{lead.data.image && <img src={lead.data.image} alt={lead.data.imageAlt || ''}>}</div></a>
+      <div>
+        <div class="kick">{T[lang].cover} · {catName(lead.data.category, lang)}</div>
+        <h1><a href={base + paths.article(lang, slugOf(lead))}>{lead.data.title}</a></h1>
+        <p class="dek">{lead.data.description}</p>
+        <p class="by">{T[lang].by} {lead.data.author}</p>
+        <a class="btn" href={base + paths.article(lang, slugOf(lead))}>{T[lang].read}</a>
+      </div>
+    </section>
+  )}
+  <section class="grid" aria-label={T[lang].latest}>{rest.map((a) => <Card a={a} lang={lang} />)}</section>
+  <section class="obs">
+    <div><div class="kick">{lang === 'es' ? 'Observatorio Latinoamericano de Sargazo' : 'Latin American Sargassum Observatory'}</div>
+    <h2>{lang === 'es' ? 'Sargazo esta semana' : 'Sargassum this week'}</h2></div>
+    <a class="btn" href="https://potenttial.github.io/promter-n3/turisenda/observatorio-sargazo/">{T[lang].sargazo}</a>
+  </section>
+</Base>
