@@ -1,0 +1,29 @@
+# Turisync
+
+> Travel tech analysis: AI in travel, distribution, hotel, airline and port tech, startups and funding. / Análisis de travel tech: IA en viajes, distribución, tecnología hotelera, aérea y portuaria, startups e inversión.
+
+Bilingual travel-tech publication (English first; Spanish 24 h later). Publishes Tuesdays and Thursdays at 8:00 am ET.
+
+## Sections
+- AI in Travel / IA en viajes: https://www.turisync.net/section/ai-travel/
+- Distribution & OTAs / Distribución y OTAs: https://www.turisync.net/section/distribution/
+- Hotel Tech / Hotel tech: https://www.turisync.net/section/hotel-tech/
+- Airline & Port Tech / Tecnología aérea y portuaria: https://www.turisync.net/section/transport-tech/
+- Startups & Funding / Startups e inversión: https://www.turisync.net/section/startups/
+- Tool Reviews / Reseñas: https://www.turisync.net/section/tool-reviews/
+- Payments & Fintech / Pagos y fintech: https://www.turisync.net/section/payments/
+- Insurtech / Insurtech: https://www.turisync.net/section/insurtech/
+- F&B Tech / F&B Tech: https://www.turisync.net/section/fb-tech/
+- Commerce Tech / Commerce Tech: https://www.turisync.net/section/commerce/
+- Connectivity & eSIM / Conectividad y eSIM: https://www.turisync.net/section/esim/
+- Health & Wellness Tech / Salud y wellness tech: https://www.turisync.net/section/wellness-tech/
+- Learning & Upskilling / Aprendizaje: https://www.turisync.net/section/learning/
+- Mobility & EV / Movilidad y EV: https://www.turisync.net/section/mobility/
+- Digital Nomad Life / Vida nómada digital: https://www.turisync.net/section/nomad/
+- Events & Conferences / Eventos y conferencias: https://www.turisync.net/section/events/
+
+## EN
+- [Mexico's first cruise home port: the tech stack a turnaround terminal needs](https://www.turisync.net/articles/vallarta-home-port-tech-stack.md): Puerto Vallarta will host Mexico's first cruise home port. Turning a port of call into a turnaround terminal is as much a systems project as a construction one. Here's the stack to watch.
+
+## ES
+- [El primer home port de México: la tecnología que necesita una terminal de salida de cruceros](https://www.turisync.net/es/articulos/vallarta-home-port-stack.md): Puerto Vallarta será el primer home port de México. Convertir un puerto de escala en terminal de salida es tanto un proyecto de sistemas como de obra. Esta es la tecnología a seguir.
