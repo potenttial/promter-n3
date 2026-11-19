@@ -1,0 +1,23 @@
+# Viajentra permite buscadores y agentes de IA
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+User-agent: GPTBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Perplexity-User
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://www.viajentra.com/sitemap-index.xml
