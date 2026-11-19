@@ -1,3 +1,5 @@
+admin/index.html
+admin/config.yml
 en/articles/geo-destinations-ai/index.html
 en/articles/vallarta-home-port-industry/index.html
 en/articles/geo-destinations-ai.md

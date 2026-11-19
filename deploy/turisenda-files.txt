@@ -1,3 +1,5 @@
+admin/index.html
+admin/config.yml
 en/articles/first-time-oaxaca.md
 en/articles/first-time-oaxaca/index.html
 en/articles/san-diego-valle-de-guadalupe/index.html

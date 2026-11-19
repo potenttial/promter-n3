@@ -1,0 +1,66 @@
+# Panel de publicación de Viajentra
+backend:
+  name: git-gateway
+  repo: potenttial/portales-web
+  branch: main
+  identity_url: https://auth.decapbridge.com/sites/da75915a-6440-4040-91bc-d40a2498e7d0
+  gateway_url: https://gateway.decapbridge.com
+site_url: https://www.viajentra.com
+media_folder: sites/viajentra/public/img/uploads
+public_folder: /img/uploads
+locale: es
+slug: { encoding: ascii, clean_accents: true }
+collections:
+  - name: es
+    label: Artículos (Español)
+    folder: sites/viajentra/src/content/articulos/es
+    create: true
+    slug: "{{slug}}"
+    sortable_fields: [date, title]
+    fields: &fields
+      - { label: Título, name: title, widget: string }
+      - { label: Resumen (para Google y las IAs), name: description, widget: text }
+      - { label: Fecha y hora de publicación, name: date, widget: datetime }
+      - { label: Idioma, name: lang, widget: hidden, default: es }
+      - { label: Clave de traducción (igual en ES y EN), name: key, widget: string }
+      - label: Sección
+        name: category
+        widget: select
+        options: [duelos, rankings, cuanto-cuesta, desde-espana, letra-pequena, pagar-fuera, seguros, comer-beber, compras, movil, balnearios, estudiar, coche, estilo, fiestas]
+      - { label: Autor, name: author, widget: string }
+      - { label: Imagen principal, name: image, widget: image, required: false }
+      - { label: Texto alternativo de la imagen, name: imageAlt, widget: string, required: false }
+      - { label: Historia de portada, name: featured, widget: boolean, default: false }
+      - { label: Borrador, name: draft, widget: boolean, default: false }
+      - label: Preguntas frecuentes (GEO)
+        name: faq
+        widget: list
+        required: false
+        fields: [{ label: Pregunta, name: q, widget: string }, { label: Respuesta, name: a, widget: text }]
+      - { label: Texto, name: body, widget: markdown }
+  - name: en
+    label: Articles (English)
+    folder: sites/viajentra/src/content/articulos/en
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Summary (for Google and AI), name: description, widget: text }
+      - { label: Publish date and time, name: date, widget: datetime }
+      - { label: Language, name: lang, widget: hidden, default: en }
+      - { label: Translation key (same in ES and EN), name: key, widget: string }
+      - label: Section
+        name: category
+        widget: select
+        options: [duelos, rankings, cuanto-cuesta, desde-espana, letra-pequena, pagar-fuera, seguros, comer-beber, compras, movil, balnearios, estudiar, coche, estilo, fiestas]
+      - { label: Author, name: author, widget: string }
+      - { label: Main image, name: image, widget: image, required: false }
+      - { label: Image alt text, name: imageAlt, widget: string, required: false }
+      - { label: Cover story, name: featured, widget: boolean, default: false }
+      - { label: Draft, name: draft, widget: boolean, default: false }
+      - label: FAQ (GEO)
+        name: faq
+        widget: list
+        required: false
+        fields: [{ label: Question, name: q, widget: string }, { label: Answer, name: a, widget: text }]
+      - { label: Body, name: body, widget: markdown }
