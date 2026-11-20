@@ -1,0 +1,114 @@
+# Panel de publicación de Viajentra
+backend:
+  name: git-gateway
+  repo: potenttial/portales-web
+  branch: main
+  identity_url: https://auth.decapbridge.com/sites/da75915a-6440-4040-91bc-d40a2498e7d0
+  gateway_url: https://gateway.decapbridge.com
+site_url: https://www.viajentra.com
+display_url: https://www.viajentra.com
+media_folder: sites/viajentra/public/img/uploads
+public_folder: /img/uploads
+locale: es
+slug: { encoding: ascii, clean_accents: true }
+collections:
+  - name: es
+    label: Artículos (Español)
+    folder: sites/viajentra/src/content/articulos/es
+    create: true
+    slug: "{{slug}}"
+    sortable_fields: [date, title]
+    fields:
+      - { label: "Título", name: title, widget: string }
+      - { label: "Resumen (para Google y las IAs)", name: description, widget: text }
+      - { label: "Fecha y hora de publicación", name: date, widget: datetime }
+      - { label: "Idioma", name: lang, widget: hidden, default: es }
+      - { label: "Clave de traducción (igual en ES y EN)", name: key, widget: string }
+      - label: "Sección"
+        name: category
+        widget: select
+        options:
+          - { label: "Duelos", value: duelos }
+          - { label: "Rankings", value: rankings }
+          - { label: "Cuánto cuesta", value: cuanto-cuesta }
+          - { label: "Desde Barajas y El Prat", value: desde-espana }
+          - { label: "Lo que no te cuentan", value: letra-pequena }
+          - { label: "Pagar fuera sin comisiones", value: pagar-fuera }
+          - { label: "Seguros: lo que cubre", value: seguros }
+          - { label: "Comer y beber", value: comer-beber }
+          - { label: "Compras y outlets", value: compras }
+          - { label: "Móvil y datos fuera", value: movil }
+          - { label: "Balnearios y bienestar", value: balnearios }
+          - { label: "Estudiar fuera", value: estudiar }
+          - { label: "Coche de alquiler", value: coche }
+          - { label: "Estilo de vida", value: estilo }
+          - { label: "Fiestas y eventos", value: fiestas }
+      - { label: "Autor", name: author, widget: string }
+      - { label: "Imagen principal", name: image, widget: image, required: false }
+      - { label: "Texto alternativo de la imagen", name: imageAlt, widget: string, required: false }
+      - { label: "Crédito de la foto (ej. Foto: Autor · CC BY 3.0 · Wikimedia Commons)", name: imageCredit, widget: string, required: false }
+      - label: "Fuente"
+        name: source
+        widget: object
+        required: false
+        fields:
+          - { label: "Nombre del medio", name: name, widget: string, required: false }
+          - { label: URL, name: url, widget: string, required: false }
+      - { label: "Historia de portada", name: featured, widget: boolean, default: false }
+      - { label: "Borrador", name: draft, widget: boolean, default: false }
+      - label: "Preguntas frecuentes (GEO)"
+        name: faq
+        widget: list
+        required: false
+        fields: [{ label: "Pregunta", name: q, widget: string }, { label: "Respuesta", name: a, widget: text }]
+      - { label: "Texto", name: body, widget: markdown }
+  - name: en
+    label: Articles (English)
+    folder: sites/viajentra/src/content/articulos/en
+    create: true
+    slug: "{{slug}}"
+    sortable_fields: [date, title]
+    fields:
+      - { label: "Title", name: title, widget: string }
+      - { label: "Summary (for Google and AI)", name: description, widget: text }
+      - { label: "Publish date and time", name: date, widget: datetime }
+      - { label: "Language", name: lang, widget: hidden, default: en }
+      - { label: "Translation key (same in ES and EN)", name: key, widget: string }
+      - label: "Section"
+        name: category
+        widget: select
+        options:
+          - { label: "Head to head", value: duelos }
+          - { label: "Rankings", value: rankings }
+          - { label: "What it costs", value: cuanto-cuesta }
+          - { label: "Flying from Barajas & El Prat", value: desde-espana }
+          - { label: "The small print", value: letra-pequena }
+          - { label: "Paying abroad", value: pagar-fuera }
+          - { label: "Insurance", value: seguros }
+          - { label: "Food & drink", value: comer-beber }
+          - { label: "Shopping", value: compras }
+          - { label: "Mobile data", value: movil }
+          - { label: "Spas & wellness", value: balnearios }
+          - { label: "Study abroad", value: estudiar }
+          - { label: "Car hire", value: coche }
+          - { label: "Lifestyle", value: estilo }
+          - { label: "Festivals & events", value: fiestas }
+      - { label: "Author", name: author, widget: string }
+      - { label: "Main image", name: image, widget: image, required: false }
+      - { label: "Image alt text", name: imageAlt, widget: string, required: false }
+      - { label: "Photo credit (e.g. Photo: Author · CC BY 3.0 · Wikimedia Commons)", name: imageCredit, widget: string, required: false }
+      - label: "Source"
+        name: source
+        widget: object
+        required: false
+        fields:
+          - { label: "Outlet name", name: name, widget: string, required: false }
+          - { label: URL, name: url, widget: string, required: false }
+      - { label: "Cover story", name: featured, widget: boolean, default: false }
+      - { label: "Draft", name: draft, widget: boolean, default: false }
+      - label: "FAQ (GEO)"
+        name: faq
+        widget: list
+        required: false
+        fields: [{ label: "Question", name: q, widget: string }, { label: "Answer", name: a, widget: text }]
+      - { label: "Body", name: body, widget: markdown }
