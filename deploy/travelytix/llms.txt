@@ -1,0 +1,34 @@
+# Travelytix
+
+> Practical, data-driven travel planning for US and Canadian travelers heading to Mexico and the Caribbean. / Planeación de viajes práctica y con datos para viajeros de EE.UU. y Canadá que van a México y el Caribe.
+
+Travel service publication for US and Canadian travelers (English first; Spanish 24 h later). Publishes Wednesdays 6 pm and Saturdays 9 am ET.
+
+## Sections
+- Destinations / Destinos: https://www.travelytix.net/section/destinations/
+- TravelSmart Planner / TravelSmart Planner: https://www.travelytix.net/section/planner/
+- Deals & Flights / Ofertas y vuelos: https://www.travelytix.net/section/deals/
+- Best Time to Go / Mejor época: https://www.travelytix.net/section/best-time/
+- Travel Requirements / Requisitos de viaje: https://www.travelytix.net/section/requirements/
+- Cruises / Cruceros: https://www.travelytix.net/section/cruises/
+- Money & Exchange Rates / Dinero y tipo de cambio: https://www.travelytix.net/section/money/
+- Travel Insurance / Seguro de viaje: https://www.travelytix.net/section/insurance/
+- Food & Drink / Comida y bebida: https://www.travelytix.net/section/food/
+- Shopping & Deals / Compras y ofertas: https://www.travelytix.net/section/shopping/
+- Phone & Data Abroad / Celular y datos: https://www.travelytix.net/section/phone/
+- Health, Wellness & Beauty / Salud, wellness y belleza: https://www.travelytix.net/section/wellness/
+- Study Abroad / Estudiar fuera: https://www.travelytix.net/section/study/
+- Road Trips & Rentals / Road trips y renta: https://www.travelytix.net/section/road-trips/
+- Lifestyle / Estilo de vida: https://www.travelytix.net/section/lifestyle/
+- Events Calendar / Calendario de eventos: https://www.travelytix.net/section/events/
+
+## EN
+- [Sargassum this week: how to check your beach before you go](https://www.travelytix.net/articles/sargassum-this-week-how-to-check-your-beach.md): 96 of 140 monitored beaches in Quintana Roo were at the low level on Nov. 11. Three free tools to check sargassum before booking or heading to the beach.
+- [Is Cancún safe? What Canada's latest travel advice says and how to stay smart](https://www.travelytix.net/articles/cancun-safe-what-canadas-latest-travel-advice-says.md): Canada's government advises a high degree of caution for Mexico overall; Quintana Roo is not on its avoid-travel list. Practical tips from the official advice, updated Nov. 18, 2026.
+- [Mexico's tourist fees in USD and CAD: DNR and Visitax explained](https://www.travelytix.net/articles/mexicos-tourist-fees-in-usd-and-cad-dnr.md): The non-resident fee rises to 1,158 pesos in 2027 (about US$63 / C$91), usually in your ticket. Quintana Roo's Visitax is 293 pesos (about US$16 / C$23), paid online.
+- [Mexico entry requirements for U.S. and Canadian travelers (2026)](https://www.travelytix.net/articles/mexico-entry-requirements-for-us-and-canadian-travelers.md): Passport, no visa for tourism up to 180 days, e-gates for e-passport holders and a digital FMM. What Americans and Canadians need to enter Mexico by air.
+- [Spending Thanksgiving in Cancún? Here's what to expect this week](https://www.travelytix.net/articles/spending-thanksgiving-in-cancun-heres-what-to-expect.md): Cancún is the top international Thanksgiving pick for Americans. Hotels ran about 73% full last week, sargassum is low and hurricane season ends Sunday. A quick checklist.
+- [Cruising from Puerto Vallarta: what US and Canadian travelers should know about Mexico's first home port](https://www.travelytix.net/articles/cruising-from-puerto-vallarta-home-port.md): Puerto Vallarta will become Mexico's first cruise home port, where voyages start and end. What's confirmed, what isn't, and how to plan a fly-and-cruise trip from the US or Canada.
+
+## ES
+- [Cruceros desde Puerto Vallarta: lo que deben saber los viajeros de EE.UU. y Canadá sobre el primer home port de México](https://www.travelytix.net/es/articulos/cruceros-desde-puerto-vallarta-home-port.md): Puerto Vallarta será el primer home port de México. Qué está confirmado, qué no, y cómo planear un viaje de vuelo más crucero desde EE.UU. o Canadá.
